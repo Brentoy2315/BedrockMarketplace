@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft Bedrock Marketplace — Cloud Sync</title>
+    <title>Minecraft Bedrock Marketplace — Cloud Sync (Fixed)</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -67,6 +67,7 @@
         .modal-content { background: #1e293b; padding: 2rem; border-radius: 28px; width: 90%; max-width: 400px; text-align: center; }
         .modal-content input { width: 100%; padding: 12px; margin: 12px 0; background: #0f172a; border: 1px solid #334155; border-radius: 16px; color: white; }
         .error-msg { color: #f87171; }
+        .firebase-status { background: #1e293b; padding: 6px 12px; border-radius: 24px; font-size: 0.7rem; margin-left: 10px; }
         @media (max-width: 700px) { .container { padding: 1rem; } .form-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -101,7 +102,10 @@
     <div id="adminPanel" class="admin-dashboard">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2>➕ Admin Controls</h2>
-            <button id="logoutBtn" class="admin-btn logout-btn">🚪 Logout</button>
+            <div>
+                <button id="firebaseLoginBtn" class="admin-btn" style="background:#3b82f6; margin-right:10px;">🔑 Login to Firebase</button>
+                <button id="logoutBtn" class="admin-btn logout-btn">🚪 Logout</button>
+            </div>
         </div>
         <div style="margin-bottom: 30px;">
             <h3 style="margin-bottom: 15px;">Add New Item</h3>
@@ -124,7 +128,7 @@
             </div>
             <button id="saveAnnouncementBtn" class="btn-primary">💾 Save Announcement</button>
         </div>
-        <p style="font-size:0.8rem; margin-top:20px; color:#94a3b8;">⚡ Admin: Hover over any card to see Edit/Delete buttons.</p>
+        <p style="font-size:0.8rem; margin-top:20px; color:#94a3b8;">⚡ Admin: Hover over any card to see Edit/Delete buttons. <span id="fbStatus" class="firebase-status" style="background:#ef4444;">⚠️ Not logged to Firebase</span></p>
     </div>
 
     <div id="catalogContainer"></div>
@@ -151,7 +155,7 @@
     </div>
 </div>
 
-<!-- Login Modal (for admin panel access) -->
+<!-- Login Modal (for local admin panel visibility) -->
 <div id="loginModal" class="modal">
     <div class="modal-content">
         <h3>🔒 Admin Access Only</h3>
@@ -165,16 +169,17 @@
 <script>
     // ======================= FIREBASE CONFIGURATION =======================
     // 🔥 REPLACE THIS WITH YOUR OWN firebaseConfig FROM FIREBASE CONSOLE
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyAco1a008Xxsc2t-7htzIF_tCDpEipQ8Sw",
-      authDomain: "minecraft-marketplace-7227b.firebaseapp.com",
-      projectId: "minecraft-marketplace-7227b",
-      storageBucket: "minecraft-marketplace-7227b.firebasestorage.app",
-      messagingSenderId: "76080707372",
-      appId: "1:76080707372:web:6e653bbfc45ddf3b4e9e89",
-      measurementId: "G-8LRMG5S33X"
-    };
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAco1a008Xxsc2t-7htzIF_tCDpEipQ8Sw",
+  authDomain: "minecraft-marketplace-7227b.firebaseapp.com",
+  databaseURL: "https://minecraft-marketplace-7227b-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "minecraft-marketplace-7227b",
+  storageBucket: "minecraft-marketplace-7227b.firebasestorage.app",
+  messagingSenderId: "76080707372",
+  appId: "1:76080707372:web:6e653bbfc45ddf3b4e9e89",
+  measurementId: "G-8LRMG5S33X"
+};
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
@@ -182,7 +187,7 @@
     // ======================================================================
 
     const FACEBOOK_PAGE_ID = "111811064292787";
-    const ADMIN_CRED = { username: "Brentoyyy2315", password: "@Brentoyyy2315" }; // still used for local admin panel visibility
+    const ADMIN_CRED = { username: "Brentoyyy2315", password: "@Brentoyyy2315" };
 
     let catalogItems = [];
     let cart = [];
@@ -191,47 +196,158 @@
     let editingItemId = null;
     let announcementHtml = "";
 
-    // -------------- Firebase Listeners --------------
+    // ---------- Firebase Auth Status UI ----------
+    function updateFirebaseStatusUI() {
+        const user = auth.currentUser;
+        const statusSpan = document.getElementById("fbStatus");
+        if (statusSpan) {
+            if (user) {
+                statusSpan.innerHTML = `✅ Firebase: ${user.email}`;
+                statusSpan.style.background = "#10b981";
+            } else {
+                statusSpan.innerHTML = "⚠️ Not logged to Firebase (can't add/edit)";
+                statusSpan.style.background = "#ef4444";
+            }
+        }
+    }
+
+    // ---------- Listen to catalog from Firebase ----------
     function listenToCatalog() {
         const catalogRef = database.ref('catalog');
         catalogRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                // Convert object to array
-                catalogItems = Object.entries(data).map(([id, item]) => ({ ...item, id: parseInt(id) }));
-                // Sort by maybe timestamp? Keep as is.
-                renderCategoryChips();
-                applyFiltersAndRender();
+                catalogItems = Object.entries(data).map(([key, item]) => ({ 
+                    id: parseInt(key), 
+                    ...item,
+                    featured: item.featured === true 
+                }));
             } else {
-                // If empty, maybe seed some default items?
                 catalogItems = [];
-                renderCategoryChips();
-                applyFiltersAndRender();
             }
+            renderCategoryChips();
+            applyFiltersAndRender();
+        }, (error) => {
+            console.error("Firebase read error:", error);
+            alert("Failed to load catalog from Firebase. Check your database rules and internet.");
         });
     }
 
-    // This function writes the entire catalog array to Firebase (used after add/update/delete)
+    // ---------- Sync catalog to Firebase (only if authenticated) ----------
     async function syncCatalogToFirebase() {
-        // Convert array to object with keys as id (Firebase can't store arrays easily)
-        const obj = {};
-        catalogItems.forEach(item => { obj[item.id] = { ...item, id: undefined }; }); // remove id from child to avoid duplication
-        await database.ref('catalog').set(obj);
-    }
-
-    // Override saveItems to sync to Firebase, but only if user is authenticated via Firebase Auth
-    async function saveItemsToCloud() {
-        // Check if user is signed in to Firebase (admin write allowed)
         const user = auth.currentUser;
         if (!user) {
-            alert("You are not authenticated to modify the catalog. Please log in as Firebase admin.");
-            return false;
+            alert("❌ You are not logged into Firebase. Please click 'Login to Firebase' button first.");
+            throw new Error("Not authenticated");
         }
-        await syncCatalogToFirebase();
+        // Convert array to object with keys = id
+        const obj = {};
+        catalogItems.forEach(item => {
+            obj[item.id] = {
+                image: item.image,
+                title: item.title,
+                category: item.category,
+                price: item.price,
+                featured: item.featured
+            };
+        });
+        await database.ref('catalog').set(obj);
         return true;
     }
 
-    // ---------- Cart (localStorage only, unchanged) ----------
+    // ---------- Admin CRUD (now with proper error handling) ----------
+    async function addItem(image, title, category, price, featured) {
+        const newId = Date.now();
+        const newItem = { 
+            id: newId, 
+            image: image || "https://picsum.photos/id/1/300/200", 
+            title: title || "Untitled", 
+            category: category || "General", 
+            price: parseFloat(price) || 0, 
+            featured: featured === true 
+        };
+        // Add locally first for optimistic UI
+        catalogItems.push(newItem);
+        try {
+            await syncCatalogToFirebase();
+            renderCategoryChips();
+            applyFiltersAndRender();
+            return true;
+        } catch (err) {
+            // revert
+            catalogItems.pop();
+            alert("Failed to save to Firebase: " + err.message);
+            return false;
+        }
+    }
+
+    async function updateItem(id, image, title, category, price, featured) {
+        const index = catalogItems.findIndex(i => i.id === id);
+        if (index === -1) return;
+        const original = { ...catalogItems[index] };
+        catalogItems[index] = { 
+            ...catalogItems[index], 
+            image: image || "https://picsum.photos/id/1/300/200",
+            title: title || "Untitled",
+            category: category || "General",
+            price: parseFloat(price) || 0,
+            featured: featured === true
+        };
+        try {
+            await syncCatalogToFirebase();
+            renderCategoryChips();
+            applyFiltersAndRender();
+        } catch (err) {
+            catalogItems[index] = original;
+            alert("Update failed: " + err.message);
+        }
+        editingItemId = null;
+        document.getElementById("addItemBtn").style.display = "inline-block";
+        document.getElementById("cancelEditBtn").style.display = "none";
+        clearForm();
+    }
+
+    async function deleteItem(id) {
+        catalogItems = catalogItems.filter(i => i.id !== id);
+        try {
+            await syncCatalogToFirebase();
+            renderCategoryChips();
+            applyFiltersAndRender();
+            renderCartModal(); // also remove from cart if present
+        } catch (err) {
+            alert("Delete failed: " + err.message);
+            listenToCatalog(); // reload original
+        }
+    }
+
+    function clearForm() {
+        document.getElementById("itemImage").value = "";
+        document.getElementById("itemTitle").value = "";
+        document.getElementById("itemCategory").value = "";
+        document.getElementById("itemPrice").value = "";
+        document.getElementById("itemFeatured").checked = false;
+    }
+
+    function startEdit(item) {
+        editingItemId = item.id;
+        document.getElementById("itemImage").value = item.image || "";
+        document.getElementById("itemTitle").value = item.title || "";
+        document.getElementById("itemCategory").value = item.category || "";
+        document.getElementById("itemPrice").value = item.price || 0;
+        document.getElementById("itemFeatured").checked = item.featured === true;
+        document.getElementById("addItemBtn").style.display = "none";
+        document.getElementById("cancelEditBtn").style.display = "inline-block";
+        document.getElementById("adminPanel").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function cancelEdit() {
+        editingItemId = null;
+        document.getElementById("addItemBtn").style.display = "inline-block";
+        document.getElementById("cancelEditBtn").style.display = "none";
+        clearForm();
+    }
+
+    // ---------- Cart (localStorage only) ----------
     function loadCart() {
         const stored = localStorage.getItem("cart");
         cart = stored ? JSON.parse(stored) : [];
@@ -278,67 +394,7 @@
         document.getElementById("cartModal").style.display = "none";
     }
 
-    // ---------- Admin CRUD (they call saveItemsToCloud) ----------
-    async function addItem(image, title, category, price, featured) {
-        const newId = Date.now();
-        const newItem = { id: newId, image: image || "https://picsum.photos/id/1/300/200", title: title || "Untitled", category: category || "General", price: parseFloat(price) || 0, featured: featured === true };
-        catalogItems.push(newItem);
-        const success = await saveItemsToCloud();
-        if (success) {
-            renderCategoryChips();
-            applyFiltersAndRender();
-        } else {
-            // revert local change
-            catalogItems.pop();
-        }
-    }
-    async function updateItem(id, image, title, category, price, featured) {
-        const index = catalogItems.findIndex(i => i.id === id);
-        if (index !== -1) {
-            catalogItems[index] = { ...catalogItems[index], image, title, category, price: parseFloat(price), featured: featured === true };
-            const success = await saveItemsToCloud();
-            if (success) {
-                renderCategoryChips();
-                applyFiltersAndRender();
-            } else {
-                // revert
-                catalogItems[index] = catalogItems[index]; // not ideal, but reload from DB anyway
-                listenToCatalog(); // force reload
-            }
-        }
-        editingItemId = null;
-        document.getElementById("addItemBtn").style.display = "inline-block";
-        document.getElementById("cancelEditBtn").style.display = "none";
-        document.getElementById("itemImage").value = "";
-        document.getElementById("itemTitle").value = "";
-        document.getElementById("itemCategory").value = "";
-        document.getElementById("itemPrice").value = "";
-        document.getElementById("itemFeatured").checked = false;
-    }
-    async function deleteItem(id) {
-        catalogItems = catalogItems.filter(i => i.id !== id);
-        const success = await saveItemsToCloud();
-        if (success) {
-            renderCategoryChips();
-            applyFiltersAndRender();
-            renderCartModal();
-        } else {
-            listenToCatalog(); // reload
-        }
-    }
-    function startEdit(item) {
-        editingItemId = item.id;
-        document.getElementById("itemImage").value = item.image || "";
-        document.getElementById("itemTitle").value = item.title || "";
-        document.getElementById("itemCategory").value = item.category || "";
-        document.getElementById("itemPrice").value = item.price || 0;
-        document.getElementById("itemFeatured").checked = item.featured === true;
-        document.getElementById("addItemBtn").style.display = "none";
-        document.getElementById("cancelEditBtn").style.display = "inline-block";
-        document.getElementById("adminPanel").scrollIntoView({ behavior: "smooth" });
-    }
-
-    // ---------- Rendering (uses catalogItems) ----------
+    // ---------- Rendering ----------
     function applyFiltersAndRender() {
         const container = document.getElementById("catalogContainer");
         if (!container) return;
@@ -368,7 +424,7 @@
             html += `<div class="category-section"><div class="category-title">📁 ${escapeHtml(cat)}</div><div class="items-grid">` + grouped[cat].map(renderItemCard).join('') + `</div></div>`;
         }
         container.innerHTML = html;
-        // Attach event listeners
+        // Attach events
         document.querySelectorAll(".add-to-cart").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const id = parseInt(btn.getAttribute("data-id"));
@@ -383,7 +439,7 @@
             btn.addEventListener("click", async (e) => {
                 e.stopPropagation();
                 const id = parseInt(btn.getAttribute("data-id"));
-                if (confirm("Delete?")) await deleteItem(id);
+                if (confirm("Delete this item permanently?")) await deleteItem(id);
             });
         });
         document.querySelectorAll(".edit-item").forEach(btn => {
@@ -416,9 +472,9 @@
         document.querySelectorAll(".filter-chip").forEach(btn => btn.addEventListener("click", () => { currentCategoryFilter = btn.getAttribute("data-cat"); renderCategoryChips(); applyFiltersAndRender(); }));
     }
 
-    // Announcement (localStorage per device, but that's fine)
-    function loadAnnouncement() { const saved = localStorage.getItem("announcement"); announcementHtml = saved || "✨ Welcome! ✨"; renderAnnouncement(); }
-    function saveAnnouncement(text) { announcementHtml = text; localStorage.setItem("announcement", announcementHtml); renderAnnouncement(); alert("Saved locally on this device."); }
+    // Announcement (localStorage, not cloud)
+    function loadAnnouncement() { const saved = localStorage.getItem("announcement"); announcementHtml = saved || "✨ Welcome to our marketplace! Check out our featured items below. ✨"; renderAnnouncement(); }
+    function saveAnnouncement(text) { announcementHtml = text; localStorage.setItem("announcement", announcementHtml); renderAnnouncement(); alert("Announcement saved locally on this device."); }
     function renderAnnouncement() { 
         const panel = document.getElementById("announcementPanel");
         if (announcementHtml && announcementHtml.trim()) { document.getElementById("announcementText").innerHTML = announcementHtml; panel.style.display = "flex"; } else panel.style.display = "none";
@@ -428,7 +484,7 @@
     // Suggestion
     function sendSuggestionToFB() { const sug = document.getElementById("suggestionText").value.trim(); if(!sug) return alert("Enter suggestion"); window.open(`https://m.me/${FACEBOOK_PAGE_ID}?text=${encodeURIComponent("💡 *SUGGESTION*\n"+sug)}`,"_blank"); document.getElementById("suggestionModal").style.display = "none"; document.getElementById("suggestionText").value=""; alert("Sent!"); }
 
-    // Admin auth for panel visibility (Uses your old credentials for UI only; Firebase Auth for write)
+    // Admin auth for panel visibility (local)
     function isAuthenticated() { return sessionStorage.getItem("admin_auth") === "true"; }
     function login(username, password) {
         if(username === ADMIN_CRED.username && password === ADMIN_CRED.password) {
@@ -438,74 +494,57 @@
             applyFiltersAndRender();
             renderAnnouncement();
             return true;
-        } else { document.getElementById("loginError").innerText = "Invalid."; return false; }
+        } else { document.getElementById("loginError").innerText = "Invalid credentials."; return false; }
     }
     function logout() { sessionStorage.removeItem("admin_auth"); document.getElementById("adminPanel").style.display = "none"; applyFiltersAndRender(); renderAnnouncement(); }
     function updateAdminModeClass() { if(isAuthenticated()) document.body.classList.add("admin-mode"); else document.body.classList.remove("admin-mode"); }
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
-    // Visit counter (same as before)
+    // Visit counter
     async function updateVisitCounter() {
         const counterElem = document.getElementById("visitCounter");
         try { const res = await fetch("https://api.countapi.xyz/hit/minecraft-marketplace/visits"); const data = await res.json(); if(data && typeof data.value === "number") counterElem.innerHTML = `👁️ Visits: ${data.value.toLocaleString()}`; else throw new Error(); }
         catch(e) { let local = localStorage.getItem("local_visit_count") || 0; local = parseInt(local)+1; localStorage.setItem("local_visit_count", local); counterElem.innerHTML = `👁️ Visits (est.): ${local}`; }
     }
 
-    // Firebase Auth – we need the admin to sign in to Firebase to be allowed to write.
-    // For simplicity, we'll show a "Sign in with Firebase" button inside admin panel.
-    // But to keep it simple, I'll add a separate Firebase login button.
-    // However, for this to work, the user must sign into Firebase using the admin email/password created earlier.
-    // I'll add a small section in admin panel: "Firebase Admin Login" that signs in via Firebase Auth.
-    // After that, add/delete will work.
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
-    // For brevity, I'm adding a simple Firebase login function that you can call.
-    // I'll add a button "🔑 Firebase Admin Login" inside admin panel.
-    // I'll also modify saveItemsToCloud to check auth.currentUser.
-
-    // Add Firebase login UI
-    function addFirebaseLoginUI() {
-        const panel = document.getElementById("adminPanel");
-        if(!panel) return;
-        const existing = document.getElementById("firebaseLoginBtn");
-        if(existing) return;
-        const btn = document.createElement("button");
-        btn.id = "firebaseLoginBtn";
-        btn.className = "btn-primary";
-        btn.style.marginLeft = "10px";
-        btn.innerText = "🔑 Firebase Admin Login";
-        btn.onclick = async () => {
-            const email = prompt("Firebase Admin Email:");
-            const pw = prompt("Password:");
-            if(email && pw) {
-                try {
-                    await auth.signInWithEmailAndPassword(email, pw);
-                    alert("Firebase authenticated! You can now add/edit items globally.");
-                    btn.innerText = "✅ Firebase Logged In";
-                    btn.disabled = true;
-                } catch(err) { alert("Firebase login failed: " + err.message); }
-            }
-        };
-        const header = panel.querySelector("div:first-child");
-        if(header) header.appendChild(btn);
+    // ---------- Firebase Login Handler ----------
+    async function firebaseLogin() {
+        const email = prompt("Enter your Firebase Admin Email:");
+        if (!email) return;
+        const password = prompt("Enter your Firebase Admin Password:");
+        if (!password) return;
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+            alert("✅ Successfully logged into Firebase! You can now add/edit items globally.");
+            updateFirebaseStatusUI();
+        } catch (err) {
+            alert("Firebase login failed: " + err.message);
+        }
     }
 
-    // Override addItem/update/delete to check Firebase auth AND session admin
-    // We'll keep the same async functions but inside saveItemsToCloud we already check auth.currentUser.
-    // The user must also be locally "admin" (sessionStorage) to see the panel, but actual write requires Firebase Auth.
-
-    // Event listeners
+    // ---------- Event Listeners ----------
     document.getElementById("adminLoginBtn").onclick = () => { if(isAuthenticated()) { document.getElementById("adminPanel").style.display = document.getElementById("adminPanel").style.display === "none" ? "block" : "none"; renderAnnouncement(); } else document.getElementById("loginModal").style.display = "flex"; };
     document.getElementById("submitLogin").onclick = () => login(document.getElementById("loginUser").value, document.getElementById("loginPass").value);
     document.getElementById("logoutBtn").onclick = () => logout();
+    document.getElementById("firebaseLoginBtn").onclick = firebaseLogin;
+
     document.getElementById("addItemBtn").onclick = async () => {
-        if(!isAuthenticated()) return alert("Not logged in as site admin.");
-        if(editingItemId !== null) {
+        if (!isAuthenticated()) {
+            alert("Please login as site admin first (using the Admin button).");
+            return;
+        }
+        if (!auth.currentUser) {
+            alert("You are not logged into Firebase.\n\nPlease click the 'Login to Firebase' button above and sign in with your Firebase admin email/password.\n\nAfter that, you can add items globally.");
+            return;
+        }
+        if (editingItemId !== null) {
             const img = document.getElementById("itemImage").value.trim();
             const title = document.getElementById("itemTitle").value.trim();
             const cat = document.getElementById("itemCategory").value.trim();
             const price = document.getElementById("itemPrice").value.trim();
             const featured = document.getElementById("itemFeatured").checked;
-            if(!title) return alert("Title required");
+            if (!title) return alert("Title required");
             await updateItem(editingItemId, img, title, cat, price, featured);
         } else {
             const img = document.getElementById("itemImage").value.trim();
@@ -513,13 +552,11 @@
             const cat = document.getElementById("itemCategory").value.trim();
             const price = document.getElementById("itemPrice").value.trim();
             const featured = document.getElementById("itemFeatured").checked;
-            if(!title) return alert("Title required");
-            await addItem(img, title, cat, price, featured);
-            document.getElementById("itemImage").value = "";
-            document.getElementById("itemTitle").value = "";
-            document.getElementById("itemCategory").value = "";
-            document.getElementById("itemPrice").value = "";
-            document.getElementById("itemFeatured").checked = false;
+            if (!title) return alert("Title required");
+            const success = await addItem(img, title, cat, price, featured);
+            if (success) {
+                clearForm();
+            }
         }
     };
     document.getElementById("cancelEditBtn").onclick = () => cancelEdit();
@@ -538,13 +575,15 @@
     window.onclick = (e) => { if(e.target === cartModal) cartModal.style.display="none"; if(e.target === suggestionModal) suggestionModal.style.display="none"; if(e.target === document.getElementById("loginModal")) document.getElementById("loginModal").style.display="none"; };
 
     // Initialize
-    window.onload = async () => {
+    window.onload = () => {
         loadCart();
         loadAnnouncement();
-        listenToCatalog();  // This will load catalog from Firebase and keep it in sync.
+        listenToCatalog();
         updateVisitCounter();
         if(isAuthenticated()) document.getElementById("adminPanel").style.display = "block";
-        addFirebaseLoginUI();
+        updateFirebaseStatusUI();
+        // Also listen for auth state changes
+        auth.onAuthStateChanged(() => updateFirebaseStatusUI());
     };
 </script>
 </body>
