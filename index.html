@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft Bedrock Marketplace — Cloud Sync (Global Visitor Count)</title>
+    <title>Minecraft Bedrock Marketplace — Cloud Sync (Global Visitor Count + Footer)</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
-        /* Your existing CSS remains unchanged */
+        /* ====== Existing CSS (unchanged, plus footer styles added) ====== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', system-ui, sans-serif; background: #0a0c10; color: #eef2ff; }
-        .container { max-width: 1300px; margin: 0 auto; padding: 2rem; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: #0a0c10; color: #eef2ff; display: flex; flex-direction: column; min-height: 100vh; }
+        .container { max-width: 1300px; margin: 0 auto; padding: 2rem; flex: 1; }
         .site-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #1e293b; flex-wrap: wrap; gap: 1rem; }
         .logo { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .header-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
@@ -68,7 +68,48 @@
         .modal-content input { width: 100%; padding: 12px; margin: 12px 0; background: #0f172a; border: 1px solid #334155; border-radius: 16px; color: white; }
         .error-msg { color: #f87171; }
         .firebase-status { background: #1e293b; padding: 6px 12px; border-radius: 24px; font-size: 0.7rem; margin-left: 10px; }
-        @media (max-width: 700px) { .container { padding: 1rem; } .form-grid { grid-template-columns: 1fr; } }
+
+        /* ====== FOOTER STYLES ====== */
+        .footer {
+            background: #0f172a;
+            border-top: 1px solid #1e293b;
+            padding: 2rem 1rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+        .footer-content {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .social-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .social-links a {
+            color: #cbd5e6;
+            text-decoration: none;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+        }
+        .social-links a:hover {
+            color: #60a5fa;
+        }
+        .copyright {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        @media (max-width: 700px) {
+            .container { padding: 1rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            .social-links { gap: 1rem; }
+            .social-links a { font-size: 0.8rem; }
+        }
     </style>
 </head>
 <body>
@@ -136,6 +177,20 @@
     <div id="catalogContainer"></div>
 </div>
 
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="social-links">
+            <a href="https://ko-fi.com/devbrentoyyy" target="_blank" rel="noopener noreferrer">☕ 𝐊𝐎-𝐅𝐈</a>
+            <a href="https://www.tiktok.com/@dev.brentoyyy" target="_blank" rel="noopener noreferrer">🎵 𝐓𝐈𝐊𝐓𝐎𝐊</a>
+            <a href="https://www.youtube.com/@Brentoyyyyy" target="_blank" rel="noopener noreferrer">📺 𝐘𝐎𝐔𝐓𝐔𝐁𝐄</a>
+            <a href="https://www.facebook.com/share/1H2UhDELkR/" target="_blank" rel="noopener noreferrer">📘 𝐅𝐀𝐂𝐄𝐁𝐎𝐎𝐊 𝐏𝐀𝐆𝐄</a>
+            <a href="mailto:brentsinoy2315@gmail.com">📧 𝐆𝐌𝐀𝐈𝐋</a>
+        </div>
+        <div class="copyright">© 2025 Minecraft Bedrock Marketplace. All rights reserved.</div>
+    </div>
+</footer>
+
 <!-- Cart Modal -->
 <div id="cartModal" class="cart-modal">
     <div class="cart-modal-content">
@@ -171,7 +226,6 @@
 <script>
     // ======================= FIREBASE CONFIGURATION =======================
     // 🔥 REPLACE WITH YOUR OWN firebaseConfig
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAco1a008Xxsc2t-7htzIF_tCDpEipQ8Sw",
   authDomain: "minecraft-marketplace-7227b.firebaseapp.com",
@@ -602,7 +656,7 @@ const firebaseConfig = {
         loadCart();
         loadAnnouncement();
         listenToCatalog();
-        updateGlobalVisitCounter();  // Initialize global counter
+        updateGlobalVisitCounter();
         if(isAuthenticated()) document.getElementById("adminPanel").style.display = "block";
         updateFirebaseStatusUI();
         auth.onAuthStateChanged(() => updateFirebaseStatusUI());
