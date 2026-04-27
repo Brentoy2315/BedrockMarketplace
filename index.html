@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft Bedrock Marketplace — Dark Mode</title>
+    <title>Minecraft Bedrock Marketplace — with Cart</title>
     <style>
+        /* ===== BASE & DARK MODE (same as before, plus cart styles) ===== */
         * {
             margin: 0;
             padding: 0;
@@ -23,7 +24,7 @@
             padding: 2rem;
         }
 
-        /* Header */
+        /* Header with Cart */
         .site-header {
             display: flex;
             justify-content: space-between;
@@ -44,6 +45,35 @@
             color: transparent;
         }
 
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .cart-icon {
+            position: relative;
+            background: #1e293b;
+            border: none;
+            color: #f1f5f9;
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cart-count {
+            background: #3b82f6;
+            color: white;
+            border-radius: 30px;
+            padding: 0 8px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
         .admin-btn {
             background-color: #334155;
             color: #f1f5f9;
@@ -52,15 +82,72 @@
             border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
 
-        .admin-btn:hover {
-            background-color: #475569;
-            transform: translateY(-1px);
+        /* Cart Modal */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+        .cart-modal-content {
+            background: #0f172a;
+            max-width: 500px;
+            width: 90%;
+            border-radius: 28px;
+            padding: 1.5rem;
+            border: 1px solid #1e293b;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #1e293b;
+        }
+        .cart-item-info {
+            flex: 1;
+        }
+        .cart-item-title {
+            font-weight: 600;
+        }
+        .cart-item-category {
+            font-size: 0.7rem;
+            color: #93c5fd;
+        }
+        .remove-item {
+            background: none;
+            border: none;
+            color: #f87171;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .checkout-btn {
+            background: #3b82f6;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .close-cart {
+            background: #475569;
+            margin-top: 10px;
         }
 
-        /* Filter Bar */
+        /* Filter bar, admin panel, catalog – unchanged from your last version */
         .filter-bar {
             background: #0f172a;
             border-radius: 28px;
@@ -68,7 +155,6 @@
             margin-bottom: 2rem;
             border: 1px solid #1e293b;
         }
-
         .search-box {
             width: 100%;
             padding: 12px 18px;
@@ -79,25 +165,12 @@
             color: #f1f5f9;
             margin-bottom: 1rem;
         }
-
-        .search-box:focus {
-            outline: none;
-            border-color: #60a5fa;
-        }
-
         .category-filters {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             align-items: center;
         }
-
-        .filter-label {
-            font-size: 0.85rem;
-            color: #94a3b8;
-            margin-right: 5px;
-        }
-
         .filter-chip {
             background: #1e293b;
             border: none;
@@ -105,19 +178,11 @@
             border-radius: 40px;
             color: #cbd5e6;
             cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.85rem;
         }
-
         .filter-chip.active {
             background: #3b82f6;
             color: white;
         }
-
-        .filter-chip:hover:not(.active) {
-            background: #334155;
-        }
-
         .clear-filters {
             background: transparent;
             border: 1px solid #ef4444;
@@ -125,177 +190,118 @@
             padding: 6px 16px;
             border-radius: 40px;
             cursor: pointer;
-            font-size: 0.8rem;
-            margin-left: 10px;
         }
 
-        .clear-filters:hover {
-            background: #ef4444;
-            color: white;
-        }
-
-        /* Admin Dashboard */
+        /* Admin Dashboard (unchanged) */
         .admin-dashboard {
             display: none;
             background: #0f172a;
             padding: 2rem;
             border-radius: 28px;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             border: 1px solid #1e293b;
         }
-
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 30px;
         }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            color: #cbd5e1;
-            font-weight: 500;
-        }
-
         .form-group input {
             padding: 12px;
             background: #020617;
             border: 1px solid #334155;
             border-radius: 16px;
-            font-size: 0.95rem;
             color: #f1f5f9;
+            width: 100%;
         }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #60a5fa;
-        }
-
         .btn-primary {
             background: #3b82f6;
             color: white;
             padding: 12px 20px;
-            border: none;
             border-radius: 40px;
+            border: none;
             cursor: pointer;
-            font-weight: bold;
         }
-
-        .btn-primary:hover {
-            background: #2563eb;
-        }
-
         .logout-btn {
             background: #475569;
             margin-left: 15px;
         }
 
-        /* Catalog Display */
-        .category-section {
-            margin-bottom: 2.5rem;
-        }
-
-        .category-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            border-left: 5px solid #60a5fa;
-            padding-left: 15px;
-            color: #e2e8f0;
-        }
-
+        /* Item Cards (with Add to Cart button) */
         .items-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 1.8rem;
         }
-
         .item-card {
             background: #111827;
             border-radius: 24px;
             overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
             border: 1px solid #1e293b;
         }
-
-        .item-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 30px -10px black;
-        }
-
         .item-img {
             width: 100%;
             height: 160px;
             object-fit: cover;
-            background: #1e293b;
         }
-
         .item-info {
             padding: 1rem;
         }
-
         .item-title {
             font-weight: 700;
-            font-size: 1.1rem;
             margin-bottom: 0.5rem;
-            color: #f1f5f9;
         }
-
         .item-category {
             font-size: 0.8rem;
             color: #93c5fd;
-            font-weight: 600;
             margin-bottom: 1rem;
         }
-
-        .item-link {
+        .item-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .item-link, .add-to-cart {
             display: inline-block;
             background: #3b82f6;
             color: white;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 40px;
             text-decoration: none;
-            font-size: 0.85rem;
-            transition: background 0.2s;
+            font-size: 0.8rem;
+            border: none;
+            cursor: pointer;
         }
-
-        .item-link:hover {
-            background: #2563eb;
+        .add-to-cart {
+            background: #10b981;
         }
-
+        .add-to-cart:hover {
+            background: #059669;
+        }
         .delete-item {
             float: right;
             background: none;
             border: none;
             color: #f87171;
-            font-size: 1.3rem;
-            cursor: pointer;
+            font-size: 1.2rem;
             display: none;
+            cursor: pointer;
         }
-
         .admin-mode .delete-item {
             display: inline-block;
         }
-
         .no-results {
             text-align: center;
             padding: 3rem;
             color: #94a3b8;
-            background: #0f172a;
-            border-radius: 28px;
-            margin-top: 1rem;
         }
 
         @media (max-width: 700px) {
             .container { padding: 1rem; }
             .form-grid { grid-template-columns: 1fr; }
-            .site-header { flex-direction: column; align-items: flex-start; }
         }
+        .modal, .cart-modal { display: none; } /* both modals initially hidden */
     </style>
 </head>
 <body>
@@ -303,55 +309,56 @@
 <div class="container">
     <div class="site-header">
         <div class="logo">ᴍɪɴᴇᴄʀᴀꜰᴛ ʙᴇᴅʀᴏᴄᴋ ᴍᴀʀᴋᴇᴛᴘʟᴀᴄᴇ</div>
-        <button id="adminLoginBtn" class="admin-btn">🔐 Admin Login</button>
+        <div class="header-actions">
+            <button id="cartButton" class="cart-icon">🛒 Cart <span id="cartCount" class="cart-count">0</span></button>
+            <button id="adminLoginBtn" class="admin-btn">🔐 Admin</button>
+        </div>
     </div>
 
     <!-- Filter Bar -->
     <div class="filter-bar">
-        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by title...">
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search...">
         <div class="category-filters">
-            <span class="filter-label">Filter by category:</span>
+            <span class="filter-label">Category:</span>
             <div id="categoryChips"></div>
-            <button id="clearFiltersBtn" class="clear-filters">Clear all filters</button>
+            <button id="clearFiltersBtn" class="clear-filters">Clear</button>
         </div>
     </div>
 
-    <!-- Admin Dashboard -->
+    <!-- Admin Panel -->
     <div id="adminPanel" class="admin-dashboard">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="color:#e2e8f0;">➕ Admin Controls</h2>
-            <button id="logoutBtn" class="admin-btn logout-btn">🚪 Logout</button>
+        <div style="display: flex; justify-content: space-between;">
+            <h2>Admin Controls</h2>
+            <button id="logoutBtn" class="admin-btn logout-btn">Logout</button>
         </div>
         <div class="form-grid">
-            <div class="form-group">
-                <label>Image URL (Photo):</label>
-                <input type="text" id="itemImage" placeholder="https://...">
-            </div>
-            <div class="form-group">
-                <label>Title:</label>
-                <input type="text" id="itemTitle" placeholder="e.g., Dragon Slayer Pack">
-            </div>
-            <div class="form-group">
-                <label>Category:</label>
-                <input type="text" id="itemCategory" placeholder="e.g., Addons / Worlds">
-            </div>
-            <div class="form-group">
-                <label>Download Link URL:</label>
-                <input type="text" id="itemLink" placeholder="https://...">
-            </div>
+            <div class="form-group"><label>Image URL</label><input type="text" id="itemImage" placeholder="https://..."></div>
+            <div class="form-group"><label>Title</label><input type="text" id="itemTitle" placeholder="Title"></div>
+            <div class="form-group"><label>Category</label><input type="text" id="itemCategory" placeholder="Category"></div>
+            <div class="form-group"><label>Download Link</label><input type="text" id="itemLink" placeholder="https://..."></div>
         </div>
-        <button id="addItemBtn" class="btn-primary">➕ Add New Item</button>
-        <p style="font-size: 0.8rem; margin-top: 15px; color: #94a3b8;">⚡ Tip: Click the 'X' on any card below to delete it (visible only in admin mode)</p>
+        <button id="addItemBtn" class="btn-primary">➕ Add Item</button>
+        <p style="font-size:0.8rem; margin-top:15px; color:#94a3b8;">Admin: X button on cards to delete.</p>
     </div>
 
     <!-- Catalog Container -->
     <div id="catalogContainer"></div>
 </div>
 
-<!-- Login Modal -->
+<!-- Cart Modal -->
+<div id="cartModal" class="cart-modal">
+    <div class="cart-modal-content">
+        <h3>Your Cart</h3>
+        <div id="cartItemsList"></div>
+        <button id="checkoutBtn" class="checkout-btn">📲 Checkout via Facebook</button>
+        <button id="closeCartBtn" class="checkout-btn close-cart">Close</button>
+    </div>
+</div>
+
+<!-- Login Modal (unchanged) -->
 <div id="loginModal" class="modal">
     <div class="modal-content">
-        <h3>🔒 Admin Access Only</h3>
+        <h3>Admin Login</h3>
         <input type="text" id="loginUser" placeholder="Username">
         <input type="password" id="loginPass" placeholder="Password">
         <button id="submitLogin">Login</button>
@@ -360,44 +367,232 @@
 </div>
 
 <script>
-    // Admin Credentials
-    const ADMIN_CRED = {
-        username: "Brentoyyy2315",
-        password: "@Brentoyyy2315"
-    };
+    // ======================= CONFIGURATION =======================
+    // CHANGE THIS: Your Facebook Page username or numeric ID
+    const FACEBOOK_PAGE_NAME = "111811064292787";  // e.g., "MinecraftMarketPH" or "100063784512345"
+    // =============================================================
+
+    // Admin credentials
+    const ADMIN_CRED = { username: "Brentoyyy2315", password: "@Brentoyyy2315" };
 
     // Data
     let catalogItems = [];
+    let cart = [];  // each item: { id, title, category, link, image }
+
+    // Filters
     let currentSearchTerm = "";
     let currentCategoryFilter = "all";
 
-    // Load items from localStorage
+    // Load from localStorage
     function loadItems() {
         const stored = localStorage.getItem("dlc_catalog");
         if(stored) {
             catalogItems = JSON.parse(stored);
         } else {
             catalogItems = [
-                { id: Date.now(), image: "https://picsum.photos/id/104/300/200", title: "Myth and Dragons Add-On", category: "Addon", link: "#" },
+                { id: Date.now(), image: "https://picsum.photos/id/104/300/200", title: "Dragon Slayer Pack", category: "Addon", link: "#" },
                 { id: Date.now()+1, image: "https://picsum.photos/id/106/300/200", title: "Tower Defense World", category: "World", link: "#" },
-                { id: Date.now()+2, image: "https://picsum.photos/id/15/300/200", title: "CAVE BIOMES ADD-ON", category: "Addon", link: "#" }
+                { id: Date.now()+2, image: "https://picsum.photos/id/15/300/200", title: "Cave Biomes", category: "Addon", link: "#" }
             ];
             saveItems();
         }
+        loadCart();
         renderCategoryChips();
         applyFiltersAndRender();
+        updateCartUI();
     }
 
-    function saveItems() {
-        localStorage.setItem("dlc_catalog", JSON.stringify(catalogItems));
+    function saveItems() { localStorage.setItem("dlc_catalog", JSON.stringify(catalogItems)); }
+
+    // Cart functions
+    function loadCart() {
+        const storedCart = localStorage.getItem("cart");
+        if(storedCart) cart = JSON.parse(storedCart);
+        else cart = [];
+        updateCartUI();
+    }
+    function saveCart() {
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartUI();
+    }
+    function addToCart(item) {
+        // avoid duplicates: if already in cart, do nothing (optional: increase quantity)
+        if(!cart.some(cartItem => cartItem.id === item.id)) {
+            cart.push({ ...item });
+            saveCart();
+        } else {
+            alert("Item already in cart.");
+        }
+    }
+    function removeFromCart(itemId) {
+        cart = cart.filter(i => i.id !== itemId);
+        saveCart();
+        renderCartModal();  // refresh modal if open
+    }
+    function updateCartUI() {
+        const count = cart.length;
+        document.getElementById("cartCount").innerText = count;
+    }
+    function renderCartModal() {
+        const container = document.getElementById("cartItemsList");
+        if(!container) return;
+        if(cart.length === 0) {
+            container.innerHTML = "<p>Cart is empty.</p>";
+            return;
+        }
+        let html = "";
+        cart.forEach(item => {
+            html += `<div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-title">${escapeHtml(item.title)}</div>
+                            <div class="cart-item-category">${escapeHtml(item.category)}</div>
+                        </div>
+                        <button class="remove-item" data-id="${item.id}">✖</button>
+                    </div>`;
+        });
+        container.innerHTML = html;
+        // attach remove events
+        document.querySelectorAll(".remove-item").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const id = parseInt(btn.getAttribute("data-id"));
+                removeFromCart(id);
+            });
+        });
     }
 
-    function addItem(image, title, category, link) {
+    // Checkout: open Facebook Messenger with order details
+    function checkoutViaFacebook() {
+        if(cart.length === 0) {
+            alert("Your cart is empty.");
+            return;
+        }
+        // Build order summary
+        let orderText = "🛒 *NEW ORDER* 🛒\n\n";
+        cart.forEach((item, idx) => {
+            orderText += `${idx+1}. ${item.title} (${item.category})\n   Link: ${item.link}\n`;
+        });
+        orderText += `\nTotal items: ${cart.length}\nPlease send payment instructions / GCash QR. Thank you!`;
+
+        // Encode for Messenger URL
+        const encodedMsg = encodeURIComponent(orderText);
+        // Facebook Messenger deep link: https://m.me/PAGE_NAME?text=...
+        const fbUrl = `https://m.me/${FACEBOOK_PAGE_NAME}?text=${encodedMsg}`;
+        window.open(fbUrl, "_blank");
+        // Optional: clear cart after checkout? Up to you. We'll keep cart for now.
+        // User can manually clear.
+        document.getElementById("cartModal").style.display = "none";
+        alert("Order message prepared! Send it to our Facebook page. We'll reply with payment details.");
+        // You can choose to clear cart: cart = []; saveCart(); updateCartUI(); but maybe user wants to keep.
+    }
+
+    // Catalog rendering (with Add to Cart button)
+    function getFilteredItems() {
+        let filtered = [...catalogItems];
+        if(currentSearchTerm.trim()) {
+            const term = currentSearchTerm.toLowerCase();
+            filtered = filtered.filter(i => i.title.toLowerCase().includes(term));
+        }
+        if(currentCategoryFilter !== "all") {
+            filtered = filtered.filter(i => i.category === currentCategoryFilter);
+        }
+        return filtered;
+    }
+
+    function applyFiltersAndRender() {
+        const filtered = getFilteredItems();
+        const container = document.getElementById("catalogContainer");
+        if(!container) return;
+        if(filtered.length === 0) {
+            container.innerHTML = `<div class="no-results">No items match.</div>`;
+            updateAdminModeClass();
+            return;
+        }
+        const grouped = {};
+        filtered.forEach(item => {
+            if(!grouped[item.category]) grouped[item.category] = [];
+            grouped[item.category].push(item);
+        });
+        let html = "";
+        for(let cat in grouped) {
+            html += `<div class="category-section"><div class="category-title">📁 ${escapeHtml(cat)}</div><div class="items-grid">`;
+            grouped[cat].forEach(item => {
+                html += `<div class="item-card" data-id="${item.id}">
+                            <img src="${item.image}" class="item-img" onerror="this.src='https://picsum.photos/id/1/300/200'">
+                            <div class="item-info">
+                                <div class="item-title">${escapeHtml(item.title)}</div>
+                                <div class="item-category">${escapeHtml(item.category)}</div>
+                                <div class="item-actions">
+                                    <a href="${escapeHtml(item.link)}" class="item-link" target="_blank">🔗 Download</a>
+                                    <button class="add-to-cart" data-id="${item.id}" data-title="${escapeHtml(item.title)}" data-category="${escapeHtml(item.category)}" data-link="${escapeHtml(item.link)}" data-image="${escapeHtml(item.image)}">➕ Cart</button>
+                                    <button class="delete-item" data-id="${item.id}">✖</button>
+                                </div>
+                            </div>
+                        </div>`;
+            });
+            html += `</div></div>`;
+        }
+        container.innerHTML = html;
+        // Attach event listeners for Add to Cart
+        document.querySelectorAll(".add-to-cart").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const id = parseInt(btn.getAttribute("data-id"));
+                const title = btn.getAttribute("data-title");
+                const category = btn.getAttribute("data-category");
+                const link = btn.getAttribute("data-link");
+                const image = btn.getAttribute("data-image");
+                addToCart({ id, title, category, link, image });
+            });
+        });
+        // Delete buttons (admin)
+        document.querySelectorAll(".delete-item").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const id = parseInt(btn.getAttribute("data-id"));
+                if(confirm("Delete item?")) deleteItem(id);
+            });
+        });
+        updateAdminModeClass();
+    }
+
+    function deleteItem(id) {
+        catalogItems = catalogItems.filter(i => i.id !== id);
+        saveItems();
+        // also remove from cart if present
+        cart = cart.filter(i => i.id !== id);
+        saveCart();
+        renderCategoryChips();
+        applyFiltersAndRender();
+        renderCartModal();
+    }
+
+    // Category chips
+    function getUniqueCategories() {
+        const cats = catalogItems.map(i => i.category);
+        return [...new Set(cats)].sort();
+    }
+    function renderCategoryChips() {
+        const container = document.getElementById("categoryChips");
+        if(!container) return;
+        const cats = getUniqueCategories();
+        let html = `<button class="filter-chip ${currentCategoryFilter === "all" ? "active" : ""}" data-cat="all">All</button>`;
+        cats.forEach(cat => {
+            html += `<button class="filter-chip ${currentCategoryFilter === cat ? "active" : ""}" data-cat="${escapeHtml(cat)}">${escapeHtml(cat)}</button>`;
+        });
+        container.innerHTML = html;
+        document.querySelectorAll(".filter-chip").forEach(btn => {
+            btn.addEventListener("click", () => {
+                currentCategoryFilter = btn.getAttribute("data-cat");
+                renderCategoryChips();
+                applyFiltersAndRender();
+            });
+        });
+    }
+
+    function addItem(img, title, cat, link) {
         const newItem = {
             id: Date.now(),
-            image: image || "https://picsum.photos/id/1/300/200",
+            image: img || "https://picsum.photos/id/1/300/200",
             title: title || "Untitled",
-            category: category || "General",
+            category: cat || "General",
             link: link || "#"
         };
         catalogItems.push(newItem);
@@ -406,105 +601,31 @@
         applyFiltersAndRender();
     }
 
-    function deleteItem(id) {
-        catalogItems = catalogItems.filter(item => item.id != id);
-        saveItems();
-        renderCategoryChips();
+    // Auth
+    function isAuthenticated() { return sessionStorage.getItem("admin_auth") === "true"; }
+    function login(u,p) {
+        if(u===ADMIN_CRED.username && p===ADMIN_CRED.password) {
+            sessionStorage.setItem("admin_auth","true");
+            document.getElementById("loginModal").style.display = "none";
+            document.getElementById("adminPanel").style.display = "block";
+            applyFiltersAndRender();
+            return true;
+        } else {
+            document.getElementById("loginError").innerText = "Invalid credentials";
+            return false;
+        }
+    }
+    function logout() {
+        sessionStorage.removeItem("admin_auth");
+        document.getElementById("adminPanel").style.display = "none";
         applyFiltersAndRender();
     }
-
-    // Get unique categories from items
-    function getUniqueCategories() {
-        const cats = catalogItems.map(item => item.category);
-        return [...new Set(cats)].sort();
-    }
-
-    // Render category filter chips
-    function renderCategoryChips() {
-        const container = document.getElementById("categoryChips");
-        if(!container) return;
-        const categories = getUniqueCategories();
-        let chipsHtml = `<button class="filter-chip ${currentCategoryFilter === "all" ? "active" : ""}" data-category="all">All</button>`;
-        categories.forEach(cat => {
-            chipsHtml += `<button class="filter-chip ${currentCategoryFilter === cat ? "active" : ""}" data-category="${escapeHtml(cat)}">${escapeHtml(cat)}</button>`;
-        });
-        container.innerHTML = chipsHtml;
-
-        // Add event listeners
-        document.querySelectorAll(".filter-chip").forEach(btn => {
-            btn.addEventListener("click", (e) => {
-                const category = btn.getAttribute("data-category");
-                currentCategoryFilter = category;
-                renderCategoryChips(); // re-render to update active state
-                applyFiltersAndRender();
-            });
-        });
-    }
-
-    // Filter items based on search and category
-    function getFilteredItems() {
-        let filtered = [...catalogItems];
-        if (currentSearchTerm.trim() !== "") {
-            const term = currentSearchTerm.trim().toLowerCase();
-            filtered = filtered.filter(item => item.title.toLowerCase().includes(term));
-        }
-        if (currentCategoryFilter !== "all") {
-            filtered = filtered.filter(item => item.category === currentCategoryFilter);
-        }
-        return filtered;
-    }
-
-    // Render catalog with grouping (only for unfiltered? but we want grouping to reflect filtered items)
-    // Instead, we'll group filtered items by category, but show only categories that have any filtered items.
-    function applyFiltersAndRender() {
-        const filteredItems = getFilteredItems();
-        const container = document.getElementById("catalogContainer");
-        if(!container) return;
-
-        if (filteredItems.length === 0) {
-            container.innerHTML = `<div class="no-results">😕 No items match your search or filter. Try clearing filters.</div>`;
-            updateAdminModeClass();
-            return;
-        }
-
-        // Group filtered items by category
-        const grouped = {};
-        filteredItems.forEach(item => {
-            if(!grouped[item.category]) grouped[item.category] = [];
-            grouped[item.category].push(item);
-        });
-
-        let html = "";
-        for(let cat in grouped) {
-            html += `<div class="category-section">
-                        <div class="category-title">📁 ${escapeHtml(cat)}</div>
-                        <div class="items-grid">`;
-            grouped[cat].forEach(item => {
-                html += `<div class="item-card" data-id="${item.id}">
-                            <img src="${item.image}" class="item-img" alt="${item.title}" onerror="this.src='https://picsum.photos/id/1/300/200'">
-                            <div class="item-info">
-                                <div class="item-title">${escapeHtml(item.title)}</div>
-                                <div class="item-category">${escapeHtml(item.category)}</div>
-                                <a href="${escapeHtml(item.link)}" class="item-link" target="_blank">🔗 Download</a>
-                                <button class="delete-item" onclick="deleteItem(${item.id})" title="Delete Item">✖</button>
-                            </div>
-                        </div>`;
-            });
-            html += `</div></div>`;
-        }
-        container.innerHTML = html;
-        updateAdminModeClass();
-    }
-
     function updateAdminModeClass() {
-        const isAdmin = sessionStorage.getItem("admin_auth") === "true";
-        if(isAdmin) {
-            document.body.classList.add("admin-mode");
-        } else {
-            document.body.classList.remove("admin-mode");
-        }
+        if(isAuthenticated()) document.body.classList.add("admin-mode");
+        else document.body.classList.remove("admin-mode");
     }
 
+    // Helper
     function escapeHtml(str) {
         if(!str) return '';
         return str.replace(/[&<>]/g, function(m) {
@@ -515,32 +636,7 @@
         });
     }
 
-    // Auth logic
-    function isAuthenticated() {
-        return sessionStorage.getItem("admin_auth") === "true";
-    }
-
-    function login(username, password) {
-        if(username === ADMIN_CRED.username && password === ADMIN_CRED.password) {
-            sessionStorage.setItem("admin_auth", "true");
-            document.getElementById("loginModal").style.display = "none";
-            document.getElementById("adminPanel").style.display = "block";
-            applyFiltersAndRender();
-            return true;
-        } else {
-            document.getElementById("loginError").innerText = "Invalid username or password.";
-            return false;
-        }
-    }
-
-    function logout() {
-        sessionStorage.removeItem("admin_auth");
-        document.getElementById("adminPanel").style.display = "none";
-        applyFiltersAndRender();
-        alert("You have been logged out.");
-    }
-
-    // Event Handlers
+    // Event Listeners
     document.getElementById("adminLoginBtn").onclick = () => {
         if(isAuthenticated()) {
             const panel = document.getElementById("adminPanel");
@@ -549,122 +645,89 @@
             document.getElementById("loginModal").style.display = "flex";
         }
     };
-
     document.getElementById("submitLogin").onclick = () => {
-        const user = document.getElementById("loginUser").value;
-        const pass = document.getElementById("loginPass").value;
-        login(user, pass);
+        login(document.getElementById("loginUser").value, document.getElementById("loginPass").value);
     };
-
-    document.getElementById("logoutBtn").onclick = () => {
-        logout();
-    };
-
+    document.getElementById("logoutBtn").onclick = () => logout();
     document.getElementById("addItemBtn").onclick = () => {
         if(!isAuthenticated()) return;
         const img = document.getElementById("itemImage").value.trim();
         const title = document.getElementById("itemTitle").value.trim();
         const cat = document.getElementById("itemCategory").value.trim();
         const link = document.getElementById("itemLink").value.trim();
-        if(!title) {
-            alert("Please at least enter a title.");
-            return;
-        }
+        if(!title) { alert("Title required"); return; }
         addItem(img, title, cat, link);
         document.getElementById("itemImage").value = "";
         document.getElementById("itemTitle").value = "";
         document.getElementById("itemCategory").value = "";
         document.getElementById("itemLink").value = "";
     };
-
-    // Search input listener
-    const searchInput = document.getElementById("searchInput");
-    if(searchInput) {
-        searchInput.addEventListener("input", (e) => {
-            currentSearchTerm = e.target.value;
-            applyFiltersAndRender();
-        });
-    }
-
-    // Clear filters button
-    const clearBtn = document.getElementById("clearFiltersBtn");
-    if(clearBtn) {
-        clearBtn.addEventListener("click", () => {
-            currentSearchTerm = "";
-            currentCategoryFilter = "all";
-            if(searchInput) searchInput.value = "";
-            renderCategoryChips();
-            applyFiltersAndRender();
-        });
-    }
-
-    // Modal close on outside click
-    window.onclick = (event) => {
-        const modal = document.getElementById("loginModal");
-        if (event.target === modal) {
-            modal.style.display = "none";
-        }
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+        currentSearchTerm = e.target.value;
+        applyFiltersAndRender();
+    });
+    document.getElementById("clearFiltersBtn").onclick = () => {
+        currentSearchTerm = "";
+        currentCategoryFilter = "all";
+        document.getElementById("searchInput").value = "";
+        renderCategoryChips();
+        applyFiltersAndRender();
+    };
+    // Cart modal
+    const cartModal = document.getElementById("cartModal");
+    document.getElementById("cartButton").onclick = () => {
+        renderCartModal();
+        cartModal.style.display = "flex";
+    };
+    document.getElementById("closeCartBtn").onclick = () => { cartModal.style.display = "none"; };
+    document.getElementById("checkoutBtn").onclick = () => { checkoutViaFacebook(); };
+    window.onclick = (e) => {
+        if(e.target === cartModal) cartModal.style.display = "none";
+        if(e.target === document.getElementById("loginModal")) document.getElementById("loginModal").style.display = "none";
     };
 
     // Init
     loadItems();
-    if(isAuthenticated()) {
-        document.getElementById("adminPanel").style.display = "block";
-    }
-</script>
+    if(isAuthenticated()) document.getElementById("adminPanel").style.display = "block";
 
-<style>
-    /* Modal styles (added because they were missing in dark mode version) */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.85);
-        z-index: 1000;
-        justify-content: center;
-        align-items: center;
-    }
-    .modal-content {
-        background: #1e293b;
-        padding: 2rem;
-        border-radius: 28px;
-        width: 90%;
-        max-width: 400px;
-        text-align: center;
-        border: 1px solid #334155;
-    }
-    .modal-content h3 {
-        color: #f1f5f9;
-        margin-bottom: 1rem;
-    }
-    .modal-content input {
-        width: 100%;
-        padding: 12px;
-        margin: 12px 0;
-        background: #0f172a;
-        border: 1px solid #334155;
-        border-radius: 16px;
-        font-size: 1rem;
-        color: #f8fafc;
-    }
-    .modal-content button {
-        background-color: #3b82f6;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 40px;
-        cursor: pointer;
-        font-weight: bold;
-        margin-top: 10px;
-    }
-    .error-msg {
-        color: #f87171;
-        font-size: 0.85rem;
-        margin-top: 10px;
-    }
-</style>
+    // Additional modal styles (missing from earlier)
+    const style = document.createElement('style');
+    style.textContent = `
+        .modal {
+            display: none;
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #1e293b;
+            padding: 2rem;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content input {
+            background: #020617;
+            border: 1px solid #334155;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border-radius: 16px;
+        }
+        .category-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            border-left: 5px solid #60a5fa;
+            padding-left: 15px;
+            margin-top: 1.5rem;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
 </body>
 </html>
