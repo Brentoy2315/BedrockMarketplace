@@ -183,11 +183,11 @@
         <div class="social-links">
             <a href="https://ko-fi.com/devbrentoyyy" target="_blank" rel="noopener noreferrer">☕ 𝐊𝐎-𝐅𝐈</a>
             <a href="https://www.tiktok.com/@dev.brentoyyy" target="_blank" rel="noopener noreferrer">🎵 𝐓𝐈𝐊𝐓𝐎𝐊</a>
-            <a href="https://www.youtube.com/@Brentoyyyyy" target="_blank" rel="noopener noreferrer">📺 𝐘𝐎𝐔𝐓𝐔𝐁𝐄</a>
+            <a href="https://www.youtube.com/@Brentoyyy2315" target="_blank" rel="noopener noreferrer">📺 𝐘𝐎𝐔𝐓𝐔𝐁𝐄</a>
             <a href="https://www.facebook.com/share/1H2UhDELkR/" target="_blank" rel="noopener noreferrer">📘 𝐅𝐀𝐂𝐄𝐁𝐎𝐎𝐊 𝐏𝐀𝐆𝐄</a>
             <a href="mailto:brentsinoy2315@gmail.com">📧 𝐆𝐌𝐀𝐈𝐋</a>
         </div>
-        <div class="copyright">© 2025 Minecraft Bedrock Marketplace. All rights reserved.</div>
+        <div class="copyright">© 2026 Dev. Brentoyyy. All rights reserved.</div>
     </div>
 </footer>
 
@@ -557,13 +557,53 @@ const firebaseConfig = {
     }
 
     // Announcement (localStorage)
-    function loadAnnouncement() { const saved = localStorage.getItem("announcement"); announcementHtml = saved || "✨ Welcome to our marketplace! Check out our featured items below. ✨"; renderAnnouncement(); }
-    function saveAnnouncement(text) { announcementHtml = text; localStorage.setItem("announcement", announcementHtml); renderAnnouncement(); alert("Announcement saved locally on this device."); }
-    function renderAnnouncement() { 
-        const panel = document.getElementById("announcementPanel");
-        if (announcementHtml && announcementHtml.trim()) { document.getElementById("announcementText").innerHTML = announcementHtml; panel.style.display = "flex"; } else panel.style.display = "none";
-        document.getElementById("editAnnouncementBtn").style.display = isAuthenticated() ? "inline-block" : "none";
+function loadAnnouncement() {
+    const announcementRef = database.ref('announcement');
+    announcementRef.on('value', (snapshot) => {
+        const saved = snapshot.val();
+        announcementHtml = saved || "✨ Welcome to our marketplace! Check out our featured items below. ✨";
+        renderAnnouncement();
+    }, (error) => {
+        console.error("Announcement read error:", error);
+        announcementHtml = "✨ Welcome to our marketplace! ✨";
+        renderAnnouncement();
+    });
+}
+
+async function saveAnnouncement(text) {
+    const user = auth.currentUser;
+    if (!user) {
+        alert("❌ You must be logged into Firebase to update the announcement.");
+        return false;
     }
+    try {
+        await database.ref('announcement').set(text);
+        announcementHtml = text;
+        renderAnnouncement();
+        alert("Announcement updated globally!");
+        return true;
+    } catch (err) {
+        alert("Failed to save announcement: " + err.message);
+        return false;
+    }
+}
+
+function renderAnnouncement() {
+    const panel = document.getElementById("announcementPanel");
+    const textDiv = document.getElementById("announcementText");
+    if (!panel || !textDiv) return;
+    if (announcementHtml && announcementHtml.trim() !== "") {
+        textDiv.innerHTML = announcementHtml;
+        panel.style.display = "flex";
+    } else {
+        panel.style.display = "none";
+    }
+    const editBtn = document.getElementById("editAnnouncementBtn");
+    if (editBtn) {
+        editBtn.style.display = isAuthenticated() ? "inline-block" : "none";
+    }
+}
+    
 
     // Suggestion
     function sendSuggestionToFB() { const sug = document.getElementById("suggestionText").value.trim(); if(!sug) return alert("Enter suggestion"); window.open(`https://m.me/${FACEBOOK_PAGE_ID}?text=${encodeURIComponent("💡 *SUGGESTION*\n"+sug)}`,"_blank"); document.getElementById("suggestionModal").style.display = "none"; document.getElementById("suggestionText").value=""; alert("Sent!"); }
