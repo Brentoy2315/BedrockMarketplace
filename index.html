@@ -3,92 +3,543 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Awesome File Hub</title>
+    <title>My Digital Download Hub — Dark Mode</title>
     <style>
-        /* Add some style to make it look nice */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f4f8; color: #2d3e50; line-height: 1.6; padding: 2rem; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 30px rgba(0,0,0,0.05); }
-        h1 { margin-bottom: 0.5rem; display: flex; align-items: center; gap: 10px; font-size: 2rem; }
-        .sub { color: #5a6e7c; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #eef2f6; }
-        .download-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem; }
-        .download-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; transition: all 0.2s ease; display: flex; justify-content: space-between; align-items: center; }
-        .download-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.05); transform: translateY(-1px); background: white; }
-        .file-info { overflow: hidden; }
-        .file-name { font-weight: 600; color: #1e293b; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .file-meta { font-size: 0.75rem; color: #64748b; }
-        .download-btn { background-color: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.875rem; transition: background 0.2s; text-decoration: none; display: inline-block; }
-        .download-btn:hover { background-color: #2563eb; }
-        @media (max-width: 640px) { body { padding: 1rem; } .container { padding: 1rem; } .download-item { flex-direction: column; align-items: flex-start; gap: 10px; } .download-btn { align-self: flex-start; } }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0c10;
+            color: #eef2ff;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header & Admin Button */
+        .site-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #1e293b;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .admin-btn {
+            background-color: #334155;
+            color: #f1f5f9;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-btn:hover {
+            background-color: #475569;
+            transform: translateY(-1px);
+        }
+
+        /* Login Modal (Dark) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            padding: 2rem;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 25px 40px -12px black;
+            border: 1px solid #334155;
+        }
+
+        .modal-content h3 {
+            color: #f1f5f9;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin: 12px 0;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            font-size: 1rem;
+            color: #f8fafc;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: #60a5fa;
+        }
+
+        .modal-content button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .error-msg {
+            color: #f87171;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        /* Admin Dashboard (Dark) */
+        .admin-dashboard {
+            display: none;
+            background: #0f172a;
+            padding: 2rem;
+            border-radius: 28px;
+            margin-bottom: 2.5rem;
+            border: 1px solid #1e293b;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            background: #020617;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            color: #f1f5f9;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #60a5fa;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .logout-btn {
+            background: #475569;
+            margin-left: 15px;
+        }
+
+        .logout-btn:hover {
+            background: #64748b;
+        }
+
+        /* Catalog Display (Dark Cards) */
+        .category-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .category-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            border-left: 5px solid #60a5fa;
+            padding-left: 15px;
+            color: #e2e8f0;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.8rem;
+        }
+
+        .item-card {
+            background: #111827;
+            border-radius: 24px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid #1e293b;
+        }
+
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -10px black;
+        }
+
+        .item-img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            background: #1e293b;
+        }
+
+        .item-info {
+            padding: 1rem;
+        }
+
+        .item-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #f1f5f9;
+        }
+
+        .item-category {
+            font-size: 0.8rem;
+            color: #93c5fd;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .item-link {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+
+        .item-link:hover {
+            background: #2563eb;
+        }
+
+        .delete-item {
+            float: right;
+            background: none;
+            border: none;
+            color: #f87171;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: none;
+            transition: 0.1s;
+        }
+
+        .delete-item:hover {
+            color: #ef4444;
+            transform: scale(1.1);
+        }
+
+        .admin-mode .delete-item {
+            display: inline-block;
+        }
+
+        /* Tip text inside admin panel */
+        .admin-dashboard p {
+            color: #94a3b8 !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            .container {
+                padding: 1rem;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar (optional) */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v12m0 0-3-3m3 3 3-3M5 15v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Downloads
-        </h1>
-        <div class="sub">Click any button to download a file.</div>
-        <div id="fileList" class="download-grid">
-            <!-- File list will be automatically loaded here -->
-            <div style="text-align: center; padding: 2rem;">Loading your files...</div>
-        </div>
+
+<div class="container">
+    <div class="site-header">
+        <div class="logo">ʙʀᴇɴᴛᴏʏʏʏ'ꜱ ᴍᴀʀᴋᴇᴛᴘʟᴀᴄᴇ</div>
+        <button id="adminLoginBtn" class="admin-btn">🔐 Admin Login</button>
     </div>
 
-    <script>
-        // --------------------------------------------------------------
-        // SETUP GUIDE:
-        // --------------------------------------------------------------
-        // 1. Replace the "files" array below with your own file information.
-        // 2. For each file, provide a 'name' and the 'url' where it is hosted.
-        //    ---- IMPORTANT: URL FORMAT ----
-        //    The `url` should be a direct, public link to your file.
-        //    If you are using GitHub, see the guide below for obtaining the correct link.
-        // --------------------------------------------------------------
-        const files = [
-            // { name: "Example File 1.pdf", url: "https://example.com/path/to/your/file.pdf" },
-            // { name: "Example File 2.zip", url: "https://example.com/path/to/another/file.zip" },
-        ];
+    <!-- Admin Dashboard (Dark) -->
+    <div id="adminPanel" class="admin-dashboard">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color:#e2e8f0;">➕ Admin Controls</h2>
+            <button id="logoutBtn" class="admin-btn logout-btn">🚪 Logout</button>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Image URL (Photo):</label>
+                <input type="text" id="itemImage" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>Title:</label>
+                <input type="text" id="itemTitle" placeholder="e.g., Dragon Slayer Pack">
+            </div>
+            <div class="form-group">
+                <label>Category:</label>
+                <input type="text" id="itemCategory" placeholder="e.g., Addons / Worlds">
+            </div>
+            <div class="form-group">
+                <label>Download Link URL:</label>
+                <input type="text" id="itemLink" placeholder="https://...">
+            </div>
+        </div>
+        <button id="addItemBtn" class="btn-primary">➕ Add New Item</button>
+        <p style="font-size: 0.8rem; margin-top: 15px; color: #94a3b8;">⚡ Tip: Click the 'X' on any card below to delete it (visible only in admin mode)</p>
+    </div>
 
-        // Get a reference to the container where we'll put the file list
-        const fileListContainer = document.getElementById('fileList');
+    <!-- Catalog Display -->
+    <div id="catalogContainer"></div>
+</div>
 
-        // If there are no files, show a message to help the user get started
-        if (!files || files.length === 0) {
-            fileListContainer.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 2rem; background: #f8fafc; border-radius: 12px;">
-                    <p>🙋‍♂️ No files added yet.</p>
-                    <p style="margin-top: 1rem; font-size: 0.9rem;">Open <code style="background:#e2e8f0; padding:0.2rem 0.4rem; border-radius:6px;">index.html</code> and update the <code style="background:#e2e8f0; padding:0.2rem 0.4rem; border-radius:6px;">files</code> array with your own!</p>
-                </div>
-            `;
+<!-- Login Modal (Dark) -->
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <h3>🔒 Admin Access Only</h3>
+        <input type="text" id="loginUser" placeholder="Username">
+        <input type="password" id="loginPass" placeholder="Password">
+        <button id="submitLogin">Login</button>
+        <div id="loginError" class="error-msg"></div>
+    </div>
+</div>
+
+<script>
+    // ------------------------------
+    // Admin Credentials (unchanged)
+    // ------------------------------
+    const ADMIN_CRED = {
+        username: "Brentoyyy2315",
+        password: "@Brentoyyy2315"
+    };
+
+    // ------------------------------
+    // Data Management (localStorage)
+    // ------------------------------
+    let catalogItems = [];
+
+    function loadItems() {
+        const stored = localStorage.getItem("dlc_catalog");
+        if(stored) {
+            catalogItems = JSON.parse(stored);
         } else {
-            // Loop through each file in the 'files' array and create an HTML element for it
-            let filesHTML = '';
-            for (const file of files) {
-                filesHTML += `
-                    <div class="download-item">
-                        <div class="file-info">
-                            <div class="file-name">${escapeHtml(file.name)}</div>
-                            <div class="file-meta">Ready for download</div>
-                        </div>
-                        <a href="${escapeHtml(file.url)}" download class="download-btn">Download</a>
-                    </div>
-                `;
-            }
-            // Insert all the generated HTML into the page
-            fileListContainer.innerHTML = filesHTML;
+            catalogItems = [
+                { id: Date.now(), image: "https://picsum.photos/id/104/300/200", title: "Myth and Dragons Add-On", category: "Addon", link: "#" },
+                { id: Date.now()+1, image: "https://picsum.photos/id/106/300/200", title: "Tower Defense World", category: "World", link: "#" },
+                { id: Date.now()+2, image: "https://picsum.photos/id/15/300/200", title: "CAVE BIOMES ADD-ON", category: "Addon", link: "#" }
+            ];
+            saveItems();
+        }
+        renderCatalog();
+    }
+
+    function saveItems() {
+        localStorage.setItem("dlc_catalog", JSON.stringify(catalogItems));
+    }
+
+    function addItem(image, title, category, link) {
+        const newItem = {
+            id: Date.now(),
+            image: image || "https://picsum.photos/id/1/300/200",
+            title: title || "Untitled",
+            category: category || "General",
+            link: link || "#"
+        };
+        catalogItems.push(newItem);
+        saveItems();
+        renderCatalog();
+    }
+
+    function deleteItem(id) {
+        catalogItems = catalogItems.filter(item => item.id != id);
+        saveItems();
+        renderCatalog();
+    }
+
+    // Render catalog with grouping by category
+    function renderCatalog() {
+        const container = document.getElementById("catalogContainer");
+        if(!container) return;
+
+        const grouped = {};
+        catalogItems.forEach(item => {
+            if(!grouped[item.category]) grouped[item.category] = [];
+            grouped[item.category].push(item);
+        });
+
+        let html = "";
+        for(let cat in grouped) {
+            html += `<div class="category-section">
+                        <div class="category-title">📁 ${cat}</div>
+                        <div class="items-grid">`;
+            grouped[cat].forEach(item => {
+                html += `<div class="item-card" data-id="${item.id}">
+                            <img src="${item.image}" class="item-img" alt="${item.title}" onerror="this.src='https://picsum.photos/id/1/300/200'">
+                            <div class="item-info">
+                                <div class="item-title">${escapeHtml(item.title)}</div>
+                                <div class="item-category">${escapeHtml(item.category)}</div>
+                                <a href="${escapeHtml(item.link)}" class="item-link" target="_blank">🔗 Download</a>
+                                <button class="delete-item" onclick="deleteItem(${item.id})" title="Delete Item">✖</button>
+                            </div>
+                        </div>`;
+            });
+            html += `</div></div>`;
         }
 
-        // A simple helper function to prevent XSS attacks by escaping special characters.
-        function escapeHtml(unsafe) {
-            if (!unsafe) return '';
-            return unsafe
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+        container.innerHTML = html || "<p style='text-align:center; margin-top:3rem; color:#94a3b8;'>✨ No items yet. Login to admin and add your first download! ✨</p>";
+
+        const isAdmin = sessionStorage.getItem("admin_auth") === "true";
+        if(isAdmin) {
+            document.body.classList.add("admin-mode");
+        } else {
+            document.body.classList.remove("admin-mode");
         }
-    </script>
+    }
+
+    function escapeHtml(str) {
+        if(!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Auth logic (unchanged)
+    function isAuthenticated() {
+        return sessionStorage.getItem("admin_auth") === "true";
+    }
+
+    function login(username, password) {
+        if(username === ADMIN_CRED.username && password === ADMIN_CRED.password) {
+            sessionStorage.setItem("admin_auth", "true");
+            document.getElementById("loginModal").style.display = "none";
+            document.getElementById("adminPanel").style.display = "block";
+            renderCatalog();
+            return true;
+        } else {
+            document.getElementById("loginError").innerText = "Invalid username or password.";
+            return false;
+        }
+    }
+
+    function logout() {
+        sessionStorage.removeItem("admin_auth");
+        document.getElementById("adminPanel").style.display = "none";
+        renderCatalog();
+        alert("You have been logged out.");
+    }
+
+    // Event handlers
+    document.getElementById("adminLoginBtn").onclick = () => {
+        if(isAuthenticated()) {
+            const panel = document.getElementById("adminPanel");
+            panel.style.display = panel.style.display === "none" ? "block" : "none";
+        } else {
+            document.getElementById("loginModal").style.display = "flex";
+        }
+    };
+
+    document.getElementById("submitLogin").onclick = () => {
+        const user = document.getElementById("loginUser").value;
+        const pass = document.getElementById("loginPass").value;
+        login(user, pass);
+    };
+
+    document.getElementById("logoutBtn").onclick = () => {
+        logout();
+    };
+
+    document.getElementById("addItemBtn").onclick = () => {
+        if(!isAuthenticated()) return;
+        const img = document.getElementById("itemImage").value.trim();
+        const title = document.getElementById("itemTitle").value.trim();
+        const cat = document.getElementById("itemCategory").value.trim();
+        const link = document.getElementById("itemLink").value.trim();
+        if(!title) {
+            alert("Please at least enter a title.");
+            return;
+        }
+        addItem(img, title, cat, link);
+        document.getElementById("itemImage").value = "";
+        document.getElementById("itemTitle").value = "";
+        document.getElementById("itemCategory").value = "";
+        document.getElementById("itemLink").value = "";
+    };
+
+    window.onclick = (event) => {
+        const modal = document.getElementById("loginModal");
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    };
+
+    // Initialize
+    loadItems();
+    if(isAuthenticated()) {
+        document.getElementById("adminPanel").style.display = "block";
+    }
+</script>
 </body>
 </html>
