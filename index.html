@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Awesome File Hub</title>
+    <style>
+        /* Add some style to make it look nice */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f4f8; color: #2d3e50; line-height: 1.6; padding: 2rem; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 30px rgba(0,0,0,0.05); }
+        h1 { margin-bottom: 0.5rem; display: flex; align-items: center; gap: 10px; font-size: 2rem; }
+        .sub { color: #5a6e7c; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #eef2f6; }
+        .download-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .download-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; transition: all 0.2s ease; display: flex; justify-content: space-between; align-items: center; }
+        .download-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.05); transform: translateY(-1px); background: white; }
+        .file-info { overflow: hidden; }
+        .file-name { font-weight: 600; color: #1e293b; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-meta { font-size: 0.75rem; color: #64748b; }
+        .download-btn { background-color: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.875rem; transition: background 0.2s; text-decoration: none; display: inline-block; }
+        .download-btn:hover { background-color: #2563eb; }
+        @media (max-width: 640px) { body { padding: 1rem; } .container { padding: 1rem; } .download-item { flex-direction: column; align-items: flex-start; gap: 10px; } .download-btn { align-self: flex-start; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v12m0 0-3-3m3 3 3-3M5 15v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Downloads
+        </h1>
+        <div class="sub">Click any button to download a file.</div>
+        <div id="fileList" class="download-grid">
+            <!-- File list will be automatically loaded here -->
+            <div style="text-align: center; padding: 2rem;">Loading your files...</div>
+        </div>
+    </div>
+
+    <script>
+        // --------------------------------------------------------------
+        // SETUP GUIDE:
+        // --------------------------------------------------------------
+        // 1. Replace the "files" array below with your own file information.
+        // 2. For each file, provide a 'name' and the 'url' where it is hosted.
+        //    ---- IMPORTANT: URL FORMAT ----
+        //    The `url` should be a direct, public link to your file.
+        //    If you are using GitHub, see the guide below for obtaining the correct link.
+        // --------------------------------------------------------------
+        const files = [
+            // { name: "Example File 1.pdf", url: "https://example.com/path/to/your/file.pdf" },
+            // { name: "Example File 2.zip", url: "https://example.com/path/to/another/file.zip" },
+        ];
+
+        // Get a reference to the container where we'll put the file list
+        const fileListContainer = document.getElementById('fileList');
+
+        // If there are no files, show a message to help the user get started
+        if (!files || files.length === 0) {
+            fileListContainer.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 2rem; background: #f8fafc; border-radius: 12px;">
+                    <p>🙋‍♂️ No files added yet.</p>
+                    <p style="margin-top: 1rem; font-size: 0.9rem;">Open <code style="background:#e2e8f0; padding:0.2rem 0.4rem; border-radius:6px;">index.html</code> and update the <code style="background:#e2e8f0; padding:0.2rem 0.4rem; border-radius:6px;">files</code> array with your own!</p>
+                </div>
+            `;
+        } else {
+            // Loop through each file in the 'files' array and create an HTML element for it
+            let filesHTML = '';
+            for (const file of files) {
+                filesHTML += `
+                    <div class="download-item">
+                        <div class="file-info">
+                            <div class="file-name">${escapeHtml(file.name)}</div>
+                            <div class="file-meta">Ready for download</div>
+                        </div>
+                        <a href="${escapeHtml(file.url)}" download class="download-btn">Download</a>
+                    </div>
+                `;
+            }
+            // Insert all the generated HTML into the page
+            fileListContainer.innerHTML = filesHTML;
+        }
+
+        // A simple helper function to prevent XSS attacks by escaping special characters.
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
