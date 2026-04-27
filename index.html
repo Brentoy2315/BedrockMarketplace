@@ -183,7 +183,7 @@
             margin-left: 15px;
         }
 
-        /* Catalog Cards (no download button) */
+        /* Catalog Cards */
         .items-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -195,6 +195,7 @@
             border-radius: 24px;
             overflow: hidden;
             border: 1px solid #1e293b;
+            position: relative; /* needed for absolute positioning of delete button */
         }
 
         .item-img {
@@ -212,6 +213,7 @@
             font-weight: 700;
             font-size: 1.1rem;
             margin-bottom: 0.5rem;
+            padding-right: 30px; /* leave space for delete button */
         }
 
         .item-category {
@@ -236,19 +238,31 @@
             background: #059669;
         }
 
+        /* Delete button - top right corner, visible only in admin mode */
         .delete-item {
-            float: right;
-            background: none;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.7);
             border: none;
             color: #f87171;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
+            width: 28px;
+            height: 28px;
+            border-radius: 30px;
             cursor: pointer;
             display: none;
-            margin-top: -28px;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            z-index: 10;
         }
-
+        .delete-item:hover {
+            background: #ef4444;
+            color: white;
+        }
         .admin-mode .delete-item {
-            display: inline-block;
+            display: flex;
         }
 
         .category-title {
@@ -406,7 +420,7 @@
         </div>
     </div>
 
-    <!-- Admin Panel (no download link field) -->
+    <!-- Admin Panel -->
     <div id="adminPanel" class="admin-dashboard">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 style="color:#e2e8f0;">➕ Admin Controls</h2>
@@ -425,10 +439,9 @@
                 <label>Category:</label>
                 <input type="text" id="itemCategory" placeholder="e.g., Addons / Worlds">
             </div>
-            <!-- Download Link field removed -->
         </div>
         <button id="addItemBtn" class="btn-primary">➕ Add New Item</button>
-        <p style="font-size: 0.8rem; margin-top: 15px; color: #94a3b8;">⚡ Tip: Click the 'X' on any card below to delete it (visible only in admin mode)</p>
+        <p style="font-size: 0.8rem; margin-top: 15px; color: #94a3b8;">⚡ In admin mode, click the ✖ on any card (top‑right) to delete.</p>
     </div>
 
     <!-- Catalog Container -->
@@ -459,27 +472,22 @@
 <script>
     // ======================= CONFIG =======================
     // CHANGE THIS to your Facebook Page username or numeric ID
-    const FACEBOOK_PAGE_NAME = "111811064292787";  // e.g., "MinecraftMarketPH" or "100063784512345"
+    const FACEBOOK_PAGE_NAME = "YourPageName";
     // =====================================================
 
-    // Admin credentials
     const ADMIN_CRED = { username: "Brentoyyy2315", password: "@Brentoyyy2315" };
 
-    // Data models
-    let catalogItems = [];   // each item: { id, image, title, category }
-    let cart = [];           // each cart item: { id, title, category, image }
-
-    // Filters
+    let catalogItems = [];
+    let cart = [];
     let currentSearchTerm = "";
     let currentCategoryFilter = "all";
 
-    // ---------- Local Storage ----------
+    // Load items
     function loadItems() {
         const stored = localStorage.getItem("dlc_catalog");
         if(stored) {
             catalogItems = JSON.parse(stored);
         } else {
-            // Default sample data (no link field)
             catalogItems = [
                 { id: Date.now(), image: "https://picsum.photos/id/104/300/200", title: "Dragon Slayer Pack", category: "Addon" },
                 { id: Date.now()+1, image: "https://picsum.photos/id/106/300/200", title: "Tower Defense World", category: "World" },
@@ -497,18 +505,16 @@
         localStorage.setItem("dlc_catalog", JSON.stringify(catalogItems));
     }
 
-    // ---------- Cart Functions ----------
+    // Cart functions
     function loadCart() {
         const stored = localStorage.getItem("cart");
         cart = stored ? JSON.parse(stored) : [];
         updateCartUI();
     }
-
     function saveCart() {
         localStorage.setItem("cart", JSON.stringify(cart));
         updateCartUI();
     }
-
     function addToCart(item) {
         if (!cart.some(cartItem => cartItem.id === item.id)) {
             cart.push({ ...item });
@@ -517,18 +523,14 @@
             alert("Item already in cart.");
         }
     }
-
     function removeFromCart(itemId) {
         cart = cart.filter(i => i.id !== itemId);
         saveCart();
-        renderCartModal(); // refresh modal if open
+        renderCartModal();
     }
-
     function updateCartUI() {
-        const count = cart.length;
-        document.getElementById("cartCount").innerText = count;
+        document.getElementById("cartCount").innerText = cart.length;
     }
-
     function renderCartModal() {
         const container = document.getElementById("cartItemsList");
         if (!container) return;
@@ -555,28 +557,25 @@
         });
     }
 
-    // ---------- Facebook Checkout ----------
+    // Facebook checkout
     function checkoutViaFacebook() {
         if (cart.length === 0) {
-            alert("Your cart is empty. Add some items first.");
+            alert("Your cart is empty.");
             return;
         }
         let orderText = "🛒 *NEW ORDER* 🛒\n\n";
         cart.forEach((item, idx) => {
             orderText += `${idx+1}. ${item.title} (${item.category})\n`;
         });
-        orderText += `\nTotal items: ${cart.length}\nPlease provide payment instructions (GCash QR) and download links. Thank you!`;
-
+        orderText += `\nTotal items: ${cart.length}\nPlease provide payment instructions and download links. Thank you!`;
         const encodedMsg = encodeURIComponent(orderText);
         const fbUrl = `https://m.me/${FACEBOOK_PAGE_NAME}?text=${encodedMsg}`;
         window.open(fbUrl, "_blank");
         document.getElementById("cartModal").style.display = "none";
-        alert("Order message prepared! Send it to our Facebook page. We'll reply with payment details and download links.");
-        // Optional: clear cart after checkout – uncomment next line if desired
-        // cart = []; saveCart(); updateCartUI();
+        alert("Order message prepared! Send it to our Facebook page. We'll reply with payment details.");
     }
 
-    // ---------- Admin CRUD ----------
+    // Admin CRUD
     function addItem(image, title, category) {
         const newItem = {
             id: Date.now(),
@@ -593,7 +592,6 @@
     function deleteItem(id) {
         catalogItems = catalogItems.filter(i => i.id !== id);
         saveItems();
-        // also remove from cart if present
         cart = cart.filter(i => i.id !== id);
         saveCart();
         renderCategoryChips();
@@ -601,7 +599,7 @@
         renderCartModal();
     }
 
-    // ---------- Rendering Catalog (no download button) ----------
+    // Filtering & rendering
     function getFilteredItems() {
         let filtered = [...catalogItems];
         if (currentSearchTerm.trim()) {
@@ -618,20 +616,16 @@
         const filtered = getFilteredItems();
         const container = document.getElementById("catalogContainer");
         if (!container) return;
-
         if (filtered.length === 0) {
-            container.innerHTML = `<div class="no-results">😕 No items match your search or filter.</div>`;
+            container.innerHTML = `<div class="no-results">😕 No items match.</div>`;
             updateAdminModeClass();
             return;
         }
-
-        // Group by category
         const grouped = {};
         filtered.forEach(item => {
             if (!grouped[item.category]) grouped[item.category] = [];
             grouped[item.category].push(item);
         });
-
         let html = "";
         for (let cat in grouped) {
             html += `<div class="category-section">
@@ -639,20 +633,19 @@
                         <div class="items-grid">`;
             grouped[cat].forEach(item => {
                 html += `<div class="item-card" data-id="${item.id}">
-                            <img src="${item.image}" class="item-img" alt="${item.title}" onerror="this.src='https://picsum.photos/id/1/300/200'">
+                            <button class="delete-item" data-id="${item.id}" title="Delete item">✖</button>
+                            <img src="${item.image}" class="item-img" onerror="this.src='https://picsum.photos/id/1/300/200'">
                             <div class="item-info">
                                 <div class="item-title">${escapeHtml(item.title)}</div>
                                 <div class="item-category">${escapeHtml(item.category)}</div>
                                 <button class="add-to-cart" data-id="${item.id}" data-title="${escapeHtml(item.title)}" data-category="${escapeHtml(item.category)}" data-image="${escapeHtml(item.image)}">➕ Add to Cart</button>
-                                <button class="delete-item" data-id="${item.id}">✖</button>
                             </div>
                         </div>`;
             });
             html += `</div></div>`;
         }
         container.innerHTML = html;
-
-        // Attach add-to-cart events
+        // Add to cart events
         document.querySelectorAll(".add-to-cart").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const id = parseInt(btn.getAttribute("data-id"));
@@ -662,9 +655,10 @@
                 addToCart({ id, title, category, image });
             });
         });
-        // Attach delete events (admin only)
+        // Delete events
         document.querySelectorAll(".delete-item").forEach(btn => {
             btn.addEventListener("click", (e) => {
+                e.stopPropagation();
                 const id = parseInt(btn.getAttribute("data-id"));
                 if (confirm("Delete this item permanently?")) deleteItem(id);
             });
@@ -677,7 +671,6 @@
         const cats = catalogItems.map(i => i.category);
         return [...new Set(cats)].sort();
     }
-
     function renderCategoryChips() {
         const container = document.getElementById("categoryChips");
         if (!container) return;
@@ -696,11 +689,10 @@
         });
     }
 
-    // Auth helpers
+    // Auth
     function isAuthenticated() {
         return sessionStorage.getItem("admin_auth") === "true";
     }
-
     function login(username, password) {
         if (username === ADMIN_CRED.username && password === ADMIN_CRED.password) {
             sessionStorage.setItem("admin_auth", "true");
@@ -709,37 +701,25 @@
             applyFiltersAndRender();
             return true;
         } else {
-            document.getElementById("loginError").innerText = "Invalid username or password.";
+            document.getElementById("loginError").innerText = "Invalid credentials.";
             return false;
         }
     }
-
     function logout() {
         sessionStorage.removeItem("admin_auth");
         document.getElementById("adminPanel").style.display = "none";
         applyFiltersAndRender();
     }
-
     function updateAdminModeClass() {
-        if (isAuthenticated()) {
-            document.body.classList.add("admin-mode");
-        } else {
-            document.body.classList.remove("admin-mode");
-        }
+        if (isAuthenticated()) document.body.classList.add("admin-mode");
+        else document.body.classList.remove("admin-mode");
     }
-
-    // Helper: escape HTML
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
+        return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
     }
 
-    // ---------- Event Listeners ----------
+    // Event listeners
     document.getElementById("adminLoginBtn").onclick = () => {
         if (isAuthenticated()) {
             const panel = document.getElementById("adminPanel");
@@ -748,35 +728,25 @@
             document.getElementById("loginModal").style.display = "flex";
         }
     };
-
     document.getElementById("submitLogin").onclick = () => {
-        const user = document.getElementById("loginUser").value;
-        const pass = document.getElementById("loginPass").value;
-        login(user, pass);
+        login(document.getElementById("loginUser").value, document.getElementById("loginPass").value);
     };
-
     document.getElementById("logoutBtn").onclick = () => logout();
-
     document.getElementById("addItemBtn").onclick = () => {
         if (!isAuthenticated()) return;
         const img = document.getElementById("itemImage").value.trim();
         const title = document.getElementById("itemTitle").value.trim();
         const cat = document.getElementById("itemCategory").value.trim();
-        if (!title) {
-            alert("Please enter a title.");
-            return;
-        }
+        if (!title) { alert("Title required"); return; }
         addItem(img, title, cat);
         document.getElementById("itemImage").value = "";
         document.getElementById("itemTitle").value = "";
         document.getElementById("itemCategory").value = "";
     };
-
     document.getElementById("searchInput").addEventListener("input", (e) => {
         currentSearchTerm = e.target.value;
         applyFiltersAndRender();
     });
-
     document.getElementById("clearFiltersBtn").onclick = () => {
         currentSearchTerm = "";
         currentCategoryFilter = "all";
@@ -784,29 +754,21 @@
         renderCategoryChips();
         applyFiltersAndRender();
     };
-
-    // Cart modal controls
+    // Cart modal
     const cartModal = document.getElementById("cartModal");
     document.getElementById("cartButton").onclick = () => {
         renderCartModal();
         cartModal.style.display = "flex";
     };
-    document.getElementById("closeCartBtn").onclick = () => {
-        cartModal.style.display = "none";
-    };
-    document.getElementById("checkoutBtn").onclick = () => {
-        checkoutViaFacebook();
-    };
+    document.getElementById("closeCartBtn").onclick = () => { cartModal.style.display = "none"; };
+    document.getElementById("checkoutBtn").onclick = () => checkoutViaFacebook();
     window.onclick = (e) => {
         if (e.target === cartModal) cartModal.style.display = "none";
         if (e.target === document.getElementById("loginModal")) document.getElementById("loginModal").style.display = "none";
     };
 
-    // Initialize
     loadItems();
-    if (isAuthenticated()) {
-        document.getElementById("adminPanel").style.display = "block";
-    }
+    if (isAuthenticated()) document.getElementById("adminPanel").style.display = "block";
 </script>
 </body>
 </html>
