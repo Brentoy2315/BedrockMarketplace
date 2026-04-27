@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft Bedrock Marketplace — with Prices</title>
+    <title>Minecraft Bedrock Marketplace — Featured & Announcement</title>
     <style>
         * {
             margin: 0;
@@ -79,6 +79,40 @@
             border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
+        }
+
+        /* Announcement Banner */
+        .announcement {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-left: 6px solid #fbbf24;
+            border-radius: 20px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .announcement-icon {
+            font-size: 1.8rem;
+        }
+        .announcement-text {
+            flex: 1;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+        .announcement-text a {
+            color: #fbbf24;
+            text-decoration: none;
+        }
+        .edit-announcement-btn {
+            background: #475569;
+            border: none;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.7rem;
         }
 
         /* Filter Bar */
@@ -159,13 +193,32 @@
             font-weight: 500;
         }
 
-        .form-group input {
+        .form-group input, .form-group textarea {
             padding: 12px;
             background: #020617;
             border: 1px solid #334155;
             border-radius: 16px;
             font-size: 0.95rem;
             color: #f1f5f9;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+        .checkbox-group label {
+            margin-bottom: 0;
+        }
+        .checkbox-group input {
+            width: auto;
+            transform: scale(1.2);
+            margin-right: 8px;
         }
 
         .btn-primary {
@@ -176,6 +229,11 @@
             border-radius: 40px;
             cursor: pointer;
             font-weight: bold;
+        }
+
+        .btn-secondary {
+            background: #475569;
+            margin-left: 10px;
         }
 
         .logout-btn {
@@ -202,6 +260,19 @@
         .item-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 30px -10px black;
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #fbbf24;
+            color: #0a0c10;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 30px;
+            z-index: 10;
         }
 
         .item-img {
@@ -251,31 +322,48 @@
             background: #059669;
         }
 
-        /* Delete button */
-        .delete-item {
+        /* Delete & Edit buttons */
+        .item-actions-admin {
             position: absolute;
             top: 8px;
             right: 8px;
+            display: flex;
+            gap: 6px;
+            z-index: 10;
+        }
+        .delete-item, .edit-item {
             background: rgba(0,0,0,0.7);
             border: none;
             color: #f87171;
-            font-size: 1.2rem;
+            font-size: 1rem;
             width: 28px;
             height: 28px;
             border-radius: 30px;
             cursor: pointer;
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(4px);
-            z-index: 10;
+        }
+        .edit-item {
+            color: #60a5fa;
         }
         .delete-item:hover {
             background: #ef4444;
             color: white;
         }
-        .admin-mode .delete-item {
+        .edit-item:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        .admin-mode .item-actions-admin {
             display: flex;
+        }
+        .admin-mode .item-actions-admin {
+            display: flex;
+        }
+        .item-actions-admin {
+            display: none;
         }
 
         .category-title {
@@ -438,6 +526,13 @@
         </div>
     </div>
 
+    <!-- Announcement Panel -->
+    <div id="announcementPanel" class="announcement" style="display: none;">
+        <div class="announcement-icon">📢</div>
+        <div id="announcementText" class="announcement-text"></div>
+        <button id="editAnnouncementBtn" class="edit-announcement-btn" style="display: none;">✏️ Edit</button>
+    </div>
+
     <!-- Filter Bar -->
     <div class="filter-bar">
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by title...">
@@ -448,32 +543,54 @@
         </div>
     </div>
 
-    <!-- Admin Panel -->
+    <!-- Admin Dashboard -->
     <div id="adminPanel" class="admin-dashboard">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 style="color:#e2e8f0;">➕ Admin Controls</h2>
             <button id="logoutBtn" class="admin-btn logout-btn">🚪 Logout</button>
         </div>
-        <div class="form-grid">
-            <div class="form-group">
-                <label>Image URL:</label>
-                <input type="text" id="itemImage" placeholder="https://...">
+        <!-- Add/Edit Item Form -->
+        <div style="margin-bottom: 30px;">
+            <h3 style="margin-bottom: 15px;">Add New Item</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Image URL:</label>
+                    <input type="text" id="itemImage" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Title:</label>
+                    <input type="text" id="itemTitle" placeholder="e.g., Dragon Slayer Pack">
+                </div>
+                <div class="form-group">
+                    <label>Category:</label>
+                    <input type="text" id="itemCategory" placeholder="e.g., Addons / Worlds">
+                </div>
+                <div class="form-group">
+                    <label>Price (₱ PHP):</label>
+                    <input type="number" id="itemPrice" placeholder="e.g., 99" step="1" value="0">
+                </div>
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="itemFeatured"> ⭐ Featured Item (appears at top)
+                    </label>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Title:</label>
-                <input type="text" id="itemTitle" placeholder="e.g., Dragon Slayer Pack">
-            </div>
-            <div class="form-group">
-                <label>Category:</label>
-                <input type="text" id="itemCategory" placeholder="e.g., Addons / Worlds">
-            </div>
-            <div class="form-group">
-                <label>Price (₱ PHP):</label>
-                <input type="number" id="itemPrice" placeholder="e.g., 99" step="1" value="0">
-            </div>
+            <button id="addItemBtn" class="btn-primary">➕ Add Item</button>
+            <button id="cancelEditBtn" class="btn-primary btn-secondary" style="display: none;">Cancel Edit</button>
         </div>
-        <button id="addItemBtn" class="btn-primary">➕ Add New Item</button>
-        <p style="font-size: 0.8rem; margin-top: 15px; color: #94a3b8;">⚡ In admin mode, click the ✖ on any card (top‑right) to delete.</p>
+
+        <!-- Announcement Editor -->
+        <div style="margin-top: 30px; border-top: 1px solid #334155; padding-top: 20px;">
+            <h3>📢 Announcement Banner</h3>
+            <div class="form-group">
+                <label>Announcement Text (supports emoji & links):</label>
+                <textarea id="announcementInput" rows="3" placeholder="e.g., 🎉 New Dragon Pack available! Click here to order." style="width: 100%;"></textarea>
+                <small style="color: #94a3b8;">You can use HTML links like &lt;a href='https://...'&gt;Link&lt;/a&gt;</small>
+            </div>
+            <button id="saveAnnouncementBtn" class="btn-primary">💾 Save Announcement</button>
+        </div>
+
+        <p style="font-size: 0.8rem; margin-top: 20px; color: #94a3b8;">⚡ Admin: Hover over any card to see Edit (✏️) and Delete (✖) buttons.</p>
     </div>
 
     <!-- Catalog Container -->
@@ -504,35 +621,37 @@
 
 <script>
     // ======================= CONFIG =======================
-    // Your Facebook Page ID (provided)
     const FACEBOOK_PAGE_ID = "111811064292787";
+    const ADMIN_CRED = { username: "Brentoyyy2315", password: "@Brentoyyy2315" };
     // ======================================================
 
-    const ADMIN_CRED = { username: "Brentoyyy2315", password: "@Brentoyyy2315" };
-
-    let catalogItems = [];   // each item: { id, image, title, category, price }
-    let cart = [];           // each cart item: { id, title, category, price, image }
-
+    let catalogItems = [];   // each: { id, image, title, category, price, featured }
+    let cart = [];
     let currentSearchTerm = "";
     let currentCategoryFilter = "all";
+    let editingItemId = null; // for edit mode
+
+    // Announcement
+    let announcementHtml = "";
 
     // ---------- Load / Save ----------
     function loadItems() {
         const stored = localStorage.getItem("dlc_catalog");
         if (stored) {
             catalogItems = JSON.parse(stored);
-            // Ensure old items (without price) get a default price
-            catalogItems = catalogItems.map(item => ({ ...item, price: item.price || 0 }));
+            // Ensure all items have featured property
+            catalogItems = catalogItems.map(item => ({ ...item, featured: item.featured === true }));
             saveItems();
         } else {
             catalogItems = [
-                { id: Date.now(), image: "https://picsum.photos/id/104/300/200", title: "Dragon Slayer Pack", category: "Addon", price: 99 },
-                { id: Date.now()+1, image: "https://picsum.photos/id/106/300/200", title: "Tower Defense World", category: "World", price: 149 },
-                { id: Date.now()+2, image: "https://picsum.photos/id/15/300/200", title: "Cave Biomes Addon", category: "Addon", price: 79 }
+                { id: Date.now(), image: "https://picsum.photos/id/104/300/200", title: "Dragon Slayer Pack", category: "Addon", price: 99, featured: true },
+                { id: Date.now()+1, image: "https://picsum.photos/id/106/300/200", title: "Tower Defense World", category: "World", price: 149, featured: false },
+                { id: Date.now()+2, image: "https://picsum.photos/id/15/300/200", title: "Cave Biomes Addon", category: "Addon", price: 79, featured: false }
             ];
             saveItems();
         }
         loadCart();
+        loadAnnouncement();
         renderCategoryChips();
         applyFiltersAndRender();
         updateCartUI();
@@ -542,7 +661,42 @@
         localStorage.setItem("dlc_catalog", JSON.stringify(catalogItems));
     }
 
-    // ---------- Cart Functions ----------
+    // Announcement functions
+    function loadAnnouncement() {
+        const saved = localStorage.getItem("announcement");
+        if (saved) {
+            announcementHtml = saved;
+        } else {
+            announcementHtml = "✨ Welcome to our marketplace! Check out our featured items below. ✨";
+            localStorage.setItem("announcement", announcementHtml);
+        }
+        renderAnnouncement();
+    }
+
+    function saveAnnouncement(text) {
+        announcementHtml = text;
+        localStorage.setItem("announcement", announcementHtml);
+        renderAnnouncement();
+    }
+
+    function renderAnnouncement() {
+        const panel = document.getElementById("announcementPanel");
+        const textDiv = document.getElementById("announcementText");
+        if (!panel || !textDiv) return;
+        if (announcementHtml && announcementHtml.trim() !== "") {
+            textDiv.innerHTML = announcementHtml;
+            panel.style.display = "flex";
+        } else {
+            panel.style.display = "none";
+        }
+        // Show edit button only in admin mode
+        const editBtn = document.getElementById("editAnnouncementBtn");
+        if (editBtn) {
+            editBtn.style.display = isAuthenticated() ? "inline-block" : "none";
+        }
+    }
+
+    // ---------- Cart ----------
     function loadCart() {
         const stored = localStorage.getItem("cart");
         cart = stored ? JSON.parse(stored) : [];
@@ -577,13 +731,11 @@
         const container = document.getElementById("cartItemsList");
         const totalContainer = document.getElementById("cartTotal");
         if (!container) return;
-
         if (cart.length === 0) {
             container.innerHTML = "<p>Your cart is empty.</p>";
             totalContainer.innerHTML = "";
             return;
         }
-
         let html = "";
         let total = 0;
         cart.forEach(item => {
@@ -600,8 +752,6 @@
         });
         container.innerHTML = html;
         totalContainer.innerHTML = `Total: ₱${total.toFixed(2)}`;
-
-        // Attach remove events
         document.querySelectorAll(".remove-item").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const id = parseInt(btn.getAttribute("data-id"));
@@ -610,7 +760,6 @@
         });
     }
 
-    // ---------- Facebook Checkout ----------
     function checkoutViaFacebook() {
         if (cart.length === 0) {
             alert("Your cart is empty.");
@@ -622,7 +771,6 @@
             orderText += `${idx+1}. ${item.title} (${item.category}) - ₱${(item.price || 0).toFixed(2)}\n`;
         });
         orderText += `\nTotal: ₱${total.toFixed(2)}\n\nPlease provide payment instructions (GCash QR) and download links. Thank you!`;
-
         const encodedMsg = encodeURIComponent(orderText);
         const fbUrl = `https://m.me/${FACEBOOK_PAGE_ID}?text=${encodedMsg}`;
         window.open(fbUrl, "_blank");
@@ -631,18 +779,68 @@
     }
 
     // ---------- Admin CRUD ----------
-    function addItem(image, title, category, price) {
+    function addItem(image, title, category, price, featured) {
         const newItem = {
             id: Date.now(),
             image: image || "https://picsum.photos/id/1/300/200",
             title: title || "Untitled",
             category: category || "General",
-            price: parseFloat(price) || 0
+            price: parseFloat(price) || 0,
+            featured: featured === true
         };
         catalogItems.push(newItem);
         saveItems();
         renderCategoryChips();
         applyFiltersAndRender();
+    }
+
+    function updateItem(id, image, title, category, price, featured) {
+        const index = catalogItems.findIndex(i => i.id === id);
+        if (index !== -1) {
+            catalogItems[index] = {
+                ...catalogItems[index],
+                image: image || "https://picsum.photos/id/1/300/200",
+                title: title || "Untitled",
+                category: category || "General",
+                price: parseFloat(price) || 0,
+                featured: featured === true
+            };
+            saveItems();
+            renderCategoryChips();
+            applyFiltersAndRender();
+        }
+        editingItemId = null;
+        document.getElementById("addItemBtn").style.display = "inline-block";
+        document.getElementById("cancelEditBtn").style.display = "none";
+        document.getElementById("itemImage").value = "";
+        document.getElementById("itemTitle").value = "";
+        document.getElementById("itemCategory").value = "";
+        document.getElementById("itemPrice").value = "";
+        document.getElementById("itemFeatured").checked = false;
+    }
+
+    function startEdit(item) {
+        editingItemId = item.id;
+        document.getElementById("itemImage").value = item.image || "";
+        document.getElementById("itemTitle").value = item.title || "";
+        document.getElementById("itemCategory").value = item.category || "";
+        document.getElementById("itemPrice").value = item.price || 0;
+        document.getElementById("itemFeatured").checked = item.featured === true;
+        document.getElementById("addItemBtn").style.display = "none";
+        document.getElementById("cancelEditBtn").style.display = "inline-block";
+        // Scroll to form
+        document.getElementById("adminPanel").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function cancelEdit() {
+        editingItemId = null;
+        document.getElementById("addItemBtn").style.display = "inline-block";
+        document.getElementById("cancelEditBtn").style.display = "none";
+        document.getElementById("itemImage").value = "";
+        document.getElementById("itemTitle").value = "";
+        document.getElementById("itemCategory").value = "";
+        document.getElementById("itemPrice").value = "";
+        document.getElementById("itemFeatured").checked = false;
     }
 
     function deleteItem(id) {
@@ -655,8 +853,8 @@
         renderCartModal();
     }
 
-    // ---------- Rendering Catalog ----------
-    function getFilteredItems() {
+    // ---------- Rendering Catalog (with Featured section) ----------
+    function getFilteredItems(includeFeatured = true) {
         let filtered = [...catalogItems];
         if (currentSearchTerm.trim()) {
             const term = currentSearchTerm.toLowerCase();
@@ -665,50 +863,77 @@
         if (currentCategoryFilter !== "all") {
             filtered = filtered.filter(i => i.category === currentCategoryFilter);
         }
+        if (!includeFeatured) {
+            filtered = filtered.filter(i => !i.featured);
+        } else {
+            // For regular categories, we will separate featured later
+        }
         return filtered;
     }
 
     function applyFiltersAndRender() {
-        const filtered = getFilteredItems();
         const container = document.getElementById("catalogContainer");
         if (!container) return;
 
-        if (filtered.length === 0) {
+        // Get featured items (respecting search & category filter)
+        let featuredItems = catalogItems.filter(i => i.featured === true);
+        if (currentSearchTerm.trim()) {
+            const term = currentSearchTerm.toLowerCase();
+            featuredItems = featuredItems.filter(i => i.title.toLowerCase().includes(term));
+        }
+        if (currentCategoryFilter !== "all") {
+            featuredItems = featuredItems.filter(i => i.category === currentCategoryFilter);
+        }
+
+        // Get non-featured items (respecting filters)
+        let nonFeatured = catalogItems.filter(i => !i.featured);
+        if (currentSearchTerm.trim()) {
+            const term = currentSearchTerm.toLowerCase();
+            nonFeatured = nonFeatured.filter(i => i.title.toLowerCase().includes(term));
+        }
+        if (currentCategoryFilter !== "all") {
+            nonFeatured = nonFeatured.filter(i => i.category === currentCategoryFilter);
+        }
+
+        if (featuredItems.length === 0 && nonFeatured.length === 0) {
             container.innerHTML = `<div class="no-results">😕 No items match your search or filter.</div>`;
             updateAdminModeClass();
             return;
         }
 
-        // Group by category
+        let html = "";
+
+        // Featured section
+        if (featuredItems.length > 0) {
+            html += `<div class="category-section">
+                        <div class="category-title">⭐ Featured Items</div>
+                        <div class="items-grid">`;
+            featuredItems.forEach(item => {
+                html += renderItemCard(item);
+            });
+            html += `</div></div>`;
+        }
+
+        // Group non-featured items by category
         const grouped = {};
-        filtered.forEach(item => {
+        nonFeatured.forEach(item => {
             if (!grouped[item.category]) grouped[item.category] = [];
             grouped[item.category].push(item);
         });
 
-        let html = "";
         for (let cat in grouped) {
             html += `<div class="category-section">
                         <div class="category-title">📁 ${escapeHtml(cat)}</div>
                         <div class="items-grid">`;
             grouped[cat].forEach(item => {
-                const price = item.price || 0;
-                html += `<div class="item-card" data-id="${item.id}">
-                            <button class="delete-item" data-id="${item.id}" title="Delete item">✖</button>
-                            <img src="${escapeHtml(item.image)}" class="item-img" alt="${escapeHtml(item.title)}" onerror="this.onerror=null; this.src='https://picsum.photos/id/1/300/200'">
-                            <div class="item-info">
-                                <div class="item-title">${escapeHtml(item.title)}</div>
-                                <div class="item-category">${escapeHtml(item.category)}</div>
-                                <div class="item-price">₱${price.toFixed(2)}</div>
-                                <button class="add-to-cart" data-id="${item.id}" data-title="${escapeHtml(item.title)}" data-category="${escapeHtml(item.category)}" data-price="${price}" data-image="${escapeHtml(item.image)}">➕ Add to Cart</button>
-                            </div>
-                        </div>`;
+                html += renderItemCard(item);
             });
             html += `</div></div>`;
         }
+
         container.innerHTML = html;
 
-        // Add to cart events
+        // Attach event listeners for add to cart, edit, delete
         document.querySelectorAll(".add-to-cart").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const id = parseInt(btn.getAttribute("data-id"));
@@ -719,7 +944,6 @@
                 addToCart({ id, title, category, price, image });
             });
         });
-        // Delete events
         document.querySelectorAll(".delete-item").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 e.stopPropagation();
@@ -727,7 +951,34 @@
                 if (confirm("Delete this item permanently?")) deleteItem(id);
             });
         });
+        document.querySelectorAll(".edit-item").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute("data-id"));
+                const item = catalogItems.find(i => i.id === id);
+                if (item) startEdit(item);
+            });
+        });
         updateAdminModeClass();
+    }
+
+    function renderItemCard(item) {
+        const price = item.price || 0;
+        const featuredBadge = item.featured ? `<div class="featured-badge">⭐ Featured</div>` : "";
+        return `<div class="item-card" data-id="${item.id}">
+                    <div class="item-actions-admin">
+                        <button class="edit-item" data-id="${item.id}" title="Edit item">✏️</button>
+                        <button class="delete-item" data-id="${item.id}" title="Delete item">✖</button>
+                    </div>
+                    ${featuredBadge}
+                    <img src="${escapeHtml(item.image)}" class="item-img" alt="${escapeHtml(item.title)}" onerror="this.onerror=null; this.src='https://picsum.photos/id/1/300/200'">
+                    <div class="item-info">
+                        <div class="item-title">${escapeHtml(item.title)}</div>
+                        <div class="item-category">${escapeHtml(item.category)}</div>
+                        <div class="item-price">₱${price.toFixed(2)}</div>
+                        <button class="add-to-cart" data-id="${item.id}" data-title="${escapeHtml(item.title)}" data-category="${escapeHtml(item.category)}" data-price="${price}" data-image="${escapeHtml(item.image)}">➕ Add to Cart</button>
+                    </div>
+                </div>`;
     }
 
     // Category chips
@@ -765,6 +1016,7 @@
             document.getElementById("loginModal").style.display = "none";
             document.getElementById("adminPanel").style.display = "block";
             applyFiltersAndRender();
+            renderAnnouncement(); // to show edit button
             return true;
         } else {
             document.getElementById("loginError").innerText = "Invalid username or password.";
@@ -776,6 +1028,7 @@
         sessionStorage.removeItem("admin_auth");
         document.getElementById("adminPanel").style.display = "none";
         applyFiltersAndRender();
+        renderAnnouncement();
     }
 
     function updateAdminModeClass() {
@@ -801,6 +1054,7 @@
         if (isAuthenticated()) {
             const panel = document.getElementById("adminPanel");
             panel.style.display = panel.style.display === "none" ? "block" : "none";
+            renderAnnouncement(); // refresh edit button visibility
         } else {
             document.getElementById("loginModal").style.display = "flex";
         }
@@ -816,19 +1070,46 @@
 
     document.getElementById("addItemBtn").onclick = () => {
         if (!isAuthenticated()) return;
-        const img = document.getElementById("itemImage").value.trim();
-        const title = document.getElementById("itemTitle").value.trim();
-        const cat = document.getElementById("itemCategory").value.trim();
-        const price = document.getElementById("itemPrice").value.trim();
-        if (!title) {
-            alert("Please enter a title.");
-            return;
+        if (editingItemId !== null) {
+            // Update existing
+            const img = document.getElementById("itemImage").value.trim();
+            const title = document.getElementById("itemTitle").value.trim();
+            const cat = document.getElementById("itemCategory").value.trim();
+            const price = document.getElementById("itemPrice").value.trim();
+            const featured = document.getElementById("itemFeatured").checked;
+            if (!title) { alert("Title required"); return; }
+            updateItem(editingItemId, img, title, cat, price, featured);
+        } else {
+            const img = document.getElementById("itemImage").value.trim();
+            const title = document.getElementById("itemTitle").value.trim();
+            const cat = document.getElementById("itemCategory").value.trim();
+            const price = document.getElementById("itemPrice").value.trim();
+            const featured = document.getElementById("itemFeatured").checked;
+            if (!title) { alert("Title required"); return; }
+            addItem(img, title, cat, price, featured);
+            // Clear form
+            document.getElementById("itemImage").value = "";
+            document.getElementById("itemTitle").value = "";
+            document.getElementById("itemCategory").value = "";
+            document.getElementById("itemPrice").value = "";
+            document.getElementById("itemFeatured").checked = false;
         }
-        addItem(img, title, cat, price);
-        document.getElementById("itemImage").value = "";
-        document.getElementById("itemTitle").value = "";
-        document.getElementById("itemCategory").value = "";
-        document.getElementById("itemPrice").value = "";
+    };
+
+    document.getElementById("cancelEditBtn").onclick = () => {
+        cancelEdit();
+    };
+
+    document.getElementById("saveAnnouncementBtn").onclick = () => {
+        const newText = document.getElementById("announcementInput").value;
+        saveAnnouncement(newText);
+        alert("Announcement saved!");
+    };
+
+    document.getElementById("editAnnouncementBtn").onclick = () => {
+        document.getElementById("announcementInput").value = announcementHtml;
+        document.getElementById("adminPanel").style.display = "block";
+        document.getElementById("adminPanel").scrollIntoView({ behavior: "smooth" });
     };
 
     document.getElementById("searchInput").addEventListener("input", (e) => {
@@ -844,15 +1125,12 @@
         applyFiltersAndRender();
     };
 
-    // Cart modal
     const cartModal = document.getElementById("cartModal");
     document.getElementById("cartButton").onclick = () => {
         renderCartModal();
         cartModal.style.display = "flex";
     };
-    document.getElementById("closeCartBtn").onclick = () => {
-        cartModal.style.display = "none";
-    };
+    document.getElementById("closeCartBtn").onclick = () => { cartModal.style.display = "none"; };
     document.getElementById("checkoutBtn").onclick = () => checkoutViaFacebook();
 
     window.onclick = (e) => {
@@ -860,7 +1138,6 @@
         if (e.target === document.getElementById("loginModal")) document.getElementById("loginModal").style.display = "none";
     };
 
-    // Initialize
     loadItems();
     if (isAuthenticated()) {
         document.getElementById("adminPanel").style.display = "block";
