@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Digital Download Hub — Dark Mode</title>
+    <title>Minecraft Bedrock Marketplace — Dark Mode</title>
     <style>
         * {
             margin: 0;
@@ -23,7 +23,7 @@
             padding: 2rem;
         }
 
-        /* Header & Admin Button */
+        /* Header */
         .site-header {
             display: flex;
             justify-content: space-between;
@@ -31,6 +31,8 @@
             margin-bottom: 2rem;
             padding-bottom: 1rem;
             border-bottom: 2px solid #1e293b;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .logo {
@@ -40,7 +42,6 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            letter-spacing: -0.3px;
         }
 
         .admin-btn {
@@ -52,7 +53,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
         }
 
         .admin-btn:hover {
@@ -60,70 +60,81 @@
             transform: translateY(-1px);
         }
 
-        /* Login Modal (Dark) */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: #1e293b;
-            padding: 2rem;
+        /* Filter Bar */
+        .filter-bar {
+            background: #0f172a;
             border-radius: 28px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 25px 40px -12px black;
-            border: 1px solid #334155;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #1e293b;
         }
 
-        .modal-content h3 {
+        .search-box {
+            width: 100%;
+            padding: 12px 18px;
+            background: #020617;
+            border: 1px solid #334155;
+            border-radius: 48px;
+            font-size: 1rem;
             color: #f1f5f9;
             margin-bottom: 1rem;
         }
 
-        .modal-content input {
-            width: 100%;
-            padding: 12px;
-            margin: 12px 0;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 16px;
-            font-size: 1rem;
-            color: #f8fafc;
-        }
-
-        .modal-content input:focus {
+        .search-box:focus {
             outline: none;
             border-color: #60a5fa;
         }
 
-        .modal-content button {
-            background-color: #3b82f6;
-            color: white;
-            padding: 10px 20px;
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-right: 5px;
+        }
+
+        .filter-chip {
+            background: #1e293b;
             border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            color: #cbd5e6;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .filter-chip.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .filter-chip:hover:not(.active) {
+            background: #334155;
+        }
+
+        .clear-filters {
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #f87171;
+            padding: 6px 16px;
             border-radius: 40px;
             cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
+            font-size: 0.8rem;
+            margin-left: 10px;
         }
 
-        .error-msg {
-            color: #f87171;
-            font-size: 0.85rem;
-            margin-top: 10px;
+        .clear-filters:hover {
+            background: #ef4444;
+            color: white;
         }
 
-        /* Admin Dashboard (Dark) */
+        /* Admin Dashboard */
         .admin-dashboard {
             display: none;
             background: #0f172a;
@@ -151,8 +162,7 @@
             font-weight: 500;
         }
 
-        .form-group input,
-        .form-group select {
+        .form-group input {
             padding: 12px;
             background: #020617;
             border: 1px solid #334155;
@@ -161,8 +171,7 @@
             color: #f1f5f9;
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
+        .form-group input:focus {
             outline: none;
             border-color: #60a5fa;
         }
@@ -175,7 +184,6 @@
             border-radius: 40px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.2s;
         }
 
         .btn-primary:hover {
@@ -187,11 +195,7 @@
             margin-left: 15px;
         }
 
-        .logout-btn:hover {
-            background: #64748b;
-        }
-
-        /* Catalog Display (Dark Cards) */
+        /* Catalog Display */
         .category-section {
             margin-bottom: 2.5rem;
         }
@@ -216,7 +220,6 @@
             border-radius: 24px;
             overflow: hidden;
             transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
             border: 1px solid #1e293b;
         }
 
@@ -273,43 +276,25 @@
             font-size: 1.3rem;
             cursor: pointer;
             display: none;
-            transition: 0.1s;
-        }
-
-        .delete-item:hover {
-            color: #ef4444;
-            transform: scale(1.1);
         }
 
         .admin-mode .delete-item {
             display: inline-block;
         }
 
-        /* Tip text inside admin panel */
-        .admin-dashboard p {
-            color: #94a3b8 !important;
-        }
-
-        /* Responsive */
-        @media (max-width: 700px) {
-            .container {
-                padding: 1rem;
-            }
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Scrollbar (optional) */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #94a3b8;
             background: #0f172a;
+            border-radius: 28px;
+            margin-top: 1rem;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 10px;
+
+        @media (max-width: 700px) {
+            .container { padding: 1rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            .site-header { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
@@ -317,11 +302,21 @@
 
 <div class="container">
     <div class="site-header">
-        <div class="logo">ʙʀᴇɴᴛᴏʏʏʏ'ꜱ ᴍᴀʀᴋᴇᴛᴘʟᴀᴄᴇ</div>
+        <div class="logo">ᴍɪɴᴇᴄʀᴀꜰᴛ ʙᴇᴅʀᴏᴄᴋ ᴍᴀʀᴋᴇᴛᴘʟᴀᴄᴇ</div>
         <button id="adminLoginBtn" class="admin-btn">🔐 Admin Login</button>
     </div>
 
-    <!-- Admin Dashboard (Dark) -->
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by title...">
+        <div class="category-filters">
+            <span class="filter-label">Filter by category:</span>
+            <div id="categoryChips"></div>
+            <button id="clearFiltersBtn" class="clear-filters">Clear all filters</button>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
     <div id="adminPanel" class="admin-dashboard">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 style="color:#e2e8f0;">➕ Admin Controls</h2>
@@ -349,11 +344,11 @@
         <p style="font-size: 0.8rem; margin-top: 15px; color: #94a3b8;">⚡ Tip: Click the 'X' on any card below to delete it (visible only in admin mode)</p>
     </div>
 
-    <!-- Catalog Display -->
+    <!-- Catalog Container -->
     <div id="catalogContainer"></div>
 </div>
 
-<!-- Login Modal (Dark) -->
+<!-- Login Modal -->
 <div id="loginModal" class="modal">
     <div class="modal-content">
         <h3>🔒 Admin Access Only</h3>
@@ -365,19 +360,18 @@
 </div>
 
 <script>
-    // ------------------------------
     // Admin Credentials
-    // ------------------------------
     const ADMIN_CRED = {
         username: "Brentoyyy2315",
         password: "@Brentoyyy2315"
     };
 
-    // ------------------------------
-    // Data Management (localStorage)
-    // ------------------------------
+    // Data
     let catalogItems = [];
+    let currentSearchTerm = "";
+    let currentCategoryFilter = "all";
 
+    // Load items from localStorage
     function loadItems() {
         const stored = localStorage.getItem("dlc_catalog");
         if(stored) {
@@ -390,7 +384,8 @@
             ];
             saveItems();
         }
-        renderCatalog();
+        renderCategoryChips();
+        applyFiltersAndRender();
     }
 
     function saveItems() {
@@ -407,81 +402,74 @@
         };
         catalogItems.push(newItem);
         saveItems();
-        renderCatalog();
+        renderCategoryChips();
+        applyFiltersAndRender();
     }
 
     function deleteItem(id) {
         catalogItems = catalogItems.filter(item => item.id != id);
         saveItems();
-        renderCatalog();
+        renderCategoryChips();
+        applyFiltersAndRender();
     }
 
-    // ------------------------------
-    // Image Upload to Catbox (free, no API key)
-    // ------------------------------
-    async function uploadImageToCatbox(file) {
-        const formData = new FormData();
-        formData.append("reqtype", "fileupload");
-        formData.append("fileToUpload", file);
+    // Get unique categories from items
+    function getUniqueCategories() {
+        const cats = catalogItems.map(item => item.category);
+        return [...new Set(cats)].sort();
+    }
 
-        try {
-            const response = await fetch("https://catbox.moe/user/api.php", {
-                method: "POST",
-                body: formData
+    // Render category filter chips
+    function renderCategoryChips() {
+        const container = document.getElementById("categoryChips");
+        if(!container) return;
+        const categories = getUniqueCategories();
+        let chipsHtml = `<button class="filter-chip ${currentCategoryFilter === "all" ? "active" : ""}" data-category="all">All</button>`;
+        categories.forEach(cat => {
+            chipsHtml += `<button class="filter-chip ${currentCategoryFilter === cat ? "active" : ""}" data-category="${escapeHtml(cat)}">${escapeHtml(cat)}</button>`;
+        });
+        container.innerHTML = chipsHtml;
+
+        // Add event listeners
+        document.querySelectorAll(".filter-chip").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const category = btn.getAttribute("data-category");
+                currentCategoryFilter = category;
+                renderCategoryChips(); // re-render to update active state
+                applyFiltersAndRender();
             });
-            if (!response.ok) throw new Error("Upload failed");
-            const imageUrl = await response.text();
-            return imageUrl.trim(); // Returns direct URL like https://files.catbox.moe/xxxxxx.png
-        } catch (error) {
-            console.error("Upload error:", error);
-            alert("Image upload failed. Try another image or use a direct URL.");
-            return null;
-        }
-    }
-
-    // Set up the upload button handler
-    function setupImageUpload() {
-        const uploadBtn = document.getElementById("imageUploadBtn");
-        const imageInput = document.getElementById("itemImage");
-        if (!uploadBtn) return;
-
-        uploadBtn.addEventListener("click", () => {
-            // Create hidden file input
-            const fileInput = document.createElement("input");
-            fileInput.type = "file";
-            fileInput.accept = "image/*";
-            fileInput.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                // Show loading indicator
-                const originalText = uploadBtn.innerText;
-                uploadBtn.innerText = "⏫ Uploading...";
-                uploadBtn.disabled = true;
-                
-                const uploadedUrl = await uploadImageToCatbox(file);
-                
-                uploadBtn.innerText = originalText;
-                uploadBtn.disabled = false;
-                
-                if (uploadedUrl) {
-                    imageInput.value = uploadedUrl;
-                    alert("Image uploaded! URL added to field.");
-                }
-            };
-            fileInput.click();
         });
     }
 
-    // ------------------------------
-    // Render Catalog (unchanged)
-    // ------------------------------
-    function renderCatalog() {
+    // Filter items based on search and category
+    function getFilteredItems() {
+        let filtered = [...catalogItems];
+        if (currentSearchTerm.trim() !== "") {
+            const term = currentSearchTerm.trim().toLowerCase();
+            filtered = filtered.filter(item => item.title.toLowerCase().includes(term));
+        }
+        if (currentCategoryFilter !== "all") {
+            filtered = filtered.filter(item => item.category === currentCategoryFilter);
+        }
+        return filtered;
+    }
+
+    // Render catalog with grouping (only for unfiltered? but we want grouping to reflect filtered items)
+    // Instead, we'll group filtered items by category, but show only categories that have any filtered items.
+    function applyFiltersAndRender() {
+        const filteredItems = getFilteredItems();
         const container = document.getElementById("catalogContainer");
         if(!container) return;
 
+        if (filteredItems.length === 0) {
+            container.innerHTML = `<div class="no-results">😕 No items match your search or filter. Try clearing filters.</div>`;
+            updateAdminModeClass();
+            return;
+        }
+
+        // Group filtered items by category
         const grouped = {};
-        catalogItems.forEach(item => {
+        filteredItems.forEach(item => {
             if(!grouped[item.category]) grouped[item.category] = [];
             grouped[item.category].push(item);
         });
@@ -489,7 +477,7 @@
         let html = "";
         for(let cat in grouped) {
             html += `<div class="category-section">
-                        <div class="category-title">📁 ${cat}</div>
+                        <div class="category-title">📁 ${escapeHtml(cat)}</div>
                         <div class="items-grid">`;
             grouped[cat].forEach(item => {
                 html += `<div class="item-card" data-id="${item.id}">
@@ -504,9 +492,11 @@
             });
             html += `</div></div>`;
         }
+        container.innerHTML = html;
+        updateAdminModeClass();
+    }
 
-        container.innerHTML = html || "<p style='text-align:center; margin-top:3rem; color:#94a3b8;'>✨ No items yet. Login to admin and add your first download! ✨</p>";
-
+    function updateAdminModeClass() {
         const isAdmin = sessionStorage.getItem("admin_auth") === "true";
         if(isAdmin) {
             document.body.classList.add("admin-mode");
@@ -525,9 +515,7 @@
         });
     }
 
-    // ------------------------------
     // Auth logic
-    // ------------------------------
     function isAuthenticated() {
         return sessionStorage.getItem("admin_auth") === "true";
     }
@@ -537,7 +525,7 @@
             sessionStorage.setItem("admin_auth", "true");
             document.getElementById("loginModal").style.display = "none";
             document.getElementById("adminPanel").style.display = "block";
-            renderCatalog();
+            applyFiltersAndRender();
             return true;
         } else {
             document.getElementById("loginError").innerText = "Invalid username or password.";
@@ -548,13 +536,11 @@
     function logout() {
         sessionStorage.removeItem("admin_auth");
         document.getElementById("adminPanel").style.display = "none";
-        renderCatalog();
+        applyFiltersAndRender();
         alert("You have been logged out.");
     }
 
-    // ------------------------------
     // Event Handlers
-    // ------------------------------
     document.getElementById("adminLoginBtn").onclick = () => {
         if(isAuthenticated()) {
             const panel = document.getElementById("adminPanel");
@@ -585,13 +571,34 @@
             return;
         }
         addItem(img, title, cat, link);
-        // Clear form, but keep image URL field for convenience
         document.getElementById("itemImage").value = "";
         document.getElementById("itemTitle").value = "";
         document.getElementById("itemCategory").value = "";
         document.getElementById("itemLink").value = "";
     };
 
+    // Search input listener
+    const searchInput = document.getElementById("searchInput");
+    if(searchInput) {
+        searchInput.addEventListener("input", (e) => {
+            currentSearchTerm = e.target.value;
+            applyFiltersAndRender();
+        });
+    }
+
+    // Clear filters button
+    const clearBtn = document.getElementById("clearFiltersBtn");
+    if(clearBtn) {
+        clearBtn.addEventListener("click", () => {
+            currentSearchTerm = "";
+            currentCategoryFilter = "all";
+            if(searchInput) searchInput.value = "";
+            renderCategoryChips();
+            applyFiltersAndRender();
+        });
+    }
+
+    // Modal close on outside click
     window.onclick = (event) => {
         const modal = document.getElementById("loginModal");
         if (event.target === modal) {
@@ -599,28 +606,65 @@
         }
     };
 
-    // Add the upload button dynamically into the form
-    function injectUploadButton() {
-        const imageGroup = document.querySelector(".form-group:first-child");
-        if(imageGroup && !document.getElementById("imageUploadBtn")) {
-            const btn = document.createElement("button");
-            btn.id = "imageUploadBtn";
-            btn.type = "button";
-            btn.className = "btn-primary";
-            btn.style.marginTop = "8px";
-            btn.style.background = "#475569";
-            btn.innerText = "📤 Upload Image";
-            imageGroup.appendChild(btn);
-        }
-    }
-
-    // Initialize everything
+    // Init
     loadItems();
     if(isAuthenticated()) {
         document.getElementById("adminPanel").style.display = "block";
     }
-    injectUploadButton();
-    setupImageUpload();
 </script>
+
+<style>
+    /* Modal styles (added because they were missing in dark mode version) */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.85);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background: #1e293b;
+        padding: 2rem;
+        border-radius: 28px;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+        border: 1px solid #334155;
+    }
+    .modal-content h3 {
+        color: #f1f5f9;
+        margin-bottom: 1rem;
+    }
+    .modal-content input {
+        width: 100%;
+        padding: 12px;
+        margin: 12px 0;
+        background: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 16px;
+        font-size: 1rem;
+        color: #f8fafc;
+    }
+    .modal-content button {
+        background-color: #3b82f6;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 40px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    .error-msg {
+        color: #f87171;
+        font-size: 0.85rem;
+        margin-top: 10px;
+    }
+</style>
 </body>
 </html>
