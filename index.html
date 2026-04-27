@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft Bedrock Marketplace — Cart & FB Orders</title>
+    <title>Minecraft Bedrock Marketplace — with Prices</title>
     <style>
         * {
             margin: 0;
@@ -186,7 +186,7 @@
         /* Catalog Cards */
         .items-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.8rem;
         }
 
@@ -195,7 +195,13 @@
             border-radius: 24px;
             overflow: hidden;
             border: 1px solid #1e293b;
-            position: relative; /* needed for absolute positioning of delete button */
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -10px black;
         }
 
         .item-img {
@@ -212,15 +218,22 @@
         .item-title {
             font-weight: 700;
             font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-            padding-right: 30px; /* leave space for delete button */
+            margin-bottom: 0.25rem;
+            padding-right: 30px;
         }
 
         .item-category {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #93c5fd;
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fbbf24;
+            margin-bottom: 0.8rem;
         }
 
         .add-to-cart {
@@ -238,7 +251,7 @@
             background: #059669;
         }
 
-        /* Delete button - top right corner, visible only in admin mode */
+        /* Delete button */
         .delete-item {
             position: absolute;
             top: 8px;
@@ -326,6 +339,21 @@
         .cart-item-category {
             font-size: 0.7rem;
             color: #93c5fd;
+        }
+
+        .cart-item-price {
+            font-size: 0.85rem;
+            color: #fbbf24;
+            margin-top: 4px;
+        }
+
+        .cart-total {
+            margin-top: 15px;
+            text-align: right;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-top: 1px solid #1e293b;
+            padding-top: 12px;
         }
 
         .remove-item {
@@ -428,7 +456,7 @@
         </div>
         <div class="form-grid">
             <div class="form-group">
-                <label>Image URL (Photo):</label>
+                <label>Image URL:</label>
                 <input type="text" id="itemImage" placeholder="https://...">
             </div>
             <div class="form-group">
@@ -438,6 +466,10 @@
             <div class="form-group">
                 <label>Category:</label>
                 <input type="text" id="itemCategory" placeholder="e.g., Addons / Worlds">
+            </div>
+            <div class="form-group">
+                <label>Price (₱ PHP):</label>
+                <input type="number" id="itemPrice" placeholder="e.g., 99" step="1" value="0">
             </div>
         </div>
         <button id="addItemBtn" class="btn-primary">➕ Add New Item</button>
@@ -453,6 +485,7 @@
     <div class="cart-modal-content">
         <h3>Your Cart</h3>
         <div id="cartItemsList"></div>
+        <div id="cartTotal" class="cart-total"></div>
         <button id="checkoutBtn" class="checkout-btn">📲 Checkout via Facebook</button>
         <button id="closeCartBtn" class="checkout-btn close-cart">Close</button>
     </div>
@@ -471,27 +504,31 @@
 
 <script>
     // ======================= CONFIG =======================
-    // CHANGE THIS to your Facebook Page username or numeric ID
-    const FACEBOOK_PAGE_NAME = "YourPageName";
-    // =====================================================
+    // Your Facebook Page ID (provided)
+    const FACEBOOK_PAGE_ID = "111811064292787";
+    // ======================================================
 
     const ADMIN_CRED = { username: "Brentoyyy2315", password: "@Brentoyyy2315" };
 
-    let catalogItems = [];
-    let cart = [];
+    let catalogItems = [];   // each item: { id, image, title, category, price }
+    let cart = [];           // each cart item: { id, title, category, price, image }
+
     let currentSearchTerm = "";
     let currentCategoryFilter = "all";
 
-    // Load items
+    // ---------- Load / Save ----------
     function loadItems() {
         const stored = localStorage.getItem("dlc_catalog");
-        if(stored) {
+        if (stored) {
             catalogItems = JSON.parse(stored);
+            // Ensure old items (without price) get a default price
+            catalogItems = catalogItems.map(item => ({ ...item, price: item.price || 0 }));
+            saveItems();
         } else {
             catalogItems = [
-                { id: Date.now(), image: "https://picsum.photos/id/104/300/200", title: "Dragon Slayer Pack", category: "Addon" },
-                { id: Date.now()+1, image: "https://picsum.photos/id/106/300/200", title: "Tower Defense World", category: "World" },
-                { id: Date.now()+2, image: "https://picsum.photos/id/15/300/200", title: "Cave Biomes Addon", category: "Addon" }
+                { id: Date.now(), image: "https://picsum.photos/id/104/300/200", title: "Dragon Slayer Pack", category: "Addon", price: 99 },
+                { id: Date.now()+1, image: "https://picsum.photos/id/106/300/200", title: "Tower Defense World", category: "World", price: 149 },
+                { id: Date.now()+2, image: "https://picsum.photos/id/15/300/200", title: "Cave Biomes Addon", category: "Addon", price: 79 }
             ];
             saveItems();
         }
@@ -505,16 +542,18 @@
         localStorage.setItem("dlc_catalog", JSON.stringify(catalogItems));
     }
 
-    // Cart functions
+    // ---------- Cart Functions ----------
     function loadCart() {
         const stored = localStorage.getItem("cart");
         cart = stored ? JSON.parse(stored) : [];
         updateCartUI();
     }
+
     function saveCart() {
         localStorage.setItem("cart", JSON.stringify(cart));
         updateCartUI();
     }
+
     function addToCart(item) {
         if (!cart.some(cartItem => cartItem.id === item.id)) {
             cart.push({ ...item });
@@ -523,32 +562,46 @@
             alert("Item already in cart.");
         }
     }
+
     function removeFromCart(itemId) {
         cart = cart.filter(i => i.id !== itemId);
         saveCart();
         renderCartModal();
     }
+
     function updateCartUI() {
         document.getElementById("cartCount").innerText = cart.length;
     }
+
     function renderCartModal() {
         const container = document.getElementById("cartItemsList");
+        const totalContainer = document.getElementById("cartTotal");
         if (!container) return;
+
         if (cart.length === 0) {
             container.innerHTML = "<p>Your cart is empty.</p>";
+            totalContainer.innerHTML = "";
             return;
         }
+
         let html = "";
+        let total = 0;
         cart.forEach(item => {
+            const price = item.price || 0;
+            total += price;
             html += `<div class="cart-item">
                         <div class="cart-item-info">
                             <div class="cart-item-title">${escapeHtml(item.title)}</div>
                             <div class="cart-item-category">${escapeHtml(item.category)}</div>
+                            <div class="cart-item-price">₱${price.toFixed(2)}</div>
                         </div>
                         <button class="remove-item" data-id="${item.id}">✖</button>
                     </div>`;
         });
         container.innerHTML = html;
+        totalContainer.innerHTML = `Total: ₱${total.toFixed(2)}`;
+
+        // Attach remove events
         document.querySelectorAll(".remove-item").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const id = parseInt(btn.getAttribute("data-id"));
@@ -557,31 +610,34 @@
         });
     }
 
-    // Facebook checkout
+    // ---------- Facebook Checkout ----------
     function checkoutViaFacebook() {
         if (cart.length === 0) {
             alert("Your cart is empty.");
             return;
         }
+        let total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
         let orderText = "🛒 *NEW ORDER* 🛒\n\n";
         cart.forEach((item, idx) => {
-            orderText += `${idx+1}. ${item.title} (${item.category})\n`;
+            orderText += `${idx+1}. ${item.title} (${item.category}) - ₱${(item.price || 0).toFixed(2)}\n`;
         });
-        orderText += `\nTotal items: ${cart.length}\nPlease provide payment instructions and download links. Thank you!`;
+        orderText += `\nTotal: ₱${total.toFixed(2)}\n\nPlease provide payment instructions (GCash QR) and download links. Thank you!`;
+
         const encodedMsg = encodeURIComponent(orderText);
-        const fbUrl = `https://m.me/${FACEBOOK_PAGE_NAME}?text=${encodedMsg}`;
+        const fbUrl = `https://m.me/${FACEBOOK_PAGE_ID}?text=${encodedMsg}`;
         window.open(fbUrl, "_blank");
         document.getElementById("cartModal").style.display = "none";
-        alert("Order message prepared! Send it to our Facebook page. We'll reply with payment details.");
+        alert("Order message prepared! Send it to our Facebook page. We'll reply with payment and download links.");
     }
 
-    // Admin CRUD
-    function addItem(image, title, category) {
+    // ---------- Admin CRUD ----------
+    function addItem(image, title, category, price) {
         const newItem = {
             id: Date.now(),
             image: image || "https://picsum.photos/id/1/300/200",
             title: title || "Untitled",
-            category: category || "General"
+            category: category || "General",
+            price: parseFloat(price) || 0
         };
         catalogItems.push(newItem);
         saveItems();
@@ -599,7 +655,7 @@
         renderCartModal();
     }
 
-    // Filtering & rendering
+    // ---------- Rendering Catalog ----------
     function getFilteredItems() {
         let filtered = [...catalogItems];
         if (currentSearchTerm.trim()) {
@@ -616,43 +672,51 @@
         const filtered = getFilteredItems();
         const container = document.getElementById("catalogContainer");
         if (!container) return;
+
         if (filtered.length === 0) {
-            container.innerHTML = `<div class="no-results">😕 No items match.</div>`;
+            container.innerHTML = `<div class="no-results">😕 No items match your search or filter.</div>`;
             updateAdminModeClass();
             return;
         }
+
+        // Group by category
         const grouped = {};
         filtered.forEach(item => {
             if (!grouped[item.category]) grouped[item.category] = [];
             grouped[item.category].push(item);
         });
+
         let html = "";
         for (let cat in grouped) {
             html += `<div class="category-section">
                         <div class="category-title">📁 ${escapeHtml(cat)}</div>
                         <div class="items-grid">`;
             grouped[cat].forEach(item => {
+                const price = item.price || 0;
                 html += `<div class="item-card" data-id="${item.id}">
                             <button class="delete-item" data-id="${item.id}" title="Delete item">✖</button>
-                            <img src="${item.image}" class="item-img" onerror="this.src='https://picsum.photos/id/1/300/200'">
+                            <img src="${escapeHtml(item.image)}" class="item-img" alt="${escapeHtml(item.title)}" onerror="this.onerror=null; this.src='https://picsum.photos/id/1/300/200'">
                             <div class="item-info">
                                 <div class="item-title">${escapeHtml(item.title)}</div>
                                 <div class="item-category">${escapeHtml(item.category)}</div>
-                                <button class="add-to-cart" data-id="${item.id}" data-title="${escapeHtml(item.title)}" data-category="${escapeHtml(item.category)}" data-image="${escapeHtml(item.image)}">➕ Add to Cart</button>
+                                <div class="item-price">₱${price.toFixed(2)}</div>
+                                <button class="add-to-cart" data-id="${item.id}" data-title="${escapeHtml(item.title)}" data-category="${escapeHtml(item.category)}" data-price="${price}" data-image="${escapeHtml(item.image)}">➕ Add to Cart</button>
                             </div>
                         </div>`;
             });
             html += `</div></div>`;
         }
         container.innerHTML = html;
+
         // Add to cart events
         document.querySelectorAll(".add-to-cart").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const id = parseInt(btn.getAttribute("data-id"));
                 const title = btn.getAttribute("data-title");
                 const category = btn.getAttribute("data-category");
+                const price = parseFloat(btn.getAttribute("data-price"));
                 const image = btn.getAttribute("data-image");
-                addToCart({ id, title, category, image });
+                addToCart({ id, title, category, price, image });
             });
         });
         // Delete events
@@ -671,6 +735,7 @@
         const cats = catalogItems.map(i => i.category);
         return [...new Set(cats)].sort();
     }
+
     function renderCategoryChips() {
         const container = document.getElementById("categoryChips");
         if (!container) return;
@@ -689,10 +754,11 @@
         });
     }
 
-    // Auth
+    // Auth helpers
     function isAuthenticated() {
         return sessionStorage.getItem("admin_auth") === "true";
     }
+
     function login(username, password) {
         if (username === ADMIN_CRED.username && password === ADMIN_CRED.password) {
             sessionStorage.setItem("admin_auth", "true");
@@ -701,25 +767,36 @@
             applyFiltersAndRender();
             return true;
         } else {
-            document.getElementById("loginError").innerText = "Invalid credentials.";
+            document.getElementById("loginError").innerText = "Invalid username or password.";
             return false;
         }
     }
+
     function logout() {
         sessionStorage.removeItem("admin_auth");
         document.getElementById("adminPanel").style.display = "none";
         applyFiltersAndRender();
     }
+
     function updateAdminModeClass() {
-        if (isAuthenticated()) document.body.classList.add("admin-mode");
-        else document.body.classList.remove("admin-mode");
-    }
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
+        if (isAuthenticated()) {
+            document.body.classList.add("admin-mode");
+        } else {
+            document.body.classList.remove("admin-mode");
+        }
     }
 
-    // Event listeners
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // ---------- Event Listeners ----------
     document.getElementById("adminLoginBtn").onclick = () => {
         if (isAuthenticated()) {
             const panel = document.getElementById("adminPanel");
@@ -728,25 +805,37 @@
             document.getElementById("loginModal").style.display = "flex";
         }
     };
+
     document.getElementById("submitLogin").onclick = () => {
-        login(document.getElementById("loginUser").value, document.getElementById("loginPass").value);
+        const user = document.getElementById("loginUser").value;
+        const pass = document.getElementById("loginPass").value;
+        login(user, pass);
     };
+
     document.getElementById("logoutBtn").onclick = () => logout();
+
     document.getElementById("addItemBtn").onclick = () => {
         if (!isAuthenticated()) return;
         const img = document.getElementById("itemImage").value.trim();
         const title = document.getElementById("itemTitle").value.trim();
         const cat = document.getElementById("itemCategory").value.trim();
-        if (!title) { alert("Title required"); return; }
-        addItem(img, title, cat);
+        const price = document.getElementById("itemPrice").value.trim();
+        if (!title) {
+            alert("Please enter a title.");
+            return;
+        }
+        addItem(img, title, cat, price);
         document.getElementById("itemImage").value = "";
         document.getElementById("itemTitle").value = "";
         document.getElementById("itemCategory").value = "";
+        document.getElementById("itemPrice").value = "";
     };
+
     document.getElementById("searchInput").addEventListener("input", (e) => {
         currentSearchTerm = e.target.value;
         applyFiltersAndRender();
     });
+
     document.getElementById("clearFiltersBtn").onclick = () => {
         currentSearchTerm = "";
         currentCategoryFilter = "all";
@@ -754,21 +843,28 @@
         renderCategoryChips();
         applyFiltersAndRender();
     };
+
     // Cart modal
     const cartModal = document.getElementById("cartModal");
     document.getElementById("cartButton").onclick = () => {
         renderCartModal();
         cartModal.style.display = "flex";
     };
-    document.getElementById("closeCartBtn").onclick = () => { cartModal.style.display = "none"; };
+    document.getElementById("closeCartBtn").onclick = () => {
+        cartModal.style.display = "none";
+    };
     document.getElementById("checkoutBtn").onclick = () => checkoutViaFacebook();
+
     window.onclick = (e) => {
         if (e.target === cartModal) cartModal.style.display = "none";
         if (e.target === document.getElementById("loginModal")) document.getElementById("loginModal").style.display = "none";
     };
 
+    // Initialize
     loadItems();
-    if (isAuthenticated()) document.getElementById("adminPanel").style.display = "block";
+    if (isAuthenticated()) {
+        document.getElementById("adminPanel").style.display = "block";
+    }
 </script>
 </body>
 </html>
