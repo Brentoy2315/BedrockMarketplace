@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft Bedrock Marketplace — Cloud Sync (Edit Fixed)</title>
+    <title>Minecraft Bedrock Marketplace — Cloud Sync (Global Visitor Count)</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
+        /* Your existing CSS remains unchanged */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', system-ui, sans-serif; background: #0a0c10; color: #eef2ff; }
         .container { max-width: 1300px; margin: 0 auto; padding: 2rem; }
@@ -169,6 +170,7 @@
 
 <script>
     // ======================= FIREBASE CONFIGURATION =======================
+    // 🔥 REPLACE WITH YOUR OWN firebaseConfig
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAco1a008Xxsc2t-7htzIF_tCDpEipQ8Sw",
@@ -195,45 +197,27 @@ const firebaseConfig = {
     let editingItemId = null;
     let announcementHtml = "";
 
-    // UI helpers for edit mode
-    function setEditMode(isEditing, item = null) {
-        const addBtn = document.getElementById("addItemBtn");
-        const cancelBtn = document.getElementById("cancelEditBtn");
-        const formTitle = document.getElementById("formTitle");
-        if (isEditing && item) {
-            addBtn.innerHTML = "✏️ Update Item";
-            addBtn.style.background = "#f59e0b";
-            cancelBtn.style.display = "inline-block";
-            formTitle.innerHTML = "✏️ Edit Item";
-            editingItemId = item.id;
-            document.getElementById("itemImage").value = item.image || "";
-            document.getElementById("itemTitle").value = item.title || "";
-            document.getElementById("itemCategory").value = item.category || "";
-            document.getElementById("itemPrice").value = item.price || 0;
-            document.getElementById("itemFeatured").checked = item.featured === true;
-        } else {
-            addBtn.innerHTML = "➕ Add Item";
-            addBtn.style.background = "#3b82f6";
-            cancelBtn.style.display = "none";
-            formTitle.innerHTML = "Add New Item";
-            editingItemId = null;
-            clearForm();
+    // ---------- Global Visit Counter using Firebase ----------
+    async function updateGlobalVisitCounter() {
+        const counterElem = document.getElementById("visitCounter");
+        const counterRef = database.ref('visitorCount');
+        
+        try {
+            // Increment the counter atomically
+            await counterRef.transaction(currentCount => (currentCount || 0) + 1);
+            
+            // Listen for real-time updates
+            counterRef.on('value', (snapshot) => {
+                const count = snapshot.val() || 0;
+                counterElem.innerHTML = `👁️ Visits: ${count.toLocaleString()}`;
+            });
+        } catch (err) {
+            console.error("Firebase counter error:", err);
+            counterElem.innerHTML = "👁️ Visits: --";
         }
     }
 
-    function clearForm() {
-        document.getElementById("itemImage").value = "";
-        document.getElementById("itemTitle").value = "";
-        document.getElementById("itemCategory").value = "";
-        document.getElementById("itemPrice").value = "";
-        document.getElementById("itemFeatured").checked = false;
-    }
-
-    function cancelEdit() {
-        setEditMode(false);
-    }
-
-    // ---------- Firebase Auth Status ----------
+    // ---------- Firebase Auth Status UI ----------
     function updateFirebaseStatusUI() {
         const user = auth.currentUser;
         const statusSpan = document.getElementById("fbStatus");
@@ -349,6 +333,43 @@ const firebaseConfig = {
             alert("Delete failed: " + err.message);
             listenToCatalog(); // reload original
         }
+    }
+
+    function setEditMode(isEditing, item = null) {
+        const addBtn = document.getElementById("addItemBtn");
+        const cancelBtn = document.getElementById("cancelEditBtn");
+        const formTitle = document.getElementById("formTitle");
+        if (isEditing && item) {
+            addBtn.innerHTML = "✏️ Update Item";
+            addBtn.style.background = "#f59e0b";
+            cancelBtn.style.display = "inline-block";
+            formTitle.innerHTML = "✏️ Edit Item";
+            editingItemId = item.id;
+            document.getElementById("itemImage").value = item.image || "";
+            document.getElementById("itemTitle").value = item.title || "";
+            document.getElementById("itemCategory").value = item.category || "";
+            document.getElementById("itemPrice").value = item.price || 0;
+            document.getElementById("itemFeatured").checked = item.featured === true;
+        } else {
+            addBtn.innerHTML = "➕ Add Item";
+            addBtn.style.background = "#3b82f6";
+            cancelBtn.style.display = "none";
+            formTitle.innerHTML = "Add New Item";
+            editingItemId = null;
+            clearForm();
+        }
+    }
+
+    function clearForm() {
+        document.getElementById("itemImage").value = "";
+        document.getElementById("itemTitle").value = "";
+        document.getElementById("itemCategory").value = "";
+        document.getElementById("itemPrice").value = "";
+        document.getElementById("itemFeatured").checked = false;
+    }
+
+    function cancelEdit() {
+        setEditMode(false);
     }
 
     function startEdit(item) {
@@ -508,13 +529,6 @@ const firebaseConfig = {
     function logout() { sessionStorage.removeItem("admin_auth"); document.getElementById("adminPanel").style.display = "none"; applyFiltersAndRender(); renderAnnouncement(); }
     function updateAdminModeClass() { if(isAuthenticated()) document.body.classList.add("admin-mode"); else document.body.classList.remove("admin-mode"); }
 
-    // Visit counter
-    async function updateVisitCounter() {
-        const counterElem = document.getElementById("visitCounter");
-        try { const res = await fetch("https://api.countapi.xyz/hit/minecraft-marketplace/visits"); const data = await res.json(); if(data && typeof data.value === "number") counterElem.innerHTML = `👁️ Visits: ${data.value.toLocaleString()}`; else throw new Error(); }
-        catch(e) { let local = localStorage.getItem("local_visit_count") || 0; local = parseInt(local)+1; localStorage.setItem("local_visit_count", local); counterElem.innerHTML = `👁️ Visits (est.): ${local}`; }
-    }
-
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
     // ---------- Firebase Login ----------
@@ -588,7 +602,7 @@ const firebaseConfig = {
         loadCart();
         loadAnnouncement();
         listenToCatalog();
-        updateVisitCounter();
+        updateGlobalVisitCounter();  // Initialize global counter
         if(isAuthenticated()) document.getElementById("adminPanel").style.display = "block";
         updateFirebaseStatusUI();
         auth.onAuthStateChanged(() => updateFirebaseStatusUI());
