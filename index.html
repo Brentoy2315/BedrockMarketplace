@@ -28,10 +28,12 @@
             border-radius: 20px;
             margin-bottom: 2rem;
             border-left: 6px solid #fbbf24;
-            width: 100%;
+            width: 100%;                      /* always full width of parent */
+            max-width: 100%;                  /* never exceed parent */
             box-sizing: border-box;
-            overflow: hidden;
+            overflow-x: hidden;               /* prevent horizontal scroll */
         }
+        
         .carousel-container {
             position: relative;
             width: 100%;
@@ -40,15 +42,18 @@
             justify-content: center;
             padding: 1rem 2.5rem;
             box-sizing: border-box;
+            overflow-x: hidden;               /* extra safe */
         }
+        
         .carousel-slide {
             display: none;
             text-align: center;
             font-size: 1rem;
             line-height: 1.4;
-            animation: fadeEffect 0.5s ease;
-            width: 100%;
-            word-break: break-word;
+            width: 100%;                      /* each slide takes full width of container */
+            max-width: 100%;
+            word-wrap: break-word;            /* break long words */
+            overflow-wrap: break-word;
             box-sizing: border-box;
         }
         .carousel-slide.active {
