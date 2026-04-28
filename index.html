@@ -9,12 +9,11 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
-        /* ====== RESET & BASE ====== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', system-ui, sans-serif; background: #0a0c10; color: #eef2ff; display: flex; flex-direction: column; min-height: 100vh; }
         .container { max-width: 1300px; margin: 0 auto; padding: 2rem; flex: 1; }
 
-        /* ====== NEW HEADER LAYOUT ====== */
+        /* Header: logo on top, buttons below */
         .site-header { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #1e293b; }
         .logo { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 1rem; text-align: center; }
         .header-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 0.5rem; }
@@ -23,29 +22,67 @@
         .cart-count { background: #3b82f6; color: white; border-radius: 30px; padding: 0 8px; font-size: 0.75rem; font-weight: bold; }
         .admin-btn { background-color: #334155; color: #f1f5f9; border: none; padding: 0.5rem 1rem; border-radius: 40px; font-weight: 600; cursor: pointer; }
 
-        /* ====== CAROUSEL (unchanged) ====== */
-        .announcement-carousel { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 20px; margin-bottom: 2rem; position: relative; overflow: hidden; border-left: 6px solid #fbbf24; }
-        .carousel-container { position: relative; padding: 1rem 2.5rem; }
-        .carousel-slide { display: none; text-align: center; font-size: 1rem; line-height: 1.4; animation: fadeEffect 0.5s ease; }
-        .carousel-slide.active { display: block; }
+        /* ====== FIXED CAROUSEL – NO SIZE CHANGE ====== */
+        .announcement-carousel {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border-left: 6px solid #fbbf24;
+            overflow: hidden;
+        }
+        .carousel-container {
+            position: relative;
+            min-height: 100px;          /* fixed minimum height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 2.5rem;
+        }
+        .carousel-slide {
+            display: none;
+            text-align: center;
+            font-size: 1rem;
+            line-height: 1.4;
+            animation: fadeEffect 0.5s ease;
+            width: 100%;
+        }
+        .carousel-slide.active {
+            display: block;
+        }
         .carousel-slide a { color: #fbbf24; text-decoration: none; }
-        .carousel-prev, .carousel-next { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 10; }
-        .carousel-prev { left: 8px; } .carousel-next { right: 8px; }
+        .carousel-prev, .carousel-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            z-index: 10;
+        }
+        .carousel-prev { left: 8px; }
+        .carousel-next { right: 8px; }
         .carousel-prev:hover, .carousel-next:hover { background: rgba(0,0,0,0.8); }
         .carousel-dots { text-align: center; padding: 8px 0; background: rgba(0,0,0,0.3); }
-        .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #64748b; margin: 0 4px; cursor: pointer; }
+        .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #64748b; margin: 0 4px; cursor: pointer; transition: background 0.2s; }
         .dot.active { background: #fbbf24; }
         @keyframes fadeEffect { from { opacity: 0.4; } to { opacity: 1; } }
 
-        /* ====== FILTER BAR ====== */
+        /* Filter bar, admin dashboard, cards, comments, footer (unchanged) */
         .filter-bar { background: #0f172a; border-radius: 28px; padding: 1.2rem 1.5rem; margin-bottom: 2rem; border: 1px solid #1e293b; }
         .search-box { width: 100%; padding: 12px 18px; background: #020617; border: 1px solid #334155; border-radius: 48px; font-size: 1rem; color: white; margin-bottom: 1rem; }
         .category-filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
         .filter-chip { background: #1e293b; border: none; padding: 6px 16px; border-radius: 40px; color: #cbd5e6; cursor: pointer; }
         .filter-chip.active { background: #3b82f6; color: white; }
         .clear-filters { background: transparent; border: 1px solid #ef4444; color: #f87171; padding: 6px 16px; border-radius: 40px; cursor: pointer; }
-
-        /* Admin Dashboard (unchanged) */
         .admin-dashboard { display: none; background: #0f172a; padding: 2rem; border-radius: 28px; margin-bottom: 2rem; border: 1px solid #1e293b; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
         .form-group { display: flex; flex-direction: column; gap: 8px; }
@@ -59,10 +96,8 @@
         .announcement-item { background: #0f172a; border: 1px solid #1e293b; border-radius: 16px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
         .add-announcement-form { display: flex; gap: 10px; margin-top: 15px; }
         .add-announcement-form input { flex: 1; padding: 8px 12px; background: #020617; border: 1px solid #334155; border-radius: 40px; color: white; }
-
-        /* Catalog Cards (with rating stars) */
         .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.8rem; }
-        .item-card { background: #111827; border-radius: 24px; overflow: hidden; border: 1px solid #1e293b; position: relative; }
+        .item-card { background: #111827; border-radius: 24px; overflow: hidden; border: 1px solid #1e293b; position: relative; transition: transform 0.2s, box-shadow 0.2s; }
         .item-card:hover { transform: translateY(-5px); box-shadow: 0 20px 30px -10px black; }
         .featured-badge { position: absolute; top: 8px; left: 8px; background: #fbbf24; color: #0a0c10; font-size: 0.7rem; font-weight: bold; padding: 4px 10px; border-radius: 30px; z-index: 10; }
         .item-img { width: 100%; height: 160px; object-fit: cover; background: #1e293b; }
@@ -70,15 +105,12 @@
         .item-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 0.25rem; padding-right: 30px; }
         .item-category { font-size: 0.75rem; color: #93c5fd; margin-bottom: 0.5rem; }
         .item-price { font-size: 1.2rem; font-weight: bold; color: #fbbf24; margin-bottom: 0.5rem; }
-
-        /* Rating Stars */
-        .rating { margin: 8px 0; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+        .rating { margin: 8px 0; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; flex-wrap: wrap; }
         .stars { display: inline-flex; gap: 3px; cursor: pointer; }
         .star { font-size: 1.1rem; color: #64748b; transition: color 0.1s; }
         .star.active { color: #fbbf24; }
         .star.hover { color: #fde047; }
-        .rating-count { color: #94a3b8; }
-
+        .rating-count { color: #94a3b8; font-size: 0.75rem; }
         .add-to-cart { background: #10b981; color: white; padding: 8px 16px; border-radius: 40px; border: none; cursor: pointer; width: 100%; margin-top: 8px; }
         .item-actions-admin { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; z-index: 10; display: none; }
         .admin-mode .item-actions-admin { display: flex; }
@@ -86,20 +118,16 @@
         .delete-item { color: #f87171; } .edit-item { color: #60a5fa; }
         .category-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; border-left: 5px solid #60a5fa; padding-left: 15px; margin-top: 1rem; }
         .no-results { text-align: center; padding: 3rem; color: #94a3b8; background: #0f172a; border-radius: 28px; }
-
-        /* Global Comments Section */
         .comments-section { background: #0f172a; border-radius: 28px; padding: 1.5rem; margin-top: 3rem; border: 1px solid #1e293b; }
         .comments-title { font-size: 1.5rem; margin-bottom: 1rem; border-left: 5px solid #60a5fa; padding-left: 15px; }
         .comment-form { display: flex; flex-direction: column; gap: 12px; margin-bottom: 2rem; background: #111827; padding: 1rem; border-radius: 20px; }
         .comment-form input, .comment-form textarea { padding: 10px; background: #020617; border: 1px solid #334155; border-radius: 16px; color: white; font-family: inherit; }
         .comment-form textarea { resize: vertical; min-height: 80px; }
         .comment { background: #111827; border-radius: 16px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #1e293b; }
-        .comment-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; color: #94a3b8; }
+        .comment-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; color: #94a3b8; flex-wrap: wrap; gap: 8px; }
         .comment-name { font-weight: bold; color: #60a5fa; }
         .comment-text { word-break: break-word; line-height: 1.4; }
         .delete-comment { background: none; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem; }
-
-        /* Cart Modal etc. (unchanged) */
         .cart-modal, .suggestion-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1001; justify-content: center; align-items: center; }
         .cart-modal-content, .suggestion-modal-content { background: #0f172a; max-width: 500px; width: 90%; border-radius: 28px; padding: 1.5rem; border: 1px solid #1e293b; max-height: 80vh; overflow-y: auto; }
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1e293b; }
@@ -118,13 +146,12 @@
         .social-links a { color: #cbd5e6; text-decoration: none; font-size: 1rem; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s; }
         .social-links a:hover { color: #60a5fa; }
         .copyright { font-size: 0.8rem; color: #64748b; }
-        @media (max-width: 700px) { .container { padding: 1rem; } .form-grid { grid-template-columns: 1fr; } .logo { font-size: 1.4rem; } }
+        @media (max-width: 700px) { .container { padding: 1rem; } .form-grid { grid-template-columns: 1fr; } .logo { font-size: 1.4rem; } .carousel-container { min-height: 80px; } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- New Header: Logo on top, buttons below -->
     <div class="site-header">
         <div class="logo">ʙʀᴇɴᴛᴏʏʏʏ ᴍᴀʀᴋᴇᴛᴘʟᴀᴄᴇ</div>
         <div class="header-actions">
@@ -135,7 +162,7 @@
         </div>
     </div>
 
-    <!-- Announcement Carousel -->
+    <!-- Announcement Carousel – now has fixed min-height -->
     <div id="announcementCarousel" class="announcement-carousel" style="display: none;">
         <div class="carousel-container">
             <button class="carousel-prev" id="carouselPrev">❮</button>
@@ -154,7 +181,6 @@
         </div>
     </div>
 
-    <!-- Admin Panel (unchanged but announcements manager included) -->
     <div id="adminPanel" class="admin-dashboard">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2>➕ Admin Controls</h2>
@@ -163,7 +189,6 @@
                 <button id="logoutBtn" class="admin-btn logout-btn">🚪 Logout</button>
             </div>
         </div>
-        <!-- Add/Edit Item -->
         <div style="margin-bottom: 30px;">
             <h3 style="margin-bottom: 15px;" id="formTitle">Add New Item</h3>
             <div class="form-grid">
@@ -178,7 +203,6 @@
                 <button id="cancelEditBtn" class="btn-primary btn-secondary" style="display: none;">Cancel Edit</button>
             </div>
         </div>
-        <!-- Announcements Manager -->
         <div class="announcements-manager">
             <h3>📢 Manage Announcements (Carousel)</h3>
             <div id="announcementsList"></div>
@@ -190,7 +214,6 @@
         <p style="font-size:0.8rem; margin-top:20px; color:#94a3b8;">⚡ Admin: Hover over any card to see Edit/Delete buttons. <span id="fbStatus" class="firebase-status" style="background:#ef4444;">⚠️ Not logged to Firebase</span></p>
     </div>
 
-    <!-- Catalog Container -->
     <div id="catalogContainer"></div>
 
     <!-- Global Comments Section -->
@@ -205,7 +228,6 @@
     </div>
 </div>
 
-<!-- Footer -->
 <footer class="footer">
     <div class="footer-content">
         <div class="social-links">
@@ -257,14 +279,13 @@
     let currentCategoryFilter = "all";
     let editingItemId = null;
 
-    // Announcements & Comments & Ratings
     let announcements = [];
     let currentSlide = 0;
     let autoSlideInterval = null;
-    let comments = [];      // array of { name, message, timestamp, id }
-    let ratings = {};       // object: itemId -> { avg, count }
+    let comments = [];
+    let ratings = {};
 
-    // ---------- Global Visit Counter (unchanged) ----------
+    // Global Visit Counter
     async function updateGlobalVisitCounter() {
         const counterElem = document.getElementById("visitCounter");
         const counterRef = database.ref('visitorCount');
@@ -274,17 +295,16 @@
         } catch (err) { counterElem.innerHTML = "👁️ Visits: --"; }
     }
 
-    // ---------- Firebase Auth Status ----------
     function updateFirebaseStatusUI() {
         const user = auth.currentUser;
         const span = document.getElementById("fbStatus");
         if (span) {
-            if (user) { span.innerHTML = `✅ Firebase: ${user.email}`; span.style.background = "#10b981"; }
-            else { span.innerHTML = "⚠️ Not logged to Firebase (can't add/edit)"; span.style.background = "#ef4444"; }
+            span.innerHTML = user ? `✅ Firebase: ${user.email}` : "⚠️ Not logged to Firebase (can't add/edit)";
+            span.style.background = user ? "#10b981" : "#ef4444";
         }
     }
 
-    // ---------- Catalog CRUD (unchanged but includes ratings in card rendering) ----------
+    // Catalog CRUD
     function listenToCatalog() {
         database.ref('catalog').on('value', (snapshot) => {
             const data = snapshot.val();
@@ -341,7 +361,7 @@
     function cancelEdit() { setEditMode(false); }
     function startEdit(item) { setEditMode(true, item); document.getElementById("adminPanel").scrollIntoView({ behavior:"smooth" }); }
 
-    // ---------- Cart ----------
+    // Cart
     function loadCart() { cart = JSON.parse(localStorage.getItem("cart")||"[]"); updateCartUI(); }
     function saveCart() { localStorage.setItem("cart",JSON.stringify(cart)); updateCartUI(); }
     function addToCart(item) { if(!cart.some(c=>c.id===item.id)) { cart.push({...item}); saveCart(); } else alert("Already in cart."); }
@@ -363,23 +383,13 @@
         document.getElementById("cartModal").style.display="none";
     }
 
-    // ---------- Ratings System ----------
+    // Ratings
     async function loadRatings() {
-        database.ref('ratings').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) ratings = data;
-            else ratings = {};
-            applyFiltersAndRender(); // re-render to show updated stars
-        });
+        database.ref('ratings').on('value', (snapshot) => { ratings = snapshot.val() || {}; applyFiltersAndRender(); });
     }
-
     async function submitRating(itemId, stars) {
-        // Store user's vote in localStorage to prevent duplicate voting per browser
         const votedKey = `rated_${itemId}`;
-        if (localStorage.getItem(votedKey)) {
-            alert("You already rated this item.");
-            return;
-        }
+        if (localStorage.getItem(votedKey)) { alert("You already rated this item."); return; }
         const ref = database.ref(`ratings/${itemId}`);
         await ref.transaction(current => {
             if (!current) return { avg: stars, count: 1 };
@@ -389,7 +399,7 @@
         localStorage.setItem(votedKey, stars);
     }
 
-    // ---------- Comments System ----------
+    // Comments
     async function loadComments() {
         database.ref('comments').on('value', (snapshot) => {
             const data = snapshot.val();
@@ -400,22 +410,14 @@
             renderComments();
         });
     }
-
     async function addComment(name, message) {
         if (!message.trim()) return alert("Please enter a message.");
-        const newComment = {
-            name: name.trim() || "Anonymous",
-            message: message.trim(),
-            timestamp: Date.now()
-        };
-        await database.ref('comments').push(newComment);
+        await database.ref('comments').push({ name: name.trim() || "Anonymous", message: message.trim(), timestamp: Date.now() });
     }
-
     async function deleteComment(commentId) {
         if (!auth.currentUser) return alert("Only admin can delete comments.");
         await database.ref(`comments/${commentId}`).remove();
     }
-
     function renderComments() {
         const container = document.getElementById("commentsList");
         if (!container) return;
@@ -427,13 +429,11 @@
         });
         container.innerHTML = html;
         if (auth.currentUser) {
-            document.querySelectorAll(".delete-comment").forEach(btn => {
-                btn.addEventListener("click", () => deleteComment(btn.dataset.id));
-            });
+            document.querySelectorAll(".delete-comment").forEach(btn => btn.addEventListener("click", () => deleteComment(btn.dataset.id)));
         }
     }
 
-    // ---------- Rendering Catalog (with rating stars) ----------
+    // Rendering catalog with ratings
     function applyFiltersAndRender() {
         const container = document.getElementById("catalogContainer");
         if (!container) return;
@@ -463,7 +463,6 @@
             html+=`<div class="category-section"><div class="category-title">📁 ${escapeHtml(cat)}</div><div class="items-grid">`+grouped[cat].map(renderItemCard).join('')+`</div></div>`;
         }
         container.innerHTML=html;
-        // Attach add-to-cart, edit, delete
         document.querySelectorAll(".add-to-cart").forEach(btn=>btn.addEventListener("click",(e)=>{
             const id=parseInt(btn.dataset.id), title=btn.dataset.title, cat=btn.dataset.category, price=parseFloat(btn.dataset.price), image=btn.dataset.image;
             addToCart({id,title,category:cat,price,image});
@@ -474,40 +473,26 @@
         document.querySelectorAll(".edit-item").forEach(btn=>btn.addEventListener("click",(e)=>{
             e.stopPropagation(); const item=catalogItems.find(i=>i.id==parseInt(btn.dataset.id)); if(item) startEdit(item);
         }));
-        // Rating stars: add click handlers
         document.querySelectorAll(".star-rating").forEach(starContainer => {
             const itemId = parseInt(starContainer.dataset.id);
             const stars = starContainer.querySelectorAll(".star");
             stars.forEach(star => {
-                star.addEventListener("click", () => {
-                    const value = parseInt(star.dataset.value);
-                    submitRating(itemId, value);
-                });
+                star.addEventListener("click", () => submitRating(itemId, parseInt(star.dataset.value)));
                 star.addEventListener("mouseover", () => {
                     const val = parseInt(star.dataset.value);
-                    stars.forEach((s, idx) => {
-                        if (idx < val) s.classList.add("hover");
-                        else s.classList.remove("hover");
-                    });
+                    stars.forEach((s, idx) => { if (idx < val) s.classList.add("hover"); else s.classList.remove("hover"); });
                 });
-                star.addEventListener("mouseout", () => {
-                    stars.forEach(s => s.classList.remove("hover"));
-                });
+                star.addEventListener("mouseout", () => stars.forEach(s => s.classList.remove("hover")));
             });
         });
         updateAdminModeClass();
     }
-
     function renderItemCard(item) {
         const price = item.price || 0;
         const rating = ratings[item.id] || { avg: 0, count: 0 };
-        const avg = rating.avg;
-        const fullStars = Math.round(avg);
+        const fullStars = Math.round(rating.avg);
         let starsHtml = "";
-        for (let i=1; i<=5; i++) {
-            starsHtml += `<span class="star ${i <= fullStars ? 'active' : ''}" data-value="${i}">★</span>`;
-        }
-        const rated = localStorage.getItem(`rated_${item.id}`) !== null;
+        for (let i=1; i<=5; i++) starsHtml += `<span class="star ${i <= fullStars ? 'active' : ''}" data-value="${i}">★</span>`;
         return `<div class="item-card">
             <div class="item-actions-admin"><button class="edit-item" data-id="${item.id}">✏️</button><button class="delete-item" data-id="${item.id}">✖</button></div>
             ${item.featured ? '<div class="featured-badge">⭐ Featured</div>' : ''}
@@ -536,7 +521,7 @@
         document.querySelectorAll(".filter-chip").forEach(btn=>btn.addEventListener("click",()=>{ currentCategoryFilter=btn.dataset.cat; renderCategoryChips(); applyFiltersAndRender(); }));
     }
 
-    // ---------- Announcements Carousel (unchanged) ----------
+    // Announcements Carousel (fixed size)
     function loadAnnouncements() {
         database.ref('announcements').on('value', (snapshot) => {
             const data = snapshot.val();
@@ -554,12 +539,32 @@
         if(!carouselDiv) return;
         if(!announcements.length) { carouselDiv.style.display="none"; return; }
         carouselDiv.style.display="block";
-        slidesDiv.innerHTML=""; announcements.forEach((t,i)=>{ const slide=document.createElement("div"); slide.className="carousel-slide"+(i===currentSlide?" active":""); slide.innerHTML=`<div class="announcement-icon">📢</div><div class="announcement-text">${t}</div>`; slidesDiv.appendChild(slide); });
-        dotsDiv.innerHTML=""; announcements.forEach((_,i)=>{ const dot=document.createElement("span"); dot.className="dot"+(i===currentSlide?" active":""); dot.addEventListener("click",()=>goToSlide(i)); dotsDiv.appendChild(dot); });
+        slidesDiv.innerHTML="";
+        announcements.forEach((t,i)=>{
+            const slide=document.createElement("div");
+            slide.className="carousel-slide"+(i===currentSlide?" active":"");
+            slide.innerHTML=`<div class="announcement-icon">📢</div><div class="announcement-text">${t}</div>`;
+            slidesDiv.appendChild(slide);
+        });
+        dotsDiv.innerHTML="";
+        announcements.forEach((_,i)=>{
+            const dot=document.createElement("span");
+            dot.className="dot"+(i===currentSlide?" active":"");
+            dot.addEventListener("click",()=>goToSlide(i));
+            dotsDiv.appendChild(dot);
+        });
         if(currentSlide>=announcements.length) currentSlide=0;
         showSlide(currentSlide);
     }
-    function showSlide(idx) { document.querySelectorAll(".carousel-slide").forEach((s,i)=>s.classList.toggle("active",i===idx)); document.querySelectorAll(".dot").forEach((d,i)=>d.classList.toggle("active",i===idx)); currentSlide=idx; resetAutoSlide(); }
+    function showSlide(idx) {
+        const slides = document.querySelectorAll(".carousel-slide");
+        const dots = document.querySelectorAll(".dot");
+        if(!slides.length) return;
+        slides.forEach((s,i)=>s.classList.toggle("active",i===idx));
+        dots.forEach((d,i)=>d.classList.toggle("active",i===idx));
+        currentSlide=idx;
+        resetAutoSlide();
+    }
     function nextSlide() { goToSlide((currentSlide+1)%announcements.length); }
     function prevSlide() { goToSlide((currentSlide-1+announcements.length)%announcements.length); }
     function goToSlide(idx) { if(idx>=0 && idx<announcements.length) showSlide(idx); }
@@ -577,20 +582,20 @@
         document.querySelectorAll(".delete-announcement").forEach(btn=>btn.addEventListener("click",async()=>{ const i=parseInt(btn.dataset.idx); if(confirm("Delete?")) await deleteAnnouncement(i); }));
     }
 
-    // ---------- Suggestion ----------
+    // Suggestion
     function sendSuggestionToFB() { const sug=document.getElementById("suggestionText").value.trim(); if(!sug) return alert("Enter suggestion"); window.open(`https://m.me/${FACEBOOK_PAGE_ID}?text=${encodeURIComponent("💡 *SUGGESTION*\n"+sug)}`,"_blank"); document.getElementById("suggestionModal").style.display="none"; document.getElementById("suggestionText").value=""; alert("Sent!"); }
 
-    // ---------- Admin Auth ----------
+    // Admin Auth
     function isAuthenticated() { return sessionStorage.getItem("admin_auth")==="true"; }
     function login(u,p) { if(u===ADMIN_CRED.username && p===ADMIN_CRED.password) { sessionStorage.setItem("admin_auth","true"); document.getElementById("loginModal").style.display="none"; document.getElementById("adminPanel").style.display="block"; applyFiltersAndRender(); renderAnnouncementsManager(); return true; } else { document.getElementById("loginError").innerText="Invalid credentials."; return false; } }
     function logout() { sessionStorage.removeItem("admin_auth"); document.getElementById("adminPanel").style.display="none"; applyFiltersAndRender(); renderAnnouncementsManager(); }
     function updateAdminModeClass() { if(isAuthenticated()) document.body.classList.add("admin-mode"); else document.body.classList.remove("admin-mode"); }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
 
-    // ---------- Firebase Login ----------
+    // Firebase Login
     async function firebaseLogin() { const email=prompt("Firebase Admin Email:"); if(!email) return; const pw=prompt("Password:"); if(!pw) return; try { await auth.signInWithEmailAndPassword(email,pw); alert("Logged in!"); updateFirebaseStatusUI(); renderAnnouncementsManager(); } catch(e) { alert("Login failed: "+e.message); } }
 
-    // ---------- Event Listeners ----------
+    // Event Listeners
     document.getElementById("adminLoginBtn").onclick=()=>{ if(isAuthenticated()) { const p=document.getElementById("adminPanel"); p.style.display=p.style.display==="none"?"block":"none"; if(p.style.display==="block") renderAnnouncementsManager(); } else document.getElementById("loginModal").style.display="flex"; };
     document.getElementById("submitLogin").onclick=()=>login(document.getElementById("loginUser").value,document.getElementById("loginPass").value);
     document.getElementById("logoutBtn").onclick=logout;
