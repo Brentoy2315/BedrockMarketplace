@@ -9,7 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
-        /* ====== Existing CSS (unchanged, plus footer styles added) ====== */
+        /* ====== EXISTING STYLES (kept as is) ====== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', system-ui, sans-serif; background: #0a0c10; color: #eef2ff; display: flex; flex-direction: column; min-height: 100vh; }
         .container { max-width: 1300px; margin: 0 auto; padding: 2rem; flex: 1; }
@@ -20,9 +20,128 @@
         .cart-icon, .suggestion-btn { background: #1e293b; border: none; color: #f1f5f9; padding: 0.5rem 1rem; border-radius: 40px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; }
         .cart-count { background: #3b82f6; color: white; border-radius: 30px; padding: 0 8px; font-size: 0.75rem; font-weight: bold; }
         .admin-btn { background-color: #334155; color: #f1f5f9; border: none; padding: 0.6rem 1.2rem; border-radius: 40px; font-weight: 600; cursor: pointer; }
-        .announcement { background: linear-gradient(135deg, #1e293b, #0f172a); border-left: 6px solid #fbbf24; border-radius: 20px; padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 12px; }
-        .announcement-icon { font-size: 1.8rem; }
-        .announcement-text { flex: 1; font-size: 1rem; }
+        
+        /* ====== NEW CAROUSEL STYLES ====== */
+        .announcement-carousel {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            border-left: 6px solid #fbbf24;
+        }
+        .carousel-container {
+            position: relative;
+            padding: 1rem 2.5rem;
+        }
+        .carousel-slide {
+            display: none;
+            text-align: center;
+            font-size: 1rem;
+            line-height: 1.4;
+            animation: fadeEffect 0.5s ease;
+        }
+        .carousel-slide.active {
+            display: block;
+        }
+        .carousel-slide a {
+            color: #fbbf24;
+            text-decoration: none;
+        }
+        .carousel-prev, .carousel-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            z-index: 10;
+        }
+        .carousel-prev { left: 8px; }
+        .carousel-next { right: 8px; }
+        .carousel-prev:hover, .carousel-next:hover {
+            background: rgba(0,0,0,0.8);
+        }
+        .carousel-dots {
+            text-align: center;
+            padding: 8px 0;
+            background: rgba(0,0,0,0.3);
+        }
+        .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #64748b;
+            margin: 0 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .dot.active {
+            background: #fbbf24;
+        }
+        @keyframes fadeEffect {
+            from { opacity: 0.4; }
+            to { opacity: 1; }
+        }
+
+        /* Admin announcement management panel */
+        .announcements-manager {
+            margin-top: 20px;
+            border-top: 1px solid #334155;
+            padding-top: 20px;
+        }
+        .announcement-item {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        .announcement-item .text {
+            flex: 1;
+            word-break: break-word;
+        }
+        .announcement-item button {
+            background: #475569;
+            border: none;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .announcement-item button.delete-announcement {
+            background: #ef4444;
+        }
+        .add-announcement-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .add-announcement-form input {
+            flex: 1;
+            padding: 8px 12px;
+            background: #020617;
+            border: 1px solid #334155;
+            border-radius: 40px;
+            color: white;
+        }
+
+        /* ====== REST OF EXISTING STYLES (unchanged) ====== */
         .filter-bar { background: #0f172a; border-radius: 28px; padding: 1.2rem 1.5rem; margin-bottom: 2rem; border: 1px solid #1e293b; }
         .search-box { width: 100%; padding: 12px 18px; background: #020617; border: 1px solid #334155; border-radius: 48px; font-size: 1rem; color: white; margin-bottom: 1rem; }
         .category-filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
@@ -68,42 +187,12 @@
         .modal-content input { width: 100%; padding: 12px; margin: 12px 0; background: #0f172a; border: 1px solid #334155; border-radius: 16px; color: white; }
         .error-msg { color: #f87171; }
         .firebase-status { background: #1e293b; padding: 6px 12px; border-radius: 24px; font-size: 0.7rem; margin-left: 10px; }
-
-        /* ====== FOOTER STYLES ====== */
-        .footer {
-            background: #0f172a;
-            border-top: 1px solid #1e293b;
-            padding: 2rem 1rem;
-            margin-top: 3rem;
-            text-align: center;
-        }
-        .footer-content {
-            max-width: 1300px;
-            margin: 0 auto;
-        }
-        .social-links {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .social-links a {
-            color: #cbd5e6;
-            text-decoration: none;
-            font-size: 1rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: color 0.2s;
-        }
-        .social-links a:hover {
-            color: #60a5fa;
-        }
-        .copyright {
-            font-size: 0.8rem;
-            color: #64748b;
-        }
+        .footer { background: #0f172a; border-top: 1px solid #1e293b; padding: 2rem 1rem; margin-top: 3rem; text-align: center; }
+        .footer-content { max-width: 1300px; margin: 0 auto; }
+        .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; }
+        .social-links a { color: #cbd5e6; text-decoration: none; font-size: 1rem; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s; }
+        .social-links a:hover { color: #60a5fa; }
+        .copyright { font-size: 0.8rem; color: #64748b; }
         @media (max-width: 700px) {
             .container { padding: 1rem; }
             .form-grid { grid-template-columns: 1fr; }
@@ -125,10 +214,14 @@
         </div>
     </div>
 
-    <div id="announcementPanel" class="announcement" style="display: none;">
-        <div class="announcement-icon">📢</div>
-        <div id="announcementText" class="announcement-text"></div>
-        <button id="editAnnouncementBtn" class="edit-announcement-btn" style="display: none;">✏️ Edit</button>
+    <!-- ANNOUNCEMENT CAROUSEL (replaces old banner) -->
+    <div id="announcementCarousel" class="announcement-carousel" style="display: none;">
+        <div class="carousel-container">
+            <button class="carousel-prev" id="carouselPrev">❮</button>
+            <button class="carousel-next" id="carouselNext">❯</button>
+            <div id="carouselSlides"></div>
+        </div>
+        <div class="carousel-dots" id="carouselDots"></div>
     </div>
 
     <div class="filter-bar">
@@ -162,14 +255,15 @@
                 <button id="cancelEditBtn" class="btn-primary btn-secondary" style="display: none;">Cancel Edit</button>
             </div>
         </div>
-        <div style="margin-top: 30px; border-top: 1px solid #334155; padding-top: 20px;">
-            <h3>📢 Announcement Banner</h3>
-            <div class="form-group">
-                <label>Announcement Text (supports emoji & links):</label>
-                <textarea id="announcementInput" rows="3" style="width: 100%;"></textarea>
-                <small style="color:#94a3b8;">You can use HTML links</small>
+
+        <!-- ANNOUNCEMENTS MANAGER (replaces single announcement editor) -->
+        <div class="announcements-manager">
+            <h3>📢 Manage Announcements (Carousel)</h3>
+            <div id="announcementsList"></div>
+            <div class="add-announcement-form">
+                <input type="text" id="newAnnouncementText" placeholder="New announcement (supports HTML links)">
+                <button id="addAnnouncementBtn" class="btn-primary" style="padding: 8px 16px;">➕ Add</button>
             </div>
-            <button id="saveAnnouncementBtn" class="btn-primary">💾 Save Announcement</button>
         </div>
         <p style="font-size:0.8rem; margin-top:20px; color:#94a3b8;">⚡ Admin: Hover over any card to see Edit/Delete buttons. <span id="fbStatus" class="firebase-status" style="background:#ef4444;">⚠️ Not logged to Firebase</span></p>
     </div>
@@ -225,17 +319,16 @@
 
 <script>
     // ======================= FIREBASE CONFIGURATION =======================
-    // 🔥 REPLACE WITH YOUR OWN firebaseConfig
-const firebaseConfig = {
-  apiKey: "AIzaSyAco1a008Xxsc2t-7htzIF_tCDpEipQ8Sw",
-  authDomain: "minecraft-marketplace-7227b.firebaseapp.com",
-  databaseURL: "https://minecraft-marketplace-7227b-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "minecraft-marketplace-7227b",
-  storageBucket: "minecraft-marketplace-7227b.firebasestorage.app",
-  messagingSenderId: "76080707372",
-  appId: "1:76080707372:web:6e653bbfc45ddf3b4e9e89",
-  measurementId: "G-8LRMG5S33X"
-};
+    const firebaseConfig = {
+        apiKey: "AIzaSyAco1a008Xxsc2t-7htzIF_tCDpEipQ8Sw",
+        authDomain: "minecraft-marketplace-7227b.firebaseapp.com",
+        databaseURL: "https://minecraft-marketplace-7227b-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "minecraft-marketplace-7227b",
+        storageBucket: "minecraft-marketplace-7227b.firebasestorage.app",
+        messagingSenderId: "76080707372",
+        appId: "1:76080707372:web:6e653bbfc45ddf3b4e9e89",
+        measurementId: "G-8LRMG5S33X"
+    };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const auth = firebase.auth();
@@ -249,18 +342,18 @@ const firebaseConfig = {
     let currentSearchTerm = "";
     let currentCategoryFilter = "all";
     let editingItemId = null;
-    let announcementHtml = "";
+    
+    // Announcements (array of strings)
+    let announcements = [];   // each element is a string (HTML allowed)
+    let currentSlide = 0;
+    let autoSlideInterval = null;
 
-    // ---------- Global Visit Counter using Firebase ----------
+    // ---------- Global Visit Counter (unchanged) ----------
     async function updateGlobalVisitCounter() {
         const counterElem = document.getElementById("visitCounter");
         const counterRef = database.ref('visitorCount');
-        
         try {
-            // Increment the counter atomically
             await counterRef.transaction(currentCount => (currentCount || 0) + 1);
-            
-            // Listen for real-time updates
             counterRef.on('value', (snapshot) => {
                 const count = snapshot.val() || 0;
                 counterElem.innerHTML = `👁️ Visits: ${count.toLocaleString()}`;
@@ -286,7 +379,7 @@ const firebaseConfig = {
         }
     }
 
-    // ---------- Listen to catalog from Firebase ----------
+    // ---------- Listen to catalog from Firebase (unchanged) ----------
     function listenToCatalog() {
         const catalogRef = database.ref('catalog');
         catalogRef.on('value', (snapshot) => {
@@ -304,11 +397,11 @@ const firebaseConfig = {
             applyFiltersAndRender();
         }, (error) => {
             console.error("Firebase read error:", error);
-            alert("Failed to load catalog from Firebase. Check your database rules and internet.");
+            alert("Failed to load catalog from Firebase.");
         });
     }
 
-    // ---------- Sync catalog to Firebase (only if authenticated) ----------
+    // ---------- Sync catalog to Firebase ----------
     async function syncCatalogToFirebase() {
         const user = auth.currentUser;
         if (!user) {
@@ -329,7 +422,7 @@ const firebaseConfig = {
         return true;
     }
 
-    // ---------- Admin CRUD ----------
+    // ---------- Admin CRUD (unchanged) ----------
     async function addItem(image, title, category, price, featured) {
         const newId = Date.now();
         const newItem = { 
@@ -369,7 +462,7 @@ const firebaseConfig = {
             await syncCatalogToFirebase();
             renderCategoryChips();
             applyFiltersAndRender();
-            setEditMode(false); // exit edit mode after successful update
+            setEditMode(false);
         } catch (err) {
             catalogItems[index] = original;
             alert("Update failed: " + err.message);
@@ -385,7 +478,7 @@ const firebaseConfig = {
             renderCartModal();
         } catch (err) {
             alert("Delete failed: " + err.message);
-            listenToCatalog(); // reload original
+            listenToCatalog();
         }
     }
 
@@ -431,7 +524,7 @@ const firebaseConfig = {
         document.getElementById("adminPanel").scrollIntoView({ behavior: "smooth" });
     }
 
-    // ---------- Cart (localStorage only) ----------
+    // ---------- Cart (unchanged) ----------
     function loadCart() {
         const stored = localStorage.getItem("cart");
         cart = stored ? JSON.parse(stored) : [];
@@ -478,7 +571,7 @@ const firebaseConfig = {
         document.getElementById("cartModal").style.display = "none";
     }
 
-    // ---------- Rendering ----------
+    // ---------- Rendering catalog (unchanged) ----------
     function applyFiltersAndRender() {
         const container = document.getElementById("catalogContainer");
         if (!container) return;
@@ -508,7 +601,6 @@ const firebaseConfig = {
             html += `<div class="category-section"><div class="category-title">📁 ${escapeHtml(cat)}</div><div class="items-grid">` + grouped[cat].map(renderItemCard).join('') + `</div></div>`;
         }
         container.innerHTML = html;
-        // Attach events
         document.querySelectorAll(".add-to-cart").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const id = parseInt(btn.getAttribute("data-id"));
@@ -536,6 +628,7 @@ const firebaseConfig = {
         });
         updateAdminModeClass();
     }
+
     function renderItemCard(item) {
         const price = item.price || 0;
         return `<div class="item-card">
@@ -545,6 +638,7 @@ const firebaseConfig = {
             <div class="item-info"><div class="item-title">${escapeHtml(item.title)}</div><div class="item-category">${escapeHtml(item.category)}</div><div class="item-price">₱${price.toFixed(2)}</div><button class="add-to-cart" data-id="${item.id}" data-title="${escapeHtml(item.title)}" data-category="${escapeHtml(item.category)}" data-price="${price}" data-image="${escapeHtml(item.image)}">➕ Add to Cart</button></div>
         </div>`;
     }
+
     function getUniqueCategories() { return [...new Set(catalogItems.map(i => i.category))].sort(); }
     function renderCategoryChips() {
         const container = document.getElementById("categoryChips");
@@ -556,59 +650,198 @@ const firebaseConfig = {
         document.querySelectorAll(".filter-chip").forEach(btn => btn.addEventListener("click", () => { currentCategoryFilter = btn.getAttribute("data-cat"); renderCategoryChips(); applyFiltersAndRender(); }));
     }
 
-    // Announcement (localStorage)
-function loadAnnouncement() {
-    const announcementRef = database.ref('announcement');
-    announcementRef.on('value', (snapshot) => {
-        const saved = snapshot.val();
-        announcementHtml = saved || "✨ Welcome to our marketplace! Check out our featured items below. ✨";
-        renderAnnouncement();
-    }, (error) => {
-        console.error("Announcement read error:", error);
-        announcementHtml = "✨ Welcome to our marketplace! ✨";
-        renderAnnouncement();
-    });
-}
-
-async function saveAnnouncement(text) {
-    const user = auth.currentUser;
-    if (!user) {
-        alert("❌ You must be logged into Firebase to update the announcement.");
-        return false;
+    // ======================= ANNOUNCEMENTS CAROUSEL (NEW) =======================
+    function loadAnnouncements() {
+        const announcementsRef = database.ref('announcements');
+        announcementsRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && Array.isArray(data)) {
+                announcements = data;
+            } else if (data && typeof data === 'object') {
+                // If stored as object (legacy or by mistake), convert to array
+                announcements = Object.values(data);
+            } else {
+                announcements = ["✨ Welcome to Brentoyyy's Marketplace! ✨"];
+            }
+            renderCarousel();
+            renderAnnouncementsManager();
+        }, (error) => {
+            console.error("Announcements read error:", error);
+            announcements = ["✨ Welcome to Brentoyyy's Marketplace! ✨"];
+            renderCarousel();
+            renderAnnouncementsManager();
+        });
     }
-    try {
-        await database.ref('announcement').set(text);
-        announcementHtml = text;
-        renderAnnouncement();
-        alert("Announcement updated globally!");
-        return true;
-    } catch (err) {
-        alert("Failed to save announcement: " + err.message);
-        return false;
-    }
-}
 
-function renderAnnouncement() {
-    const panel = document.getElementById("announcementPanel");
-    const textDiv = document.getElementById("announcementText");
-    if (!panel || !textDiv) return;
-    if (announcementHtml && announcementHtml.trim() !== "") {
-        textDiv.innerHTML = announcementHtml;
-        panel.style.display = "flex";
-    } else {
-        panel.style.display = "none";
+    async function saveAnnouncementsToFirebase() {
+        const user = auth.currentUser;
+        if (!user) {
+            alert("❌ You must be logged into Firebase to modify announcements.");
+            return false;
+        }
+        try {
+            await database.ref('announcements').set(announcements);
+            return true;
+        } catch (err) {
+            alert("Failed to save announcements: " + err.message);
+            return false;
+        }
     }
-    const editBtn = document.getElementById("editAnnouncementBtn");
-    if (editBtn) {
-        editBtn.style.display = isAuthenticated() ? "inline-block" : "none";
+
+    async function addAnnouncement(text) {
+        if (!text.trim()) return;
+        announcements.push(text.trim());
+        await saveAnnouncementsToFirebase();
+        // carousel will update via listener
     }
-}
-    
 
-    // Suggestion
-    function sendSuggestionToFB() { const sug = document.getElementById("suggestionText").value.trim(); if(!sug) return alert("Enter suggestion"); window.open(`https://m.me/${FACEBOOK_PAGE_ID}?text=${encodeURIComponent("💡 *SUGGESTION*\n"+sug)}`,"_blank"); document.getElementById("suggestionModal").style.display = "none"; document.getElementById("suggestionText").value=""; alert("Sent!"); }
+    async function deleteAnnouncement(index) {
+        announcements.splice(index, 1);
+        if (announcements.length === 0) announcements.push("✨ Welcome to Brentoyyy's Marketplace! ✨");
+        await saveAnnouncementsToFirebase();
+    }
 
-    // Admin auth for panel visibility
+    async function updateAnnouncement(index, newText) {
+        if (!newText.trim()) return;
+        announcements[index] = newText.trim();
+        await saveAnnouncementsToFirebase();
+    }
+
+    function renderCarousel() {
+        const carouselDiv = document.getElementById("announcementCarousel");
+        const slidesContainer = document.getElementById("carouselSlides");
+        const dotsContainer = document.getElementById("carouselDots");
+        if (!carouselDiv || !slidesContainer || !dotsContainer) return;
+
+        if (!announcements.length) {
+            carouselDiv.style.display = "none";
+            return;
+        }
+        carouselDiv.style.display = "block";
+
+        // Build slides
+        slidesContainer.innerHTML = "";
+        announcements.forEach((text, idx) => {
+            const slide = document.createElement("div");
+            slide.className = "carousel-slide" + (idx === currentSlide ? " active" : "");
+            slide.innerHTML = `<div class="announcement-icon">📢</div><div class="announcement-text">${text}</div>`;
+            slidesContainer.appendChild(slide);
+        });
+
+        // Build dots
+        dotsContainer.innerHTML = "";
+        announcements.forEach((_, idx) => {
+            const dot = document.createElement("span");
+            dot.className = "dot" + (idx === currentSlide ? " active" : "");
+            dot.addEventListener("click", () => goToSlide(idx));
+            dotsContainer.appendChild(dot);
+        });
+
+        // Ensure currentSlide is within bounds
+        if (currentSlide >= announcements.length) currentSlide = 0;
+        showSlide(currentSlide);
+    }
+
+    function showSlide(index) {
+        const slides = document.querySelectorAll(".carousel-slide");
+        const dots = document.querySelectorAll(".dot");
+        if (!slides.length) return;
+        slides.forEach((slide, i) => {
+            slide.classList.toggle("active", i === index);
+        });
+        dots.forEach((dot, i) => {
+            dot.classList.toggle("active", i === index);
+        });
+        currentSlide = index;
+        resetAutoSlide();
+    }
+
+    function nextSlide() {
+        let newIndex = currentSlide + 1;
+        if (newIndex >= announcements.length) newIndex = 0;
+        goToSlide(newIndex);
+    }
+
+    function prevSlide() {
+        let newIndex = currentSlide - 1;
+        if (newIndex < 0) newIndex = announcements.length - 1;
+        goToSlide(newIndex);
+    }
+
+    function goToSlide(index) {
+        if (index < 0 || index >= announcements.length) return;
+        showSlide(index);
+    }
+
+    function startAutoSlide() {
+        if (autoSlideInterval) clearInterval(autoSlideInterval);
+        autoSlideInterval = setInterval(() => {
+            nextSlide();
+        }, 5000); // change slide every 5 seconds
+    }
+
+    function resetAutoSlide() {
+        if (autoSlideInterval) {
+            clearInterval(autoSlideInterval);
+            startAutoSlide();
+        }
+    }
+
+    // Render admin list of announcements (with edit/delete)
+    function renderAnnouncementsManager() {
+        const container = document.getElementById("announcementsList");
+        if (!container) return;
+        if (!isAuthenticated() || !auth.currentUser) {
+            container.innerHTML = "<p style='color:#94a3b8;'>Login to Firebase to manage announcements.</p>";
+            return;
+        }
+        if (announcements.length === 0) {
+            container.innerHTML = "<p>No announcements. Add one using the form.</p>";
+            return;
+        }
+        let html = "";
+        announcements.forEach((text, idx) => {
+            html += `
+                <div class="announcement-item">
+                    <div class="text">${escapeHtml(text)}</div>
+                    <div>
+                        <button class="edit-announcement" data-index="${idx}">✏️ Edit</button>
+                        <button class="delete-announcement" data-index="${idx}">🗑️ Delete</button>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        // Attach edit events
+        document.querySelectorAll(".edit-announcement").forEach(btn => {
+            btn.addEventListener("click", async (e) => {
+                const idx = parseInt(btn.getAttribute("data-index"));
+                const newText = prompt("Edit announcement (supports HTML):", announcements[idx]);
+                if (newText !== null && newText.trim()) {
+                    await updateAnnouncement(idx, newText);
+                }
+            });
+        });
+        document.querySelectorAll(".delete-announcement").forEach(btn => {
+            btn.addEventListener("click", async (e) => {
+                const idx = parseInt(btn.getAttribute("data-index"));
+                if (confirm("Delete this announcement?")) {
+                    await deleteAnnouncement(idx);
+                }
+            });
+        });
+    }
+
+    // ---------- Helper functions ----------
+    function sendSuggestionToFB() { 
+        const sug = document.getElementById("suggestionText").value.trim(); 
+        if(!sug) return alert("Enter suggestion"); 
+        window.open(`https://m.me/${FACEBOOK_PAGE_ID}?text=${encodeURIComponent("💡 *SUGGESTION*\n"+sug)}`,"_blank"); 
+        document.getElementById("suggestionModal").style.display = "none"; 
+        document.getElementById("suggestionText").value=""; 
+        alert("Sent!"); 
+    }
+
     function isAuthenticated() { return sessionStorage.getItem("admin_auth") === "true"; }
     function login(username, password) {
         if(username === ADMIN_CRED.username && password === ADMIN_CRED.password) {
@@ -616,14 +849,25 @@ function renderAnnouncement() {
             document.getElementById("loginModal").style.display = "none";
             document.getElementById("adminPanel").style.display = "block";
             applyFiltersAndRender();
-            renderAnnouncement();
+            renderAnnouncementsManager();  // refresh admin UI
             return true;
         } else { document.getElementById("loginError").innerText = "Invalid credentials."; return false; }
     }
-    function logout() { sessionStorage.removeItem("admin_auth"); document.getElementById("adminPanel").style.display = "none"; applyFiltersAndRender(); renderAnnouncement(); }
-    function updateAdminModeClass() { if(isAuthenticated()) document.body.classList.add("admin-mode"); else document.body.classList.remove("admin-mode"); }
+    function logout() { 
+        sessionStorage.removeItem("admin_auth"); 
+        document.getElementById("adminPanel").style.display = "none"; 
+        applyFiltersAndRender(); 
+        renderAnnouncementsManager();
+    }
+    function updateAdminModeClass() { 
+        if(isAuthenticated()) document.body.classList.add("admin-mode"); 
+        else document.body.classList.remove("admin-mode"); 
+    }
 
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+    function escapeHtml(str) { 
+        if(!str) return ''; 
+        return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); 
+    }
 
     // ---------- Firebase Login ----------
     async function firebaseLogin() {
@@ -633,30 +877,30 @@ function renderAnnouncement() {
         if (!password) return;
         try {
             await auth.signInWithEmailAndPassword(email, password);
-            alert("✅ Successfully logged into Firebase! You can now add/edit items globally.");
+            alert("✅ Successfully logged into Firebase! You can now add/edit items and announcements globally.");
             updateFirebaseStatusUI();
+            renderAnnouncementsManager();  // show management UI
         } catch (err) {
             alert("Firebase login failed: " + err.message);
         }
     }
 
     // ---------- Event Listeners ----------
-    document.getElementById("adminLoginBtn").onclick = () => { if(isAuthenticated()) { document.getElementById("adminPanel").style.display = document.getElementById("adminPanel").style.display === "none" ? "block" : "none"; renderAnnouncement(); } else document.getElementById("loginModal").style.display = "flex"; };
+    document.getElementById("adminLoginBtn").onclick = () => { 
+        if(isAuthenticated()) { 
+            const panel = document.getElementById("adminPanel");
+            panel.style.display = panel.style.display === "none" ? "block" : "none"; 
+            if (panel.style.display === "block") renderAnnouncementsManager();
+        } else document.getElementById("loginModal").style.display = "flex"; 
+    };
     document.getElementById("submitLogin").onclick = () => login(document.getElementById("loginUser").value, document.getElementById("loginPass").value);
     document.getElementById("logoutBtn").onclick = () => logout();
     document.getElementById("firebaseLoginBtn").onclick = firebaseLogin;
 
     document.getElementById("addItemBtn").onclick = async () => {
-        if (!isAuthenticated()) {
-            alert("Please login as site admin first (using the Admin button).");
-            return;
-        }
-        if (!auth.currentUser) {
-            alert("You are not logged into Firebase.\n\nPlease click the 'Login to Firebase' button above and sign in with your Firebase admin email/password.\n\nAfter that, you can add/edit items globally.");
-            return;
-        }
+        if (!isAuthenticated()) { alert("Please login as site admin first."); return; }
+        if (!auth.currentUser) { alert("You are not logged into Firebase.\n\nPlease click 'Login to Firebase' button."); return; }
         if (editingItemId !== null) {
-            // Update existing item
             const img = document.getElementById("itemImage").value.trim();
             const title = document.getElementById("itemTitle").value.trim();
             const cat = document.getElementById("itemCategory").value.trim();
@@ -665,7 +909,6 @@ function renderAnnouncement() {
             if (!title) return alert("Title required");
             await updateItem(editingItemId, img, title, cat, price, featured);
         } else {
-            // Add new item
             const img = document.getElementById("itemImage").value.trim();
             const title = document.getElementById("itemTitle").value.trim();
             const cat = document.getElementById("itemCategory").value.trim();
@@ -677,8 +920,17 @@ function renderAnnouncement() {
         }
     };
     document.getElementById("cancelEditBtn").onclick = cancelEdit;
-    document.getElementById("saveAnnouncementBtn").onclick = () => { const newText = document.getElementById("announcementInput").value; saveAnnouncement(newText); };
-    document.getElementById("editAnnouncementBtn").onclick = () => { document.getElementById("announcementInput").value = announcementHtml; document.getElementById("adminPanel").style.display = "block"; document.getElementById("adminPanel").scrollIntoView({ behavior: "smooth" }); };
+
+    // Announcement manager events
+    document.getElementById("addAnnouncementBtn").onclick = async () => {
+        if (!isAuthenticated()) { alert("Please login as site admin first."); return; }
+        if (!auth.currentUser) { alert("Please login to Firebase first."); return; }
+        const newText = document.getElementById("newAnnouncementText").value.trim();
+        if (!newText) return alert("Please enter announcement text.");
+        await addAnnouncement(newText);
+        document.getElementById("newAnnouncementText").value = "";
+    };
+
     document.getElementById("searchInput").addEventListener("input", (e) => { currentSearchTerm = e.target.value; applyFiltersAndRender(); });
     document.getElementById("clearFiltersBtn").onclick = () => { currentSearchTerm = ""; currentCategoryFilter = "all"; document.getElementById("searchInput").value = ""; renderCategoryChips(); applyFiltersAndRender(); };
     const cartModal = document.getElementById("cartModal");
@@ -689,17 +941,28 @@ function renderAnnouncement() {
     document.getElementById("suggestionBtn").onclick = () => suggestionModal.style.display = "flex";
     document.getElementById("closeSuggestionBtn").onclick = () => { suggestionModal.style.display = "none"; document.getElementById("suggestionText").value = ""; };
     document.getElementById("sendSuggestionBtn").onclick = () => sendSuggestionToFB();
-    window.onclick = (e) => { if(e.target === cartModal) cartModal.style.display="none"; if(e.target === suggestionModal) suggestionModal.style.display="none"; if(e.target === document.getElementById("loginModal")) document.getElementById("loginModal").style.display="none"; };
+    window.onclick = (e) => { 
+        if(e.target === cartModal) cartModal.style.display="none"; 
+        if(e.target === suggestionModal) suggestionModal.style.display="none"; 
+        if(e.target === document.getElementById("loginModal")) document.getElementById("loginModal").style.display="none"; 
+    };
+    // Carousel navigation
+    document.getElementById("carouselPrev")?.addEventListener("click", () => prevSlide());
+    document.getElementById("carouselNext")?.addEventListener("click", () => nextSlide());
 
     // Initialize
     window.onload = () => {
         loadCart();
-        loadAnnouncement();
+        loadAnnouncements();      // new carousel announcements
         listenToCatalog();
         updateGlobalVisitCounter();
         if(isAuthenticated()) document.getElementById("adminPanel").style.display = "block";
         updateFirebaseStatusUI();
-        auth.onAuthStateChanged(() => updateFirebaseStatusUI());
+        auth.onAuthStateChanged(() => {
+            updateFirebaseStatusUI();
+            if (auth.currentUser) renderAnnouncementsManager();
+        });
+        startAutoSlide();         // start automatic rotation
     };
 </script>
 </body>
