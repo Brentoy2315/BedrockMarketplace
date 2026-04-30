@@ -211,7 +211,7 @@
 
     // ======================= GCash PAYMENT SETUP =======================
     // 🔁 REPLACE THIS WITH YOUR CLOUDFLARE WORKER URL
-    const PAYMONGO_WORKER_URL = "https://paymongo-gcash-worker.brentsinoy2315.workers.dev";
+    const PAYMONGO_WORKER_URL = "https://paymongo-gcash-worker.brentsinoy2315.workers.dev/";
 
     // ======================= EXISTING VARIABLES =======================
     let catalogItems = [];
@@ -290,7 +290,68 @@
         catch(e) { alert("Delete failed: "+e.message); listenToCatalog(); }
     }
 
-    function showAdminModal() { /* unchanged – see full code in original, but keeping it short for brevity. We'll use original function. */ }
+    function showAdminModal() { 
+        if (!isSiteAdmin) {
+            document.getElementById("loginModal").style.display = "flex";
+            return;
+        }
+        const modal = document.getElementById("adminModal");
+        const modalBody = document.getElementById("adminModalBody");
+        const title = document.getElementById("adminModalTitle");
+        if (editingItemId !== null) {
+            title.innerText = "✏️ Edit Item";
+            const item = catalogItems.find(i => i.id === editingItemId);
+            modalBody.innerHTML = `
+                <label>Image URL:</label><input type="text" id="editImage" value="${escapeHtml(item.image)}">
+                <label>Title:</label><input type="text" id="editTitle" value="${escapeHtml(item.title)}">
+                <label>Category:</label><input type="text" id="editCategory" value="${escapeHtml(item.category)}">
+                <label>Price (₱):</label><input type="number" id="editPrice" value="${item.price}">
+                <label>Description:</label><textarea id="editDescription" rows="3">${escapeHtml(item.description)}</textarea>
+                <label><input type="checkbox" id="editFeatured" ${item.featured ? 'checked' : ''}> ⭐ Featured Item</label>
+                <button id="saveEditBtn">💾 Save Changes</button>
+                <div id="adminFirebaseStatus"></div>
+            `;
+            document.getElementById("saveEditBtn").onclick = async () => {
+                if (!firebaseUser) { alert("Firebase not logged in"); return; }
+                await updateItem(editingItemId, document.getElementById("editImage").value.trim(), document.getElementById("editTitle").value.trim(), document.getElementById("editCategory").value.trim(), document.getElementById("editPrice").value.trim(), document.getElementById("editFeatured").checked, document.getElementById("editDescription").value);
+                editingItemId = null;
+                modal.style.display = "none";
+                showToast("Item updated!");
+            };
+        } else {
+            title.innerText = "➕ Add New Item";
+            modalBody.innerHTML = `
+                <label>Image URL:</label><input type="text" id="newImage" placeholder="https://...">
+                <label>Title:</label><input type="text" id="newTitle" placeholder="e.g., Dragon Slayer Pack">
+                <label>Category:</label><input type="text" id="newCategory" placeholder="e.g., Addons / Worlds">
+                <label>Price (₱):</label><input type="number" id="newPrice" value="0">
+                <label>Description:</label><textarea id="newDescription" rows="3" placeholder="Detailed description..."></textarea>
+                <label><input type="checkbox" id="newFeatured"> ⭐ Featured Item</label>
+                <button id="addNewItemBtn">➕ Add Item</button>
+                <div id="adminFirebaseStatus"></div>
+            `;
+            document.getElementById("addNewItemBtn").onclick = async () => {
+                if (!firebaseUser) { alert("Firebase not logged in"); return; }
+                await addItem(document.getElementById("newImage").value.trim(), document.getElementById("newTitle").value.trim(), document.getElementById("newCategory").value.trim(), document.getElementById("newPrice").value.trim(), document.getElementById("newFeatured").checked, document.getElementById("newDescription").value);
+                modal.style.display = "none";
+                showToast("Item added!");
+            };
+        }
+        if (!firebaseUser) {
+            const statusDiv = document.getElementById("adminFirebaseStatus");
+            statusDiv.innerHTML = `<button id="fbLoginModalBtn">🔑 Login to Firebase</button>`;
+            document.getElementById("fbLoginModalBtn").onclick = async () => {
+                const email = prompt("Firebase Admin Email:");
+                const pw = prompt("Password:");
+                if (email && pw) {
+                    try { await auth.signInWithEmailAndPassword(email, pw); alert("Firebase logged in!"); location.reload(); } catch(e) { alert("Login failed"); }
+                }
+            };
+        } else {
+            document.getElementById("adminFirebaseStatus").innerHTML = `<span style="color:#10b981;">✅ Firebase: ${firebaseUser.email}</span>`;
+        }
+        modal.style.display = "flex";
+    }
     function setEditMode(editing, item) { editingItemId = editing ? item.id : null; showAdminModal(); }
 
     // Admin logout
