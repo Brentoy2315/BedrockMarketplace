@@ -53,6 +53,7 @@
             gap: 12px;
             align-items: center;
         }
+        /* Icon buttons (cart, admin) – still have some background to be visible */
         .icon-btn {
             background: #1e293b;
             border: none;
@@ -85,7 +86,6 @@
             align-items: center;
             justify-content: center;
         }
-        .admin-btn { background-color: #334155; }
 
         /* Filter bar */
         .filter-bar {
@@ -128,24 +128,48 @@
             border-radius: 40px;
             cursor: pointer;
         }
-        /* Request button below search bar */
         .request-section {
             margin-top: 1rem;
             display: flex;
             justify-content: center;
         }
-        .request-btn {
-            background: #8b5cf6;
-            color: white;
-            border: none;
-            padding: 0.6rem 2rem;
-            border-radius: 40px;
-            font-weight: 600;
+        /* Default button style – no custom design */
+        button, .btn-primary, .close-modal, .checkout-btn, .view-btn, .delete-item, .edit-item {
+            all: revert; /* reset to browser default */
             cursor: pointer;
+            margin: 4px;
+            padding: 4px 8px;
+        }
+        /* But keep icon-btn appearance */
+        .icon-btn {
+            all: revert;
+            background: #1e293b;
+            border: none;
+            color: #f1f5f9;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            position: relative;
         }
+        /* Keep filter chips appearance */
+        .filter-chip, .clear-filters {
+            all: revert;
+            background: #1e293b;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            color: #cbd5e6;
+            cursor: pointer;
+        }
+        /* Keep stars and ratings */
+        .star { font-size: 1.1rem; color: #64748b; cursor: pointer; }
+        .star.active { color: #fbbf24; }
+        .star.hover { color: #fde047; }
 
         /* Items grid */
         .items-grid {
@@ -181,22 +205,9 @@
         .item-category { font-size: 0.75rem; color: #93c5fd; margin-bottom: 0.5rem; }
         .item-price { font-size: 1.2rem; font-weight: bold; color: #fbbf24; margin-bottom: 0.5rem; }
         .rating { margin: 8px 0; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; flex-wrap: wrap; }
-        .stars { display: inline-flex; gap: 3px; cursor: pointer; }
-        .star { font-size: 1.1rem; color: #64748b; transition: color 0.1s; }
-        .star.active { color: #fbbf24; }
-        .star.hover { color: #fde047; }
         .rating-count { color: #94a3b8; font-size: 0.75rem; }
-        .view-btn {
-            background: #3b82f6;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 40px;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 8px;
-            font-weight: 500;
-        }
+
+        .view-btn { margin-top: 8px; display: inline-block; }
         .item-actions-admin {
             position: absolute;
             top: 8px;
@@ -207,20 +218,6 @@
             display: none;
         }
         .admin-mode .item-actions-admin { display: flex; }
-        .delete-item, .edit-item {
-            background: rgba(0,0,0,0.7);
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 30px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(4px);
-        }
-        .delete-item { color: #f87171; }
-        .edit-item { color: #60a5fa; }
         .category-title {
             font-size: 1.8rem;
             font-weight: 700;
@@ -231,7 +228,7 @@
         }
         .no-results { text-align: center; padding: 3rem; color: #94a3b8; background: #0f172a; border-radius: 28px; }
 
-        /* Comments section (unchanged) */
+        /* Comments section */
         .comments-section {
             background: #0f172a;
             border-radius: 28px;
@@ -245,30 +242,30 @@
         .comment { background: #111827; border-radius: 16px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #1e293b; }
         .comment-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; color: #94a3b8; flex-wrap: wrap; gap: 8px; }
         .comment-name { font-weight: bold; color: #60a5fa; }
-        .delete-comment { background: none; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem; }
+        .delete-comment { background: none; border: none; color: #f87171; cursor: pointer; }
 
-        /* Modals */
+        /* Modals – full screen */
         .modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             background: rgba(0,0,0,0.85);
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            overflow-y: auto;
         }
         .modal-content {
             background: #0f172a;
-            max-width: 500px;
-            width: 90%;
-            border-radius: 28px;
+            width: 100%;
+            height: 100%;
             padding: 1.5rem;
-            border: 1px solid #1e293b;
-            max-height: 85vh;
+            border-radius: 0;
             overflow-y: auto;
+            box-sizing: border-box;
         }
         .modal-content h3 { margin-bottom: 1rem; color: #e2e8f0; }
         .modal-content label { display: block; margin: 10px 0 5px; color: #94a3b8; }
@@ -281,19 +278,21 @@
             color: white;
             margin-bottom: 10px;
         }
-        .modal-content textarea { resize: vertical; }
-        .modal-content button { margin-top: 10px; }
-        .close-modal {
-            background: #475569;
-            margin-top: 15px;
-            width: 100%;
+        .close-modal-btn {
+            float: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: none;
+            border: none;
+            color: #f87171;
+            cursor: pointer;
+            padding: 0 8px;
         }
-        .cart-modal-content { max-width: 500px; }
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1e293b; }
         .cart-total { margin-top: 15px; text-align: right; font-weight: bold; border-top: 1px solid #1e293b; padding-top: 12px; }
         .remove-item { background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.2rem; }
-        .checkout-btn { background: #3b82f6; width: 100%; padding: 12px; border-radius: 40px; color: white; font-weight: bold; margin-top: 20px; cursor: pointer; border: none; }
-        /* Toast notification */
+
+        /* Toast */
         .toast {
             position: fixed;
             top: 20px;
@@ -312,7 +311,6 @@
             70% { opacity: 1; transform: translateX(0); }
             100% { opacity: 0; transform: translateX(100px); display: none; }
         }
-        /* Footer */
         .footer { background: #0f172a; border-top: 1px solid #1e293b; padding: 2rem 1rem; margin-top: 2rem; text-align: center; }
         .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; }
         .social-links a { color: #cbd5e6; text-decoration: none; font-size: 1rem; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s; }
@@ -329,7 +327,6 @@
 <body>
 
 <div class="container">
-    <!-- Header: Logo left, icons right -->
     <div class="site-header">
         <div class="logo-area">
             <div class="logo">ʙʀᴇɴᴛᴏʏʏʏ ᴍᴀʀᴋᴇᴛᴘʟᴀᴄᴇ</div>
@@ -341,7 +338,6 @@
         </div>
     </div>
 
-    <!-- Filter bar -->
     <div class="filter-bar">
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by title...">
         <div class="category-filters">
@@ -349,22 +345,19 @@
             <div id="categoryChips"></div>
             <button id="clearFiltersBtn" class="clear-filters">Clear all</button>
         </div>
-        <!-- Request button placed below search bar -->
         <div class="request-section">
             <button id="requestBtn" class="request-btn">📦 Request Minecraft Item</button>
         </div>
     </div>
 
-    <!-- Catalog Container -->
     <div id="catalogContainer"></div>
 
-    <!-- Global Comments Section -->
     <div class="comments-section">
         <div class="comments-title">💬 Community Feedback</div>
         <div class="comment-form">
             <input type="text" id="commentName" placeholder="Your name (optional)" maxlength="50">
             <textarea id="commentMessage" placeholder="Share your thoughts about the marketplace..."></textarea>
-            <button id="submitCommentBtn" class="btn-primary" style="width: auto; align-self: flex-start;">Post Comment</button>
+            <button id="submitCommentBtn">Post Comment</button>
         </div>
         <div id="commentsList"></div>
     </div>
@@ -383,18 +376,19 @@
 
 <!-- Cart Modal -->
 <div id="cartModal" class="modal">
-    <div class="modal-content cart-modal-content">
+    <div class="modal-content">
+        <button class="close-modal-btn" onclick="document.getElementById('cartModal').style.display='none';">&times;</button>
         <h3>Your Cart</h3>
         <div id="cartItemsList"></div>
         <div id="cartTotal" class="cart-total"></div>
-        <button id="checkoutBtn" class="checkout-btn">📲 Checkout via Facebook</button>
-        <button id="closeCartBtn" class="close-modal">Close</button>
+        <button id="checkoutBtn">📲 Checkout via Facebook</button>
     </div>
 </div>
 
 <!-- Request Modal -->
 <div id="requestModal" class="modal">
     <div class="modal-content">
+        <button class="close-modal-btn" onclick="document.getElementById('requestModal').style.display='none';">&times;</button>
         <h3>📦 Request an Item</h3>
         <label>Item name / description</label>
         <input type="text" id="requestItemName" placeholder="e.g., Dragon mount addon">
@@ -402,18 +396,15 @@
         <input type="url" id="requestLink" placeholder="https://...">
         <label>Additional details</label>
         <textarea id="requestDetails" rows="3" placeholder="Why would you like this item?"></textarea>
-        <button id="sendRequestBtn" class="btn-primary">📨 Send Request to Facebook</button>
-        <button id="closeRequestBtn" class="close-modal">Cancel</button>
+        <button id="sendRequestBtn">📨 Send Request to Facebook</button>
     </div>
 </div>
 
 <!-- Admin Panel Modal -->
 <div id="adminModal" class="modal">
     <div class="modal-content">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 id="adminModalTitle">➕ Admin Controls</h3>
-            <button id="closeAdminModalBtn" style="background:none; border:none; color:#f87171; font-size:1.5rem; cursor:pointer;">&times;</button>
-        </div>
+        <button class="close-modal-btn" onclick="document.getElementById('adminModal').style.display='none';">&times;</button>
+        <h3 id="adminModalTitle">➕ Admin Controls</h3>
         <div id="adminModalBody">
             <!-- Form will be inserted dynamically -->
         </div>
@@ -423,24 +414,24 @@
 <!-- Login Modal (for site admin) -->
 <div id="loginModal" class="modal">
     <div class="modal-content">
+        <button class="close-modal-btn" onclick="document.getElementById('loginModal').style.display='none';">&times;</button>
         <h3>🔒 Admin Access Only</h3>
         <input type="text" id="loginUser" placeholder="Username">
         <input type="password" id="loginPass" placeholder="Password">
         <button id="submitLogin">Login</button>
         <div id="loginError" class="error-msg"></div>
-        <button id="closeLoginModal" class="close-modal">Cancel</button>
     </div>
 </div>
 
 <!-- Item Details Modal -->
 <div id="itemModal" class="modal">
     <div class="modal-content" id="itemModalContent">
-        <!-- Filled dynamically -->
+        <!-- filled dynamically -->
     </div>
 </div>
 
 <script>
-    // Firebase config (your existing)
+    // Firebase config
     const firebaseConfig = {
         apiKey: "AIzaSyAco1a008Xxsc2t-7htzIF_tCDpEipQ8Sw",
         authDomain: "minecraft-marketplace-7227b.firebaseapp.com",
@@ -464,8 +455,9 @@
     let editingItemId = null;
     let comments = [];
     let ratings = {};
+    let isSiteAdmin = false;
+    let firebaseUser = null;
 
-    // Helper functions
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
     function showToast(msg) {
         const toast = document.createElement('div');
@@ -475,31 +467,26 @@
         setTimeout(() => toast.remove(), 2000);
     }
 
-    // Global Visit Counter
+    // Visit counter
     async function updateGlobalVisitCounter() {
         const counterElem = document.getElementById("visitCounter");
         const counterRef = database.ref('visitorCount');
         try {
-            await counterRef.transaction(currentCount => (currentCount || 0) + 1);
-            counterRef.on('value', (snapshot) => { counterElem.innerHTML = `👁️ Visits: ${(snapshot.val() || 0).toLocaleString()}`; });
-        } catch (err) { counterElem.innerHTML = "👁️ Visits: --"; }
+            await counterRef.transaction(c => (c||0)+1);
+            counterRef.on('value', (s) => { counterElem.innerHTML = `👁️ Visits: ${(s.val()||0).toLocaleString()}`; });
+        } catch(e) { counterElem.innerHTML = "👁️ Visits: --"; }
     }
 
-    // Auth state
-    let isSiteAdmin = false; // sessionStorage
-    let firebaseUser = null;
     function updateAdminUI() {
         const adminMode = isSiteAdmin && firebaseUser !== null;
         document.body.classList.toggle('admin-mode', adminMode);
     }
 
-    // Catalog CRUD with description field
+    // Catalog CRUD
     function listenToCatalog() {
         database.ref('catalog').on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                catalogItems = Object.entries(data).map(([key, item]) => ({ id: parseInt(key), ...item, featured: item.featured === true, description: item.description || '' }));
-            } else catalogItems = [];
+            catalogItems = data ? Object.entries(data).map(([k,item]) => ({ id: parseInt(k), ...item, featured: item.featured===true, description: item.description||'' })) : [];
             renderCategoryChips();
             applyFiltersAndRender();
         });
@@ -509,51 +496,39 @@
         if (!firebaseUser) throw new Error("Not authenticated to Firebase");
         const obj = {};
         catalogItems.forEach(item => {
-            obj[item.id] = {
-                image: item.image,
-                title: item.title,
-                category: item.category,
-                price: item.price,
-                featured: item.featured,
-                description: item.description || ''
-            };
+            obj[item.id] = { image: item.image, title: item.title, category: item.category, price: item.price, featured: item.featured, description: item.description||'' };
         });
         await database.ref('catalog').set(obj);
     }
 
-    async function addItem(image, title, category, price, featured, description) {
+    async function addItem(img, title, cat, price, featured, desc) {
         const newId = Date.now();
-        const newItem = { id: newId, image: image || "https://picsum.photos/id/1/300/200", title: title||"Untitled", category: category||"General", price: parseFloat(price)||0, featured, description: description||'' };
+        const newItem = { id: newId, image: img||"https://picsum.photos/id/1/300/200", title: title||"Untitled", category: cat||"General", price: parseFloat(price)||0, featured, description: desc||'' };
         catalogItems.push(newItem);
         try { await syncCatalogToFirebase(); renderCategoryChips(); applyFiltersAndRender(); return true; }
         catch(e) { catalogItems.pop(); alert("Failed: "+e.message); return false; }
     }
 
-    async function updateItem(id, image, title, category, price, featured, description) {
+    async function updateItem(id, img, title, cat, price, featured, desc) {
         const idx = catalogItems.findIndex(i=>i.id===id);
         if(idx===-1) return;
         const original = {...catalogItems[idx]};
-        catalogItems[idx] = { ...catalogItems[idx], image: image||"https://picsum.photos/id/1/300/200", title: title||"Untitled", category: category||"General", price: parseFloat(price)||0, featured, description: description||'' };
+        catalogItems[idx] = { ...catalogItems[idx], image: img||"https://picsum.photos/id/1/300/200", title: title||"Untitled", category: cat||"General", price: parseFloat(price)||0, featured, description: desc||'' };
         try { await syncCatalogToFirebase(); renderCategoryChips(); applyFiltersAndRender(); setEditMode(false); }
         catch(e) { catalogItems[idx]=original; alert("Update failed: "+e.message); }
     }
 
     async function deleteItem(id) {
-        if (!confirm("Delete this item permanently?")) return;
+        if (!confirm("Delete permanently?")) return;
         catalogItems = catalogItems.filter(i=>i.id!==id);
         try { await syncCatalogToFirebase(); renderCategoryChips(); applyFiltersAndRender(); renderCartModal(); }
         catch(e) { alert("Delete failed: "+e.message); listenToCatalog(); }
     }
 
-    // Admin modal form (pop-up)
     function showAdminModal() {
         if (!isSiteAdmin) {
             document.getElementById("loginModal").style.display = "flex";
             return;
-        }
-        if (!firebaseUser) {
-            alert("Please login to Firebase (use the Firebase Login button inside admin panel).");
-            // We'll add a Firebase login button inside the admin modal
         }
         const modal = document.getElementById("adminModal");
         const modalBody = document.getElementById("adminModalBody");
@@ -562,80 +537,60 @@
             title.innerText = "✏️ Edit Item";
             const item = catalogItems.find(i => i.id === editingItemId);
             modalBody.innerHTML = `
-                <div class="form-group"><label>Image URL:</label><input type="text" id="editImage" value="${escapeHtml(item.image)}"></div>
-                <div class="form-group"><label>Title:</label><input type="text" id="editTitle" value="${escapeHtml(item.title)}"></div>
-                <div class="form-group"><label>Category:</label><input type="text" id="editCategory" value="${escapeHtml(item.category)}"></div>
-                <div class="form-group"><label>Price (₱):</label><input type="number" id="editPrice" value="${item.price}"></div>
-                <div class="form-group"><label>Description:</label><textarea id="editDescription" rows="3">${escapeHtml(item.description)}</textarea></div>
-                <div class="checkbox-group"><label><input type="checkbox" id="editFeatured" ${item.featured ? 'checked' : ''}> ⭐ Featured Item</label></div>
-                <button id="saveEditBtn" class="btn-primary">💾 Save Changes</button>
-                <button id="cancelEditAdminBtn" class="close-modal">Cancel</button>
-                <div id="adminFirebaseStatus" style="margin-top:10px; font-size:0.8rem;"></div>
+                <label>Image URL:</label><input type="text" id="editImage" value="${escapeHtml(item.image)}">
+                <label>Title:</label><input type="text" id="editTitle" value="${escapeHtml(item.title)}">
+                <label>Category:</label><input type="text" id="editCategory" value="${escapeHtml(item.category)}">
+                <label>Price (₱):</label><input type="number" id="editPrice" value="${item.price}">
+                <label>Description:</label><textarea id="editDescription" rows="3">${escapeHtml(item.description)}</textarea>
+                <label><input type="checkbox" id="editFeatured" ${item.featured ? 'checked' : ''}> ⭐ Featured Item</label>
+                <button id="saveEditBtn">💾 Save Changes</button>
+                <div id="adminFirebaseStatus"></div>
             `;
             document.getElementById("saveEditBtn").onclick = async () => {
                 if (!firebaseUser) { alert("Firebase not logged in"); return; }
-                const img = document.getElementById("editImage").value.trim();
-                const title = document.getElementById("editTitle").value.trim();
-                const cat = document.getElementById("editCategory").value.trim();
-                const price = document.getElementById("editPrice").value.trim();
-                const featured = document.getElementById("editFeatured").checked;
-                const desc = document.getElementById("editDescription").value.trim();
-                if (!title) return alert("Title required");
-                await updateItem(editingItemId, img, title, cat, price, featured, desc);
+                await updateItem(editingItemId, document.getElementById("editImage").value.trim(), document.getElementById("editTitle").value.trim(), document.getElementById("editCategory").value.trim(), document.getElementById("editPrice").value.trim(), document.getElementById("editFeatured").checked, document.getElementById("editDescription").value.trim());
                 editingItemId = null;
                 modal.style.display = "none";
                 showToast("Item updated!");
             };
-            document.getElementById("cancelEditAdminBtn").onclick = () => { modal.style.display = "none"; editingItemId = null; };
         } else {
             title.innerText = "➕ Add New Item";
             modalBody.innerHTML = `
-                <div class="form-group"><label>Image URL:</label><input type="text" id="newImage" placeholder="https://..."></div>
-                <div class="form-group"><label>Title:</label><input type="text" id="newTitle" placeholder="e.g., Dragon Slayer Pack"></div>
-                <div class="form-group"><label>Category:</label><input type="text" id="newCategory" placeholder="e.g., Addons / Worlds"></div>
-                <div class="form-group"><label>Price (₱):</label><input type="number" id="newPrice" value="0"></div>
-                <div class="form-group"><label>Description:</label><textarea id="newDescription" rows="3" placeholder="Detailed description of the item..."></textarea></div>
-                <div class="checkbox-group"><label><input type="checkbox" id="newFeatured"> ⭐ Featured Item</label></div>
-                <button id="addNewItemBtn" class="btn-primary">➕ Add Item</button>
-                <button id="cancelAddAdminBtn" class="close-modal">Cancel</button>
-                <div id="adminFirebaseStatus" style="margin-top:10px; font-size:0.8rem;"></div>
+                <label>Image URL:</label><input type="text" id="newImage" placeholder="https://...">
+                <label>Title:</label><input type="text" id="newTitle" placeholder="e.g., Dragon Slayer Pack">
+                <label>Category:</label><input type="text" id="newCategory" placeholder="e.g., Addons / Worlds">
+                <label>Price (₱):</label><input type="number" id="newPrice" value="0">
+                <label>Description:</label><textarea id="newDescription" rows="3" placeholder="Detailed description..."></textarea>
+                <label><input type="checkbox" id="newFeatured"> ⭐ Featured Item</label>
+                <button id="addNewItemBtn">➕ Add Item</button>
+                <div id="adminFirebaseStatus"></div>
             `;
             document.getElementById("addNewItemBtn").onclick = async () => {
                 if (!firebaseUser) { alert("Firebase not logged in"); return; }
-                const img = document.getElementById("newImage").value.trim();
-                const title = document.getElementById("newTitle").value.trim();
-                const cat = document.getElementById("newCategory").value.trim();
-                const price = document.getElementById("newPrice").value.trim();
-                const featured = document.getElementById("newFeatured").checked;
-                const desc = document.getElementById("newDescription").value.trim();
-                if (!title) return alert("Title required");
-                await addItem(img, title, cat, price, featured, desc);
+                await addItem(document.getElementById("newImage").value.trim(), document.getElementById("newTitle").value.trim(), document.getElementById("newCategory").value.trim(), document.getElementById("newPrice").value.trim(), document.getElementById("newFeatured").checked, document.getElementById("newDescription").value.trim());
                 modal.style.display = "none";
                 showToast("Item added!");
             };
-            document.getElementById("cancelAddAdminBtn").onclick = () => modal.style.display = "none";
         }
-        // Show Firebase login button inside modal if not logged in
         if (!firebaseUser) {
             const statusDiv = document.getElementById("adminFirebaseStatus");
-            if (statusDiv) statusDiv.innerHTML = `<button id="fbLoginModalBtn" class="btn-primary" style="background:#3b82f6;">🔑 Login to Firebase</button>`;
-            document.getElementById("fbLoginModalBtn")?.addEventListener("click", async () => {
+            statusDiv.innerHTML = `<button id="fbLoginModalBtn">🔑 Login to Firebase</button>`;
+            document.getElementById("fbLoginModalBtn").onclick = async () => {
                 const email = prompt("Firebase Admin Email:");
                 const pw = prompt("Password:");
                 if (email && pw) {
                     try { await auth.signInWithEmailAndPassword(email, pw); alert("Firebase logged in!"); location.reload(); } catch(e) { alert("Login failed"); }
                 }
-            });
+            };
         } else {
-            const statusDiv = document.getElementById("adminFirebaseStatus");
-            if (statusDiv) statusDiv.innerHTML = `<span style="color:#10b981;">✅ Firebase: ${firebaseUser.email}</span>`;
+            document.getElementById("adminFirebaseStatus").innerHTML = `<span style="color:#10b981;">✅ Firebase: ${firebaseUser.email}</span>`;
         }
         modal.style.display = "flex";
     }
 
-    function setEditMode(isEditing, item) {
-        editingItemId = isEditing ? item.id : null;
-        showAdminModal(); // open modal in edit mode
+    function setEditMode(editing, item) {
+        editingItemId = editing ? item.id : null;
+        showAdminModal();
     }
 
     // Cart functions
@@ -643,31 +598,31 @@
     function saveCart() { localStorage.setItem("cart",JSON.stringify(cart)); updateCartUI(); }
     function addToCart(item) {
         if (!cart.some(c=>c.id===item.id)) {
-            cart.push({...item, description: undefined}); // description not needed in cart
+            cart.push({...item});
             saveCart();
             showToast(`✅ ${item.title} added to cart!`);
-        } else { alert("Already in cart."); }
+        } else alert("Already in cart.");
     }
     function removeFromCart(id) { cart=cart.filter(i=>i.id!==id); saveCart(); renderCartModal(); }
     function updateCartUI() { document.getElementById("cartCount").innerText = cart.length; }
     function renderCartModal() {
         const container = document.getElementById("cartItemsList"), totalSpan = document.getElementById("cartTotal");
-        if (cart.length === 0) { container.innerHTML = "<p>Your cart is empty.</p>"; totalSpan.innerHTML = ""; return; }
-        let html = "", total = 0;
-        cart.forEach(i => { total += i.price||0; html += `<div class="cart-item"><div>${escapeHtml(i.title)}<div class="cart-item-price">₱${(i.price||0).toFixed(2)}</div></div><button class="remove-item" data-id="${i.id}">✖</button></div>`; });
-        container.innerHTML = html; totalSpan.innerHTML = `Total: ₱${total.toFixed(2)}`;
-        document.querySelectorAll(".remove-item").forEach(btn => btn.addEventListener("click", () => removeFromCart(parseInt(btn.dataset.id))));
+        if (cart.length===0) { container.innerHTML="<p>Cart empty.</p>"; totalSpan.innerHTML=""; return; }
+        let html="", total=0;
+        cart.forEach(i=>{ total+=i.price||0; html+=`<div class="cart-item"><div>${escapeHtml(i.title)}<div>₱${(i.price||0).toFixed(2)}</div></div><button class="remove-item" data-id="${i.id}">✖</button></div>`; });
+        container.innerHTML=html; totalSpan.innerHTML=`Total: ₱${total.toFixed(2)}`;
+        document.querySelectorAll(".remove-item").forEach(btn=>btn.addEventListener("click",()=>removeFromCart(parseInt(btn.dataset.id))));
     }
     function checkoutViaFacebook() {
         if (!cart.length) return alert("Cart empty");
         let total = cart.reduce((s,i)=>s+(i.price||0),0);
-        let msg = "🛒 *NEW ORDER*\n\n" + cart.map((i,idx)=>`${idx+1}. ${i.title} - ₱${(i.price||0).toFixed(2)}`).join("\n") + `\n\nTotal: ₱${total.toFixed(2)}`;
+        let msg = "🛒 *NEW ORDER*\n\n"+cart.map((i,idx)=>`${idx+1}. ${i.title} - ₱${(i.price||0).toFixed(2)}`).join("\n")+`\n\nTotal: ₱${total.toFixed(2)}`;
         window.open(`https://m.me/${FACEBOOK_PAGE_ID}?text=${encodeURIComponent(msg)}`,"_blank");
         document.getElementById("cartModal").style.display = "none";
         showToast("Order sent to Facebook!");
     }
 
-    // Item details modal
+    // Item modal
     function showItemModal(item) {
         const modal = document.getElementById("itemModal");
         const content = document.getElementById("itemModalContent");
@@ -676,162 +631,130 @@
         let starsHtml = "";
         for (let i=1; i<=5; i++) starsHtml += `<span class="star ${i <= fullStars ? 'active' : ''}" style="cursor:default;">★</span>`;
         content.innerHTML = `
+            <button class="close-modal-btn" onclick="document.getElementById('itemModal').style.display='none';">&times;</button>
             <h3>${escapeHtml(item.title)}</h3>
             <img src="${escapeHtml(item.image)}" style="width:100%; border-radius:16px; margin-bottom:1rem;" onerror="this.src='https://picsum.photos/id/1/300/200'">
             <p><strong>Category:</strong> ${escapeHtml(item.category)}</p>
             <p><strong>Price:</strong> <span style="color:#fbbf24;">₱${(item.price||0).toFixed(2)}</span></p>
-            <div class="rating"><div class="stars">${starsHtml}</div><span class="rating-count">(${rating.count} votes)</span></div>
-            <p><strong>Description:</strong><br>${escapeHtml(item.description) || "No description provided."}</p>
-            <button id="modalAddToCartBtn" class="add-to-cart" style="margin-top:1rem;">➕ Add to Cart</button>
-            <button id="closeItemModalBtn" class="close-modal" style="margin-top:1rem;">Close</button>
+            <div class="rating"><div class="stars">${starsHtml}</div><span>(${rating.count} votes)</span></div>
+            <p><strong>Description:</strong><br>${escapeHtml(item.description) || "No description."}</p>
+            <button id="modalAddToCartBtn">➕ Add to Cart</button>
         `;
         modal.style.display = "flex";
         document.getElementById("modalAddToCartBtn").onclick = () => {
             addToCart({ id: item.id, title: item.title, category: item.category, price: item.price, image: item.image });
             modal.style.display = "none";
         };
-        document.getElementById("closeItemModalBtn").onclick = () => modal.style.display = "none";
     }
 
     // Ratings
     async function loadRatings() {
-        database.ref('ratings').on('value', (snapshot) => { ratings = snapshot.val() || {}; applyFiltersAndRender(); });
+        database.ref('ratings').on('value', (s) => { ratings = s.val() || {}; applyFiltersAndRender(); });
     }
     async function submitRating(itemId, stars) {
-        const votedKey = `rated_${itemId}`;
-        if (localStorage.getItem(votedKey)) { alert("You already rated this item."); return; }
+        if (localStorage.getItem(`rated_${itemId}`)) { alert("Already rated."); return; }
         const ref = database.ref(`ratings/${itemId}`);
-        await ref.transaction(current => {
-            if (!current) return { avg: stars, count: 1 };
-            const newAvg = (current.avg * current.count + stars) / (current.count + 1);
-            return { avg: newAvg, count: current.count + 1 };
+        await ref.transaction(cur => {
+            if (!cur) return { avg: stars, count: 1 };
+            const newAvg = (cur.avg * cur.count + stars) / (cur.count + 1);
+            return { avg: newAvg, count: cur.count + 1 };
         });
-        localStorage.setItem(votedKey, stars);
+        localStorage.setItem(`rated_${itemId}`, stars);
         showToast("Thank you for rating!");
     }
 
-    // Comments (unchanged)
+    // Comments
     async function loadComments() {
         database.ref('comments').on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                comments = Object.entries(data).map(([id, c]) => ({ id, ...c }));
-                comments.sort((a,b)=>b.timestamp - a.timestamp);
-            } else comments = [];
+            comments = data ? Object.entries(data).map(([id,c]) => ({ id, ...c })).sort((a,b)=>b.timestamp-a.timestamp) : [];
             renderComments();
         });
     }
-    async function addComment(name, message) {
-        if (!message.trim()) return alert("Please enter a message.");
-        await database.ref('comments').push({ name: name.trim() || "Anonymous", message: message.trim(), timestamp: Date.now() });
+    async function addComment(name, msg) {
+        if (!msg.trim()) return alert("Enter message");
+        await database.ref('comments').push({ name: name.trim()||"Anonymous", message: msg.trim(), timestamp: Date.now() });
         showToast("Comment posted!");
     }
-    async function deleteComment(commentId) {
-        if (!firebaseUser) return alert("Only admin can delete comments.");
-        await database.ref(`comments/${commentId}`).remove();
+    async function deleteComment(id) {
+        if (!firebaseUser) return alert("Admin only");
+        await database.ref(`comments/${id}`).remove();
     }
     function renderComments() {
         const container = document.getElementById("commentsList");
         if (!container) return;
-        if (comments.length === 0) { container.innerHTML = "<p>No comments yet. Be the first!</p>"; return; }
+        if (comments.length===0) { container.innerHTML="<p>No comments yet.</p>"; return; }
         let html = "";
         comments.forEach(c => {
-            const date = new Date(c.timestamp).toLocaleString();
-            html += `<div class="comment"><div class="comment-header"><span class="comment-name">${escapeHtml(c.name)}</span><span>${date}</span>${firebaseUser ? `<button class="delete-comment" data-id="${c.id}">🗑️ Delete</button>` : ""}</div><div class="comment-text">${escapeHtml(c.message)}</div></div>`;
+            html += `<div class="comment"><div class="comment-header"><span class="comment-name">${escapeHtml(c.name)}</span><span>${new Date(c.timestamp).toLocaleString()}</span>${firebaseUser ? `<button class="delete-comment" data-id="${c.id}">Delete</button>` : ""}</div><div class="comment-text">${escapeHtml(c.message)}</div></div>`;
         });
         container.innerHTML = html;
-        if (firebaseUser) {
-            document.querySelectorAll(".delete-comment").forEach(btn => btn.addEventListener("click", () => deleteComment(btn.dataset.id)));
-        }
+        if (firebaseUser) document.querySelectorAll(".delete-comment").forEach(btn => btn.addEventListener("click", () => deleteComment(btn.dataset.id)));
     }
 
-    // Rendering catalog (cards with View button)
+    // Rendering
     function applyFiltersAndRender() {
         const container = document.getElementById("catalogContainer");
         if (!container) return;
-        let featuredItems = catalogItems.filter(i=>i.featured===true);
-        let nonFeatured = catalogItems.filter(i=>!i.featured);
-        if(currentSearchTerm.trim()) {
-            const term=currentSearchTerm.toLowerCase();
-            featuredItems=featuredItems.filter(i=>i.title.toLowerCase().includes(term) || (i.description && i.description.toLowerCase().includes(term)));
-            nonFeatured=nonFeatured.filter(i=>i.title.toLowerCase().includes(term) || (i.description && i.description.toLowerCase().includes(term)));
+        let featured = catalogItems.filter(i=>i.featured);
+        let non = catalogItems.filter(i=>!i.featured);
+        if (currentSearchTerm.trim()) {
+            const term = currentSearchTerm.toLowerCase();
+            featured = featured.filter(i=>i.title.toLowerCase().includes(term) || (i.description && i.description.toLowerCase().includes(term)));
+            non = non.filter(i=>i.title.toLowerCase().includes(term) || (i.description && i.description.toLowerCase().includes(term)));
         }
-        if(currentCategoryFilter!=="all") {
-            featuredItems=featuredItems.filter(i=>i.category===currentCategoryFilter);
-            nonFeatured=nonFeatured.filter(i=>i.category===currentCategoryFilter);
+        if (currentCategoryFilter !== "all") {
+            featured = featured.filter(i=>i.category===currentCategoryFilter);
+            non = non.filter(i=>i.category===currentCategoryFilter);
         }
-        if(featuredItems.length===0 && nonFeatured.length===0) {
-            container.innerHTML=`<div class="no-results">😕 No items match.</div>`;
-            updateAdminUI();
-            return;
-        }
-        let html="";
-        if(featuredItems.length) {
-            html+=`<div class="category-section"><div class="category-title">⭐ Featured Items</div><div class="items-grid">`+featuredItems.map(item => renderItemCard(item)).join('')+`</div></div>`;
-        }
-        const grouped={};
-        nonFeatured.forEach(i=>{ if(!grouped[i.category]) grouped[i.category]=[]; grouped[i.category].push(i); });
-        for(let cat in grouped) {
-            html+=`<div class="category-section"><div class="category-title">📁 ${escapeHtml(cat)}</div><div class="items-grid">`+grouped[cat].map(item => renderItemCard(item)).join('')+`</div></div>`;
-        }
-        container.innerHTML=html;
-        // Attach event listeners for ratings and view buttons
-        document.querySelectorAll(".star-rating").forEach(starContainer => {
-            const itemId = parseInt(starContainer.dataset.id);
-            const stars = starContainer.querySelectorAll(".star");
+        if (featured.length===0 && non.length===0) { container.innerHTML=`<div class="no-results">😕 No items match.</div>`; updateAdminUI(); return; }
+        let html = "";
+        if (featured.length) html += `<div class="category-section"><div class="category-title">⭐ Featured Items</div><div class="items-grid">`+featured.map(renderItemCard).join('')+`</div></div>`;
+        const grouped = {};
+        non.forEach(i=>{ if(!grouped[i.category]) grouped[i.category]=[]; grouped[i.category].push(i); });
+        for (let cat in grouped) html += `<div class="category-section"><div class="category-title">📁 ${escapeHtml(cat)}</div><div class="items-grid">`+grouped[cat].map(renderItemCard).join('')+`</div></div>`;
+        container.innerHTML = html;
+        // star rating events
+        document.querySelectorAll(".star-rating").forEach(starCont => {
+            const itemId = parseInt(starCont.dataset.id);
+            const stars = starCont.querySelectorAll(".star");
             stars.forEach(star => {
                 star.addEventListener("click", () => submitRating(itemId, parseInt(star.dataset.value)));
                 star.addEventListener("mouseover", () => {
                     const val = parseInt(star.dataset.value);
-                    stars.forEach((s, idx) => { if (idx < val) s.classList.add("hover"); else s.classList.remove("hover"); });
+                    stars.forEach((s,idx) => idx < val ? s.classList.add("hover") : s.classList.remove("hover"));
                 });
                 star.addEventListener("mouseout", () => stars.forEach(s => s.classList.remove("hover")));
             });
         });
-        document.querySelectorAll(".view-btn").forEach(btn => {
-            btn.addEventListener("click", (e) => {
-                const id = parseInt(btn.dataset.id);
-                const item = catalogItems.find(i => i.id === id);
-                if (item) showItemModal(item);
-            });
-        });
+        // view button
+        document.querySelectorAll(".view-btn").forEach(btn => btn.addEventListener("click", (e) => {
+            const id = parseInt(btn.dataset.id);
+            const item = catalogItems.find(i=>i.id===id);
+            if (item) showItemModal(item);
+        }));
         if (isSiteAdmin && firebaseUser) {
-            document.querySelectorAll(".delete-item").forEach(btn => btn.addEventListener("click", async(e) => {
-                e.stopPropagation();
-                const id = parseInt(btn.dataset.id);
-                await deleteItem(id);
-            }));
-            document.querySelectorAll(".edit-item").forEach(btn => btn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                const id = parseInt(btn.dataset.id);
-                const item = catalogItems.find(i => i.id === id);
-                if (item) setEditMode(true, item);
-            }));
+            document.querySelectorAll(".delete-item").forEach(btn => btn.addEventListener("click", async(e) => { e.stopPropagation(); await deleteItem(parseInt(btn.dataset.id)); }));
+            document.querySelectorAll(".edit-item").forEach(btn => btn.addEventListener("click", (e) => { e.stopPropagation(); const item = catalogItems.find(i=>i.id===parseInt(btn.dataset.id)); if(item) setEditMode(true, item); }));
         }
         updateAdminUI();
     }
 
     function renderItemCard(item) {
-        const price = item.price || 0;
-        const rating = ratings[item.id] || { avg: 0, count: 0 };
+        const price = item.price||0;
+        const rating = ratings[item.id]||{ avg:0, count:0 };
         const fullStars = Math.round(rating.avg);
         let starsHtml = "";
-        for (let i=1; i<=5; i++) starsHtml += `<span class="star ${i <= fullStars ? 'active' : ''}" data-value="${i}">★</span>`;
+        for (let i=1; i<=5; i++) starsHtml += `<span class="star ${i<=fullStars?'active':''}" data-value="${i}">★</span>`;
         return `<div class="item-card">
-            <div class="item-actions-admin">
-                <button class="edit-item" data-id="${item.id}">✏️</button>
-                <button class="delete-item" data-id="${item.id}">✖</button>
-            </div>
+            <div class="item-actions-admin"><button class="edit-item" data-id="${item.id}">✏️</button><button class="delete-item" data-id="${item.id}">✖</button></div>
             ${item.featured ? '<div class="featured-badge">⭐ Featured</div>' : ''}
             <img src="${escapeHtml(item.image)}" class="item-img" onerror="this.src='https://picsum.photos/id/1/300/200'">
             <div class="item-info">
                 <div class="item-title">${escapeHtml(item.title)}</div>
                 <div class="item-category">${escapeHtml(item.category)}</div>
                 <div class="item-price">₱${price.toFixed(2)}</div>
-                <div class="rating">
-                    <div class="stars star-rating" data-id="${item.id}">${starsHtml}</div>
-                    <span class="rating-count">(${rating.count})</span>
-                </div>
+                <div class="rating"><div class="stars star-rating" data-id="${item.id}">${starsHtml}</div><span class="rating-count">(${rating.count})</span></div>
                 <button class="view-btn" data-id="${item.id}">🔍 View Details</button>
             </div>
         </div>`;
@@ -841,11 +764,11 @@
     function renderCategoryChips() {
         const container = document.getElementById("categoryChips");
         if(!container) return;
-        const cats=getUniqueCategories();
-        let html=`<button class="filter-chip ${currentCategoryFilter==="all"?"active":""}" data-cat="all">All</button>`;
-        cats.forEach(c=>{ html+=`<button class="filter-chip ${currentCategoryFilter===c?"active":""}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`; });
-        container.innerHTML=html;
-        document.querySelectorAll(".filter-chip").forEach(btn=>btn.addEventListener("click",()=>{ currentCategoryFilter=btn.dataset.cat; renderCategoryChips(); applyFiltersAndRender(); }));
+        const cats = getUniqueCategories();
+        let html = `<button class="filter-chip ${currentCategoryFilter==="all"?"active":""}" data-cat="all">All</button>`;
+        cats.forEach(c=>{ html += `<button class="filter-chip ${currentCategoryFilter===c?"active":""}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`; });
+        container.innerHTML = html;
+        document.querySelectorAll(".filter-chip").forEach(btn => btn.addEventListener("click", () => { currentCategoryFilter = btn.dataset.cat; renderCategoryChips(); applyFiltersAndRender(); }));
     }
 
     // Request
@@ -853,7 +776,7 @@
         const name = document.getElementById("requestItemName").value.trim();
         const link = document.getElementById("requestLink").value.trim();
         const details = document.getElementById("requestDetails").value.trim();
-        if (!name && !details) return alert("Please describe the item you'd like.");
+        if (!name && !details) return alert("Please describe the item.");
         let msg = "📦 *NEW MARKETPLACE REQUEST*\n\n";
         if (name) msg += `Item: ${name}\n`;
         if (link) msg += `Link: ${link}\n`;
@@ -864,26 +787,18 @@
         document.getElementById("requestItemName").value = "";
         document.getElementById("requestLink").value = "";
         document.getElementById("requestDetails").value = "";
-        showToast("Request sent to Facebook!");
+        showToast("Request sent!");
     }
 
-    // Admin login (site)
-    function isAuthenticated() { return isSiteAdmin; }
+    // Site admin login (no logout)
     function login(u,p) {
-        if(u===ADMIN_CRED.username && p===ADMIN_CRED.password) {
+        if (u===ADMIN_CRED.username && p===ADMIN_CRED.password) {
             isSiteAdmin = true;
             sessionStorage.setItem("admin_auth", "true");
             document.getElementById("loginModal").style.display = "none";
             updateAdminUI();
-            showAdminModal(); // open admin panel after login
-            return true;
-        } else { document.getElementById("loginError").innerText="Invalid credentials."; return false; }
-    }
-    function logout() {
-        isSiteAdmin = false;
-        sessionStorage.removeItem("admin_auth");
-        updateAdminUI();
-        showToast("Logged out as admin");
+            showAdminModal();
+        } else document.getElementById("loginError").innerText = "Invalid credentials.";
     }
 
     // Firebase auth listener
@@ -897,26 +812,19 @@
     document.getElementById("adminIconBtn").onclick = () => {
         if (isSiteAdmin && firebaseUser) showAdminModal();
         else if (isSiteAdmin && !firebaseUser) {
-            alert("Please login to Firebase first.\nUse the Firebase login button inside admin panel.");
+            alert("Please login to Firebase first. Use the Firebase login button inside admin panel.");
             showAdminModal();
-        }
-        else document.getElementById("loginModal").style.display = "flex";
+        } else document.getElementById("loginModal").style.display = "flex";
     };
     document.getElementById("submitLogin").onclick = () => login(document.getElementById("loginUser").value, document.getElementById("loginPass").value);
-    document.getElementById("closeLoginModal").onclick = () => document.getElementById("loginModal").style.display = "none";
     document.getElementById("cartButton").onclick = () => { renderCartModal(); document.getElementById("cartModal").style.display = "flex"; };
-    document.getElementById("closeCartBtn").onclick = () => document.getElementById("cartModal").style.display = "none";
     document.getElementById("checkoutBtn").onclick = checkoutViaFacebook;
     document.getElementById("requestBtn").onclick = () => document.getElementById("requestModal").style.display = "flex";
     document.getElementById("sendRequestBtn").onclick = sendRequestToFB;
-    document.getElementById("closeRequestBtn").onclick = () => document.getElementById("requestModal").style.display = "none";
     document.getElementById("searchInput").addEventListener("input", (e) => { currentSearchTerm=e.target.value; applyFiltersAndRender(); });
     document.getElementById("clearFiltersBtn").onclick = () => { currentSearchTerm=""; currentCategoryFilter="all"; document.getElementById("searchInput").value=""; renderCategoryChips(); applyFiltersAndRender(); };
     document.getElementById("submitCommentBtn").onclick = () => { const name=document.getElementById("commentName").value, msg=document.getElementById("commentMessage").value; addComment(name,msg).then(()=>{ document.getElementById("commentMessage").value=""; }); };
-    document.getElementById("closeAdminModalBtn").onclick = () => document.getElementById("adminModal").style.display = "none";
-    window.onclick = (e) => {
-        if (e.target.classList.contains("modal")) e.target.style.display = "none";
-    };
+    window.onclick = (e) => { if (e.target.classList.contains("modal")) e.target.style.display = "none"; };
 
     // Load initial data
     loadCart();
