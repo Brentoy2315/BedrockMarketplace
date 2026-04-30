@@ -53,7 +53,6 @@
             gap: 12px;
             align-items: center;
         }
-        /* Icon buttons (cart, admin) – still have some background to be visible */
         .icon-btn {
             background: #1e293b;
             border: none;
@@ -133,43 +132,18 @@
             display: flex;
             justify-content: center;
         }
-        /* Default button style – no custom design */
-        button, .btn-primary, .close-modal, .checkout-btn, .view-btn, .delete-item, .edit-item {
-            all: revert; /* reset to browser default */
-            cursor: pointer;
-            margin: 4px;
-            padding: 4px 8px;
-        }
-        /* But keep icon-btn appearance */
-        .icon-btn {
-            all: revert;
-            background: #1e293b;
+        .request-btn {
+            background: #8b5cf6;
+            color: white;
             border: none;
-            color: #f1f5f9;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            padding: 0.6rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 1.2rem;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            position: relative;
+            gap: 8px;
         }
-        /* Keep filter chips appearance */
-        .filter-chip, .clear-filters {
-            all: revert;
-            background: #1e293b;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 40px;
-            color: #cbd5e6;
-            cursor: pointer;
-        }
-        /* Keep stars and ratings */
-        .star { font-size: 1.1rem; color: #64748b; cursor: pointer; }
-        .star.active { color: #fbbf24; }
-        .star.hover { color: #fde047; }
 
         /* Items grid */
         .items-grid {
@@ -205,9 +179,22 @@
         .item-category { font-size: 0.75rem; color: #93c5fd; margin-bottom: 0.5rem; }
         .item-price { font-size: 1.2rem; font-weight: bold; color: #fbbf24; margin-bottom: 0.5rem; }
         .rating { margin: 8px 0; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; flex-wrap: wrap; }
+        .stars { display: inline-flex; gap: 3px; cursor: pointer; }
+        .star { font-size: 1.1rem; color: #64748b; transition: color 0.1s; }
+        .star.active { color: #fbbf24; }
+        .star.hover { color: #fde047; }
         .rating-count { color: #94a3b8; font-size: 0.75rem; }
-
-        .view-btn { margin-top: 8px; display: inline-block; }
+        .view-btn {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+            font-weight: 500;
+        }
         .item-actions-admin {
             position: absolute;
             top: 8px;
@@ -218,6 +205,20 @@
             display: none;
         }
         .admin-mode .item-actions-admin { display: flex; }
+        .delete-item, .edit-item {
+            background: rgba(0,0,0,0.7);
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .delete-item { color: #f87171; }
+        .edit-item { color: #60a5fa; }
         .category-title {
             font-size: 1.8rem;
             font-weight: 700;
@@ -239,19 +240,20 @@
         .comments-title { font-size: 1.5rem; margin-bottom: 1rem; border-left: 5px solid #60a5fa; padding-left: 15px; }
         .comment-form { display: flex; flex-direction: column; gap: 12px; margin-bottom: 2rem; background: #111827; padding: 1rem; border-radius: 20px; }
         .comment-form input, .comment-form textarea { padding: 10px; background: #020617; border: 1px solid #334155; border-radius: 16px; color: white; font-family: inherit; }
+        .comment-form button { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; width: auto; align-self: flex-start; }
         .comment { background: #111827; border-radius: 16px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #1e293b; }
         .comment-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; color: #94a3b8; flex-wrap: wrap; gap: 8px; }
         .comment-name { font-weight: bold; color: #60a5fa; }
-        .delete-comment { background: none; border: none; color: #f87171; cursor: pointer; }
+        .delete-comment { background: none; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem; }
 
-        /* Modals – full screen */
+        /* Modals – restored to original style (not full screen) */
         .modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             background: rgba(0,0,0,0.85);
             z-index: 1000;
             justify-content: center;
@@ -260,12 +262,14 @@
         }
         .modal-content {
             background: #0f172a;
-            width: 100%;
-            height: 100%;
+            max-width: 600px;
+            width: 90%;
+            border-radius: 28px;
             padding: 1.5rem;
-            border-radius: 0;
+            border: 1px solid #1e293b;
+            max-height: 85vh;
             overflow-y: auto;
-            box-sizing: border-box;
+            position: relative;
         }
         .modal-content h3 { margin-bottom: 1rem; color: #e2e8f0; }
         .modal-content label { display: block; margin: 10px 0 5px; color: #94a3b8; }
@@ -278,19 +282,30 @@
             color: white;
             margin-bottom: 10px;
         }
+        .modal-content button {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            margin-right: 8px;
+        }
         .close-modal-btn {
-            float: right;
+            position: absolute;
+            top: 12px;
+            right: 16px;
             font-size: 1.5rem;
             font-weight: bold;
             background: none;
             border: none;
             color: #f87171;
             cursor: pointer;
-            padding: 0 8px;
         }
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1e293b; }
         .cart-total { margin-top: 15px; text-align: right; font-weight: bold; border-top: 1px solid #1e293b; padding-top: 12px; }
         .remove-item { background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.2rem; }
+        .checkout-btn { background: #3b82f6; width: 100%; padding: 12px; border-radius: 40px; color: white; font-weight: bold; margin-top: 20px; cursor: pointer; border: none; }
 
         /* Toast */
         .toast {
@@ -311,6 +326,7 @@
             70% { opacity: 1; transform: translateX(0); }
             100% { opacity: 0; transform: translateX(100px); display: none; }
         }
+
         .footer { background: #0f172a; border-top: 1px solid #1e293b; padding: 2rem 1rem; margin-top: 2rem; text-align: center; }
         .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; }
         .social-links a { color: #cbd5e6; text-decoration: none; font-size: 1rem; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s; }
@@ -321,6 +337,7 @@
             .container { padding: 1rem; }
             .logo { font-size: 1.3rem; }
             .logo-area { flex-direction: column; align-items: flex-start; }
+            .modal-content { width: 95%; }
         }
     </style>
 </head>
@@ -381,7 +398,7 @@
         <h3>Your Cart</h3>
         <div id="cartItemsList"></div>
         <div id="cartTotal" class="cart-total"></div>
-        <button id="checkoutBtn">📲 Checkout via Facebook</button>
+        <button id="checkoutBtn" class="checkout-btn">📲 Checkout via Facebook</button>
     </div>
 </div>
 
@@ -406,8 +423,9 @@
         <button class="close-modal-btn" onclick="document.getElementById('adminModal').style.display='none';">&times;</button>
         <h3 id="adminModalTitle">➕ Admin Controls</h3>
         <div id="adminModalBody">
-            <!-- Form will be inserted dynamically -->
+            <!-- Dynamic form appears here -->
         </div>
+        <button id="adminLogoutBtn" style="background:#ef4444; margin-top: 10px;">🚪 Logout Admin</button>
     </div>
 </div>
 
@@ -591,6 +609,18 @@
     function setEditMode(editing, item) {
         editingItemId = editing ? item.id : null;
         showAdminModal();
+    }
+
+    // Admin logout
+    async function adminLogout() {
+        isSiteAdmin = false;
+        sessionStorage.removeItem("admin_auth");
+        if (firebaseUser) {
+            await auth.signOut();
+        }
+        updateAdminUI();
+        document.getElementById("adminModal").style.display = "none";
+        showToast("Logged out as admin");
     }
 
     // Cart functions
@@ -790,7 +820,7 @@
         showToast("Request sent!");
     }
 
-    // Site admin login (no logout)
+    // Site admin login
     function login(u,p) {
         if (u===ADMIN_CRED.username && p===ADMIN_CRED.password) {
             isSiteAdmin = true;
@@ -824,6 +854,7 @@
     document.getElementById("searchInput").addEventListener("input", (e) => { currentSearchTerm=e.target.value; applyFiltersAndRender(); });
     document.getElementById("clearFiltersBtn").onclick = () => { currentSearchTerm=""; currentCategoryFilter="all"; document.getElementById("searchInput").value=""; renderCategoryChips(); applyFiltersAndRender(); };
     document.getElementById("submitCommentBtn").onclick = () => { const name=document.getElementById("commentName").value, msg=document.getElementById("commentMessage").value; addComment(name,msg).then(()=>{ document.getElementById("commentMessage").value=""; }); };
+    document.getElementById("adminLogoutBtn").onclick = adminLogout;
     window.onclick = (e) => { if (e.target.classList.contains("modal")) e.target.style.display = "none"; };
 
     // Load initial data
