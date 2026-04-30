@@ -448,22 +448,22 @@
     }
 
     // Optional: after redirect back, verify payment success
-    function checkPaymentSuccess() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const paymentIntent = urlParams.get('payment_intent');
-        const redirectStatus = urlParams.get('redirect_status');
-        if (paymentIntent && redirectStatus === 'succeeded') {
-            // Payment succeeded – clear cart and show success
-            cart = [];
-            saveCart();
-            showToast("✅ Payment successful! Your order has been placed.");
-            // Optionally remove pending data
-            localStorage.removeItem("pendingPaymentId");
-            localStorage.removeItem("pendingCart");
-            // Remove query params from URL (clean)
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
+ function checkPaymentSuccess() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentIntent = urlParams.get('payment_intent');
+    const redirectStatus = urlParams.get('redirect_status');
+    if (paymentIntent && redirectStatus === 'succeeded') {
+        // Payment succeeded – clear cart and show success
+        cart = [];
+        saveCart();
+        showToast("✅ Payment successful! Your order has been placed.");
+        // Optionally remove pending data
+        localStorage.removeItem("pendingPaymentId");
+        localStorage.removeItem("pendingCart");
+        // Remove query params from URL (clean)
+        window.history.replaceState({}, document.title, window.location.pathname);
     }
+}
 
     // Item modal (unchanged)
     function showItemModal(item) { /* unchanged – same as original */ }
