@@ -421,25 +421,162 @@
 
     // Ratings
     async function loadRatings() { database.ref('ratings').on('value', (s) => { ratings = s.val() || {}; applyFiltersAndRender(); }); }
-    async function submitRating(itemId, stars) { /* same as original */ }
+    async function submitRating(itemId, stars) {
+        if (localStorage.getItem(`rated_${itemId}`)) { alert("Already rated."); return; }
+        const ref = database.ref(`ratings/${itemId}`);
+        await ref.transaction(cur => {
+            if (!cur) return { avg: stars, count: 1 };
+            const newAvg = (cur.avg * cur.count + stars) / (cur.count + 1);
+            return { avg: newAvg, count: cur.count + 1 };
+        });
+        localStorage.setItem(`rated_${itemId}`, stars);
+        showToast("Thank you for rating!");
+    }
 
     // Comments
-    async function loadComments() { /* same as original */ }
-    async function addComment(name, msg) { /* same as original */ }
-    async function deleteComment(id) { /* same as original */ }
-    function renderComments() { /* same as original */ }
+    async function loadComments() {
+        database.ref('comments').on('value', (snapshot) => {
+            const data = snapshot.val();
+            comments = data ? Object.entries(data).map(([id,c]) => ({ id, ...c })).sort((a,b)=>b.timestamp-a.timestamp) : [];
+            renderComments();
+        });
+    }
+    async function addComment(name, msg) {
+        if (!msg.trim()) return alert("Enter message");
+        await database.ref('comments').push({ name: name.trim()||"Anonymous", message: msg.trim(), timestamp: Date.now() });
+        showToast("Comment posted!");
+    }
+    async function deleteComment(id) {
+        if (!firebaseUser) return alert("Admin only");
+        await database.ref(`comments/${id}`).remove();
+    }
+    function renderComments() {
+        const container = document.getElementById("commentsList");
+        if (!container) return;
+        if (comments.length===0) { container.innerHTML="<p>No comments yet.</p>"; return; }
+        let html = "";
+        comments.forEach(c => {
+            html += `<div class="comment"><div class="comment-header"><span class="comment-name">${escapeHtml(c.name)}</span><span>${new Date(c.timestamp).toLocaleString()}</span>${firebaseUser ? `<button class="delete-comment" data-id="${c.id}">Delete</button>` : ""}</div><div class="comment-text">${escapeHtml(c.message)}</div></div>`;
+        });
+        container.innerHTML = html;
+        if (firebaseUser) document.querySelectorAll(".delete-comment").forEach(btn => btn.addEventListener("click", () => deleteComment(btn.dataset.id)));
+    }
 
     // Rendering
-    function applyFiltersAndRender() { /* same as original */ }
-    function renderItemCard(item) { /* same as original */ }
-    function getUniqueCategories() { /* same as original */ }
-    function renderCategoryChips() { /* same as original */ }
+    function applyFiltersAndRender() {
+        const container = document.getElementById("catalogContainer");
+        if (!container) return;
+        let featured = catalogItems.filter(i=>i.featured);
+        let non = catalogItems.filter(i=>!i.featured);
+        if (currentSearchTerm.trim()) {
+            const term = currentSearchTerm.toLowerCase();
+            featured = featured.filter(i=>i.title.toLowerCase().includes(term) || (i.description && i.description.toLowerCase().includes(term)));
+            non = non.filter(i=>i.title.toLowerCase().includes(term) || (i.description && i.description.toLowerCase().includes(term)));
+        }
+        if (currentCategoryFilter !== "all") {
+            featured = featured.filter(i=>i.category===currentCategoryFilter);
+            non = non.filter(i=>i.category===currentCategoryFilter);
+        }
+        if (featured.length===0 && non.length===0) { container.innerHTML=`<div class="no-results">😕 No items match.</div>`; updateAdminUI(); return; }
+        let html = "";
+        if (featured.length) html += `<div class="category-section"><div class="category-title">⭐ Featured Items</div><div class="items-grid">`+featured.map(renderItemCard).join('')+`</div></div>`;
+        const grouped = {};
+        non.forEach(i=>{ if(!grouped[i.category]) grouped[i.category]=[]; grouped[i.category].push(i); });
+        for (let cat in grouped) html += `<div class="category-section"><div class="category-title">📁 ${escapeHtml(cat)}</div><div class="items-grid">`+grouped[cat].map(renderItemCard).join('')+`</div></div>`;
+        container.innerHTML = html;
+        // star rating events
+        document.querySelectorAll(".star-rating").forEach(starCont => {
+            const itemId = parseInt(starCont.dataset.id);
+            const stars = starCont.querySelectorAll(".star");
+            stars.forEach(star => {
+                star.addEventListener("click", () => submitRating(itemId, parseInt(star.dataset.value)));
+                star.addEventListener("mouseover", () => {
+                    const val = parseInt(star.dataset.value);
+                    stars.forEach((s,idx) => idx < val ? s.classList.add("hover") : s.classList.remove("hover"));
+                });
+                star.addEventListener("mouseout", () => stars.forEach(s => s.classList.remove("hover")));
+            });
+        });
+        // view button
+        document.querySelectorAll(".view-btn").forEach(btn => btn.addEventListener("click", (e) => {
+            const id = parseInt(btn.dataset.id);
+            const item = catalogItems.find(i=>i.id===id);
+            if (item) showItemModal(item);
+        }));
+        if (isSiteAdmin && firebaseUser) {
+            document.querySelectorAll(".delete-item").forEach(btn => btn.addEventListener("click", async(e) => { e.stopPropagation(); await deleteItem(parseInt(btn.dataset.id)); }));
+            document.querySelectorAll(".edit-item").forEach(btn => btn.addEventListener("click", (e) => { e.stopPropagation(); const item = catalogItems.find(i=>i.id===parseInt(btn.dataset.id)); if(item) setEditMode(true, item); }));
+        }
+        updateAdminUI();
+    }
+
+    function renderItemCard(item) {
+        const price = item.price||0;
+        const rating = ratings[item.id]||{ avg:0, count:0 };
+        const fullStars = Math.round(rating.avg);
+        let starsHtml = "";
+        for (let i=1; i<=5; i++) starsHtml += `<span class="star ${i<=fullStars?'active':''}" data-value="${i}">★</span>`;
+        return `<div class="item-card">
+            <div class="item-actions-admin"><button class="edit-item" data-id="${item.id}">✏️</button><button class="delete-item" data-id="${item.id}">✖</button></div>
+            ${item.featured ? '<div class="featured-badge">⭐ Featured</div>' : ''}
+            <img src="${escapeHtml(item.image)}" class="item-img" onerror="this.src='https://picsum.photos/id/1/300/200'">
+            <div class="item-info">
+                <div class="item-title">${escapeHtml(item.title)}</div>
+                <div class="item-category">${escapeHtml(item.category)}</div>
+                <div class="item-price">₱${price.toFixed(2)}</div>
+                <div class="rating"><div class="stars star-rating" data-id="${item.id}">${starsHtml}</div><span class="rating-count">(${rating.count})</span></div>
+                <button class="view-btn" data-id="${item.id}">🔍 View Details</button>
+            </div>
+        </div>`;
+    }
+
+    function getUniqueCategories() { return [...new Set(catalogItems.map(i=>i.category))].sort(); }
+    function renderCategoryChips() {
+        const container = document.getElementById("categoryChips");
+        if(!container) return;
+        const cats = getUniqueCategories();
+        let html = `<button class="filter-chip ${currentCategoryFilter==="all"?"active":""}" data-cat="all">All</button>`;
+        cats.forEach(c=>{ html += `<button class="filter-chip ${currentCategoryFilter===c?"active":""}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`; });
+        container.innerHTML = html;
+        document.querySelectorAll(".filter-chip").forEach(btn => btn.addEventListener("click", () => { currentCategoryFilter = btn.dataset.cat; renderCategoryChips(); applyFiltersAndRender(); }));
+    }
 
     // Request
-    function sendRequestToFB() { /* same as original */ }
+    function sendRequestToFB() {
+        const name = document.getElementById("requestItemName").value.trim();
+        const link = document.getElementById("requestLink").value.trim();
+        const details = document.getElementById("requestDetails").value.trim();
+        if (!name && !details) return alert("Please describe the item.");
+        let msg = "📦 *NEW MARKETPLACE REQUEST*\n\n";
+        if (name) msg += `Item: ${name}\n`;
+        if (link) msg += `Link: ${link}\n`;
+        if (details) msg += `Details: ${details}\n`;
+        msg += `\n— Sent from marketplace visitor`;
+        window.open(`https://m.me/${FACEBOOK_PAGE_ID}?text=${encodeURIComponent(msg)}`, "_blank");
+        document.getElementById("requestModal").style.display = "none";
+        document.getElementById("requestItemName").value = "";
+        document.getElementById("requestLink").value = "";
+        document.getElementById("requestDetails").value = "";
+        showToast("Request sent!");
+    }
 
     // Site admin login
-    function login(u,p) { /* same as original */ }
+    function login(u,p) {
+        if (u===ADMIN_CRED.username && p===ADMIN_CRED.password) {
+            isSiteAdmin = true;
+            sessionStorage.setItem("admin_auth", "true");
+            document.getElementById("loginModal").style.display = "none";
+            updateAdminUI();
+            showAdminModal();
+        } else document.getElementById("loginError").innerText = "Invalid credentials.";
+    }
+
+    // Firebase auth listener
+    auth.onAuthStateChanged((user) => {
+        firebaseUser = user;
+        updateAdminUI();
+        if (user) showToast("Firebase logged in as " + user.email);
+    });
 
     // Event listeners
     document.getElementById("adminIconBtn").onclick = () => {
