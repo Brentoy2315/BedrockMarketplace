@@ -246,7 +246,7 @@
         .comment-name { font-weight: bold; color: #60a5fa; }
         .delete-comment { background: none; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem; }
 
-        /* Modals – restored to original style (not full screen) */
+        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -301,6 +301,11 @@
             border: none;
             color: #f87171;
             cursor: pointer;
+        }
+        /* Preserve line breaks in description */
+        .description-text {
+            white-space: pre-wrap;
+            line-height: 1.5;
         }
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1e293b; }
         .cart-total { margin-top: 15px; text-align: right; font-weight: bold; border-top: 1px solid #1e293b; padding-top: 12px; }
@@ -566,7 +571,7 @@
             `;
             document.getElementById("saveEditBtn").onclick = async () => {
                 if (!firebaseUser) { alert("Firebase not logged in"); return; }
-                await updateItem(editingItemId, document.getElementById("editImage").value.trim(), document.getElementById("editTitle").value.trim(), document.getElementById("editCategory").value.trim(), document.getElementById("editPrice").value.trim(), document.getElementById("editFeatured").checked, document.getElementById("editDescription").value.trim());
+                await updateItem(editingItemId, document.getElementById("editImage").value.trim(), document.getElementById("editTitle").value.trim(), document.getElementById("editCategory").value.trim(), document.getElementById("editPrice").value.trim(), document.getElementById("editFeatured").checked, document.getElementById("editDescription").value);
                 editingItemId = null;
                 modal.style.display = "none";
                 showToast("Item updated!");
@@ -585,7 +590,7 @@
             `;
             document.getElementById("addNewItemBtn").onclick = async () => {
                 if (!firebaseUser) { alert("Firebase not logged in"); return; }
-                await addItem(document.getElementById("newImage").value.trim(), document.getElementById("newTitle").value.trim(), document.getElementById("newCategory").value.trim(), document.getElementById("newPrice").value.trim(), document.getElementById("newFeatured").checked, document.getElementById("newDescription").value.trim());
+                await addItem(document.getElementById("newImage").value.trim(), document.getElementById("newTitle").value.trim(), document.getElementById("newCategory").value.trim(), document.getElementById("newPrice").value.trim(), document.getElementById("newFeatured").checked, document.getElementById("newDescription").value);
                 modal.style.display = "none";
                 showToast("Item added!");
             };
@@ -652,7 +657,7 @@
         showToast("Order sent to Facebook!");
     }
 
-    // Item modal
+    // Item modal - with preserved line breaks in description
     function showItemModal(item) {
         const modal = document.getElementById("itemModal");
         const content = document.getElementById("itemModalContent");
@@ -660,6 +665,8 @@
         const fullStars = Math.round(rating.avg);
         let starsHtml = "";
         for (let i=1; i<=5; i++) starsHtml += `<span class="star ${i <= fullStars ? 'active' : ''}" style="cursor:default;">★</span>`;
+        // Convert newlines to <br> for proper display, and use white-space: pre-wrap as fallback
+        const descriptionHtml = (item.description || "").replace(/\n/g, '<br>');
         content.innerHTML = `
             <button class="close-modal-btn" onclick="document.getElementById('itemModal').style.display='none';">&times;</button>
             <h3>${escapeHtml(item.title)}</h3>
@@ -667,7 +674,8 @@
             <p><strong>Category:</strong> ${escapeHtml(item.category)}</p>
             <p><strong>Price:</strong> <span style="color:#fbbf24;">₱${(item.price||0).toFixed(2)}</span></p>
             <div class="rating"><div class="stars">${starsHtml}</div><span>(${rating.count} votes)</span></div>
-            <p><strong>Description:</strong><br>${escapeHtml(item.description) || "No description."}</p>
+            <p><strong>Description:</strong></p>
+            <div class="description-text">${descriptionHtml}</div>
             <button id="modalAddToCartBtn">➕ Add to Cart</button>
         `;
         modal.style.display = "flex";
