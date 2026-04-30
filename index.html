@@ -13,62 +13,52 @@
         body { font-family: 'Inter', system-ui, sans-serif; background: #0a0c10; color: #eef2ff; display: flex; flex-direction: column; min-height: 100vh; }
         .container { max-width: 1300px; margin: 0 auto; padding: 2rem; flex: 1; }
 
-        /* Header: logo on top, buttons below */
-        .site-header { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #1e293b; }
-        .logo { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 1rem; text-align: center; }
-        .header-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 0.5rem; }
-        .visit-counter { background: #1e293b; padding: 0.5rem 1rem; border-radius: 40px; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; color: #fbbf24; }
-        .cart-icon, .suggestion-btn { background: #1e293b; border: none; color: #f1f5f9; padding: 0.5rem 1rem; border-radius: 40px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .cart-count { background: #3b82f6; color: white; border-radius: 30px; padding: 0 8px; font-size: 0.75rem; font-weight: bold; }
-        .admin-btn { background-color: #334155; color: #f1f5f9; border: none; padding: 0.5rem 1rem; border-radius: 40px; font-weight: 600; cursor: pointer; }
-
-        /* ====== FIXED WIDTH CAROUSEL – NO HORIZONTAL RESIZE ====== */
-        .announcement-carousel {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border-radius: 20px;
+        /* Header: logo left, icons right */
+        .site-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 2rem;
-            border-left: 6px solid #fbbf24;
-            width: 100%;                      /* always full width of parent */
-            max-width: 100%;                  /* never exceed parent */
-            box-sizing: border-box;
-            overflow-x: hidden;               /* prevent horizontal scroll */
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #1e293b;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-        
-        .carousel-container {
-            position: relative;
-            width: 100%;
+        .logo-area {
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 1rem 2.5rem;
-            box-sizing: border-box;
-            overflow-x: hidden;               /* extra safe */
+            gap: 1rem;
+            flex-wrap: wrap;
         }
-        
-        .carousel-slide {
-            display: none;
-            text-align: center;
-            font-size: 1rem;
-            line-height: 1.4;
-            width: 100%;                      /* each slide takes full width of container */
-            max-width: 100%;
-            word-wrap: break-word;            /* break long words */
-            overflow-wrap: break-word;
-            box-sizing: border-box;
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
-        .carousel-slide.active {
-            display: block;
+        .visit-counter {
+            background: #1e293b;
+            padding: 0.3rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #fbbf24;
         }
-        .carousel-slide a { color: #fbbf24; text-decoration: none; }
-        .carousel-prev, .carousel-next {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.5);
-            color: white;
+        .header-icons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .icon-btn {
+            background: #1e293b;
             border: none;
-            width: 32px;
-            height: 32px;
+            color: #f1f5f9;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             cursor: pointer;
             font-size: 1.2rem;
@@ -76,40 +66,115 @@
             align-items: center;
             justify-content: center;
             transition: background 0.2s;
+            position: relative;
+        }
+        .icon-btn:hover { background: #334155; }
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 30px;
+            padding: 0 6px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .admin-btn { background-color: #334155; }
+
+        /* Filter bar */
+        .filter-bar {
+            background: #0f172a;
+            border-radius: 28px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #1e293b;
+        }
+        .search-box {
+            width: 100%;
+            padding: 12px 18px;
+            background: #020617;
+            border: 1px solid #334155;
+            border-radius: 48px;
+            font-size: 1rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .filter-chip {
+            background: #1e293b;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            color: #cbd5e6;
+            cursor: pointer;
+        }
+        .filter-chip.active { background: #3b82f6; color: white; }
+        .clear-filters {
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #f87171;
+            padding: 6px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        /* Request button below search bar */
+        .request-section {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+        .request-btn {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 0.6rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Items grid */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.8rem;
+        }
+        .item-card {
+            background: #111827;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid #1e293b;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .item-card:hover { transform: translateY(-5px); box-shadow: 0 20px 30px -10px black; }
+        .featured-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #fbbf24;
+            color: #0a0c10;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 30px;
             z-index: 10;
         }
-        .carousel-prev { left: 8px; }
-        .carousel-next { right: 8px; }
-        .carousel-prev:hover, .carousel-next:hover { background: rgba(0,0,0,0.8); }
-        .carousel-dots { text-align: center; padding: 8px 0; background: rgba(0,0,0,0.3); }
-        .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #64748b; margin: 0 4px; cursor: pointer; }
-        .dot.active { background: #fbbf24; }
-        @keyframes fadeEffect { from { opacity: 0.4; } to { opacity: 1; } }
-
-        /* Filter bar, admin dashboard, cards, comments, footer (unchanged) */
-        .filter-bar { background: #0f172a; border-radius: 28px; padding: 1.2rem 1.5rem; margin-bottom: 2rem; border: 1px solid #1e293b; }
-        .search-box { width: 100%; padding: 12px 18px; background: #020617; border: 1px solid #334155; border-radius: 48px; font-size: 1rem; color: white; margin-bottom: 1rem; }
-        .category-filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-        .filter-chip { background: #1e293b; border: none; padding: 6px 16px; border-radius: 40px; color: #cbd5e6; cursor: pointer; }
-        .filter-chip.active { background: #3b82f6; color: white; }
-        .clear-filters { background: transparent; border: 1px solid #ef4444; color: #f87171; padding: 6px 16px; border-radius: 40px; cursor: pointer; }
-        .admin-dashboard { display: none; background: #0f172a; padding: 2rem; border-radius: 28px; margin-bottom: 2rem; border: 1px solid #1e293b; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .form-group label { color: #cbd5e1; }
-        .form-group input, .form-group textarea { padding: 12px; background: #020617; border: 1px solid #334155; border-radius: 16px; color: white; }
-        .checkbox-group { flex-direction: row; align-items: center; gap: 8px; }
-        .btn-primary { background: #3b82f6; color: white; padding: 12px 20px; border: none; border-radius: 40px; cursor: pointer; font-weight: bold; }
-        .btn-secondary { background: #475569; margin-left: 10px; }
-        .logout-btn { background: #475569; margin-left: 15px; }
-        .announcements-manager { margin-top: 20px; border-top: 1px solid #334155; padding-top: 20px; }
-        .announcement-item { background: #0f172a; border: 1px solid #1e293b; border-radius: 16px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-        .add-announcement-form { display: flex; gap: 10px; margin-top: 15px; }
-        .add-announcement-form input { flex: 1; padding: 8px 12px; background: #020617; border: 1px solid #334155; border-radius: 40px; color: white; }
-        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.8rem; }
-        .item-card { background: #111827; border-radius: 24px; overflow: hidden; border: 1px solid #1e293b; position: relative; }
-        .item-card:hover { transform: translateY(-5px); box-shadow: 0 20px 30px -10px black; }
-        .featured-badge { position: absolute; top: 8px; left: 8px; background: #fbbf24; color: #0a0c10; font-size: 0.7rem; font-weight: bold; padding: 4px 10px; border-radius: 30px; z-index: 10; }
         .item-img { width: 100%; height: 160px; object-fit: cover; background: #1e293b; }
         .item-info { padding: 1rem; }
         .item-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 0.25rem; padding-right: 30px; }
@@ -121,67 +186,162 @@
         .star.active { color: #fbbf24; }
         .star.hover { color: #fde047; }
         .rating-count { color: #94a3b8; font-size: 0.75rem; }
-        .add-to-cart { background: #10b981; color: white; padding: 8px 16px; border-radius: 40px; border: none; cursor: pointer; width: 100%; margin-top: 8px; }
-        .item-actions-admin { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; z-index: 10; display: none; }
+        .view-btn {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+        .item-actions-admin {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 6px;
+            z-index: 20;
+            display: none;
+        }
         .admin-mode .item-actions-admin { display: flex; }
-        .delete-item, .edit-item { background: rgba(0,0,0,0.7); border: none; width: 28px; height: 28px; border-radius: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .delete-item { color: #f87171; } .edit-item { color: #60a5fa; }
-        .category-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; border-left: 5px solid #60a5fa; padding-left: 15px; margin-top: 1rem; }
+        .delete-item, .edit-item {
+            background: rgba(0,0,0,0.7);
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .delete-item { color: #f87171; }
+        .edit-item { color: #60a5fa; }
+        .category-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            border-left: 5px solid #60a5fa;
+            padding-left: 15px;
+            margin-top: 1rem;
+        }
         .no-results { text-align: center; padding: 3rem; color: #94a3b8; background: #0f172a; border-radius: 28px; }
-        .comments-section { background: #0f172a; border-radius: 28px; padding: 1.5rem; margin-top: 3rem; border: 1px solid #1e293b; }
+
+        /* Comments section (unchanged) */
+        .comments-section {
+            background: #0f172a;
+            border-radius: 28px;
+            padding: 1.5rem;
+            margin-top: 3rem;
+            border: 1px solid #1e293b;
+        }
         .comments-title { font-size: 1.5rem; margin-bottom: 1rem; border-left: 5px solid #60a5fa; padding-left: 15px; }
         .comment-form { display: flex; flex-direction: column; gap: 12px; margin-bottom: 2rem; background: #111827; padding: 1rem; border-radius: 20px; }
         .comment-form input, .comment-form textarea { padding: 10px; background: #020617; border: 1px solid #334155; border-radius: 16px; color: white; font-family: inherit; }
-        .comment-form textarea { resize: vertical; min-height: 80px; }
         .comment { background: #111827; border-radius: 16px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #1e293b; }
         .comment-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8rem; color: #94a3b8; flex-wrap: wrap; gap: 8px; }
         .comment-name { font-weight: bold; color: #60a5fa; }
-        .comment-text { word-break: break-word; line-height: 1.4; }
         .delete-comment { background: none; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem; }
-        .cart-modal, .suggestion-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1001; justify-content: center; align-items: center; }
-        .cart-modal-content, .suggestion-modal-content { background: #0f172a; max-width: 500px; width: 90%; border-radius: 28px; padding: 1.5rem; border: 1px solid #1e293b; max-height: 80vh; overflow-y: auto; }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #0f172a;
+            max-width: 500px;
+            width: 90%;
+            border-radius: 28px;
+            padding: 1.5rem;
+            border: 1px solid #1e293b;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 { margin-bottom: 1rem; color: #e2e8f0; }
+        .modal-content label { display: block; margin: 10px 0 5px; color: #94a3b8; }
+        .modal-content input, .modal-content textarea, .modal-content select {
+            width: 100%;
+            padding: 10px;
+            background: #020617;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            color: white;
+            margin-bottom: 10px;
+        }
+        .modal-content textarea { resize: vertical; }
+        .modal-content button { margin-top: 10px; }
+        .close-modal {
+            background: #475569;
+            margin-top: 15px;
+            width: 100%;
+        }
+        .cart-modal-content { max-width: 500px; }
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1e293b; }
         .cart-total { margin-top: 15px; text-align: right; font-weight: bold; border-top: 1px solid #1e293b; padding-top: 12px; }
         .remove-item { background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.2rem; }
-        .checkout-btn, .send-suggestion-btn { background: #3b82f6; width: 100%; padding: 12px; border: none; border-radius: 40px; color: white; font-weight: bold; margin-top: 20px; cursor: pointer; }
-        .close-cart, .close-suggestion { background: #475569; margin-top: 10px; }
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index:1000; justify-content:center; align-items:center; }
-        .modal-content { background: #1e293b; padding: 2rem; border-radius: 28px; width: 90%; max-width: 400px; text-align: center; }
-        .modal-content input { width: 100%; padding: 12px; margin: 12px 0; background: #0f172a; border: 1px solid #334155; border-radius: 16px; color: white; }
-        .error-msg { color: #f87171; }
-        .firebase-status { background: #1e293b; padding: 6px 12px; border-radius: 24px; font-size: 0.7rem; margin-left: 10px; }
+        .checkout-btn { background: #3b82f6; width: 100%; padding: 12px; border-radius: 40px; color: white; font-weight: bold; margin-top: 20px; cursor: pointer; border: none; }
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            z-index: 2000;
+            animation: fadeOut 2s ease forwards;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: translateX(0); }
+            70% { opacity: 1; transform: translateX(0); }
+            100% { opacity: 0; transform: translateX(100px); display: none; }
+        }
+        /* Footer */
         .footer { background: #0f172a; border-top: 1px solid #1e293b; padding: 2rem 1rem; margin-top: 2rem; text-align: center; }
-        .footer-content { max-width: 1300px; margin: 0 auto; }
         .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; }
         .social-links a { color: #cbd5e6; text-decoration: none; font-size: 1rem; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s; }
         .social-links a:hover { color: #60a5fa; }
         .copyright { font-size: 0.8rem; color: #64748b; }
-        @media (max-width: 700px) { .container { padding: 1rem; } .form-grid { grid-template-columns: 1fr; } .logo { font-size: 1.4rem; } }
+
+        @media (max-width: 700px) {
+            .container { padding: 1rem; }
+            .logo { font-size: 1.3rem; }
+            .logo-area { flex-direction: column; align-items: flex-start; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- Header: Logo left, icons right -->
     <div class="site-header">
-        <div class="logo">ʙʀᴇɴᴛᴏʏʏʏ ᴍᴀʀᴋᴇᴛᴘʟᴀᴄᴇ</div>
-        <div class="header-actions">
+        <div class="logo-area">
+            <div class="logo">ʙʀᴇɴᴛᴏʏʏʏ ᴍᴀʀᴋᴇᴛᴘʟᴀᴄᴇ</div>
             <div class="visit-counter" id="visitCounter">👁️ Visits: ...</div>
-            <button id="cartButton" class="cart-icon">🛒 Cart <span id="cartCount" class="cart-count">0</span></button>
-            <button id="suggestionBtn" class="suggestion-btn">💬 Suggestion</button>
-            <button id="adminLoginBtn" class="admin-btn">🔐 Admin</button>
+        </div>
+        <div class="header-icons">
+            <button id="cartButton" class="icon-btn" title="Cart">🛒<span id="cartCount" class="cart-count">0</span></button>
+            <button id="adminIconBtn" class="icon-btn" title="Admin">👤</button>
         </div>
     </div>
 
-    <!-- Announcement Carousel – width stays constant -->
-    <div id="announcementCarousel" class="announcement-carousel" style="display: none;">
-        <div class="carousel-container">
-            <button class="carousel-prev" id="carouselPrev">❮</button>
-            <button class="carousel-next" id="carouselNext">❯</button>
-            <div id="carouselSlides"></div>
-        </div>
-        <div class="carousel-dots" id="carouselDots"></div>
-    </div>
-
+    <!-- Filter bar -->
     <div class="filter-bar">
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by title...">
         <div class="category-filters">
@@ -189,41 +349,13 @@
             <div id="categoryChips"></div>
             <button id="clearFiltersBtn" class="clear-filters">Clear all</button>
         </div>
+        <!-- Request button placed below search bar -->
+        <div class="request-section">
+            <button id="requestBtn" class="request-btn">📦 Request Minecraft Item</button>
+        </div>
     </div>
 
-    <div id="adminPanel" class="admin-dashboard">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>➕ Admin Controls</h2>
-            <div>
-                <button id="firebaseLoginBtn" class="admin-btn" style="background:#3b82f6; margin-right:10px;">🔑 Login to Firebase</button>
-                <button id="logoutBtn" class="admin-btn logout-btn">🚪 Logout</button>
-            </div>
-        </div>
-        <div style="margin-bottom: 30px;">
-            <h3 style="margin-bottom: 15px;" id="formTitle">Add New Item</h3>
-            <div class="form-grid">
-                <div class="form-group"><label>Image URL:</label><input type="text" id="itemImage" placeholder="https://..."></div>
-                <div class="form-group"><label>Title:</label><input type="text" id="itemTitle" placeholder="e.g., Dragon Slayer Pack"></div>
-                <div class="form-group"><label>Category:</label><input type="text" id="itemCategory" placeholder="e.g., Addons / Worlds"></div>
-                <div class="form-group"><label>Price (₱ PHP):</label><input type="number" id="itemPrice" step="1" value="0"></div>
-                <div class="form-group checkbox-group"><label><input type="checkbox" id="itemFeatured"> ⭐ Featured Item</label></div>
-            </div>
-            <div>
-                <button id="addItemBtn" class="btn-primary">➕ Add Item</button>
-                <button id="cancelEditBtn" class="btn-primary btn-secondary" style="display: none;">Cancel Edit</button>
-            </div>
-        </div>
-        <div class="announcements-manager">
-            <h3>📢 Manage Announcements (Carousel)</h3>
-            <div id="announcementsList"></div>
-            <div class="add-announcement-form">
-                <input type="text" id="newAnnouncementText" placeholder="New announcement (supports HTML links)">
-                <button id="addAnnouncementBtn" class="btn-primary" style="padding: 8px 16px;">➕ Add</button>
-            </div>
-        </div>
-        <p style="font-size:0.8rem; margin-top:20px; color:#94a3b8;">⚡ Admin: Hover over any card to see Edit/Delete buttons. <span id="fbStatus" class="firebase-status" style="background:#ef4444;">⚠️ Not logged to Firebase</span></p>
-    </div>
-
+    <!-- Catalog Container -->
     <div id="catalogContainer"></div>
 
     <!-- Global Comments Section -->
@@ -239,33 +371,76 @@
 </div>
 
 <footer class="footer">
-    <div class="footer-content">
-        <div class="social-links">
-            <a href="https://ko-fi.com/devbrentoyyy" target="_blank">☕ 𝐊𝐎-𝐅𝐈</a>
-            <a href="https://www.tiktok.com/@dev.brentoyyy" target="_blank">🎵 𝐓𝐈𝐊𝐓𝐎𝐊</a>
-            <a href="https://www.youtube.com/@Brentoyyy2315" target="_blank">📺 𝐘𝐎𝐔𝐓𝐔𝐁𝐄</a>
-            <a href="https://www.facebook.com/share/1H2UhDELkR/" target="_blank">📘 𝐅𝐀𝐂𝐄𝐁𝐎𝐎𝐊</a>
-            <a href="mailto:brentsinoy2315@gmail.com">📧 𝐆𝐌𝐀𝐈𝐋</a>
-        </div>
-        <div class="copyright">© 2026 Dev. Brentoyyy. All rights reserved.</div>
+    <div class="social-links">
+        <a href="https://ko-fi.com/devbrentoyyy" target="_blank">☕ 𝐊𝐎-𝐅𝐈</a>
+        <a href="https://www.tiktok.com/@dev.brentoyyy" target="_blank">🎵 𝐓𝐈𝐊𝐓𝐎𝐊</a>
+        <a href="https://www.youtube.com/@Brentoyyy2315" target="_blank">📺 𝐘𝐎𝐔𝐓𝐔𝐁𝐄</a>
+        <a href="https://www.facebook.com/share/1H2UhDELkR/" target="_blank">📘 𝐅𝐀𝐂𝐄𝐁𝐎𝐎𝐊</a>
+        <a href="mailto:brentsinoy2315@gmail.com">📧 𝐆𝐌𝐀𝐈𝐋</a>
     </div>
+    <div class="copyright">© 2026 Dev. Brentoyyy. All rights reserved.</div>
 </footer>
 
 <!-- Cart Modal -->
-<div id="cartModal" class="cart-modal">
-    <div class="cart-modal-content"><h3>Your Cart</h3><div id="cartItemsList"></div><div id="cartTotal" class="cart-total"></div><button id="checkoutBtn" class="checkout-btn">📲 Checkout via Facebook</button><button id="closeCartBtn" class="checkout-btn close-cart">Close</button></div>
+<div id="cartModal" class="modal">
+    <div class="modal-content cart-modal-content">
+        <h3>Your Cart</h3>
+        <div id="cartItemsList"></div>
+        <div id="cartTotal" class="cart-total"></div>
+        <button id="checkoutBtn" class="checkout-btn">📲 Checkout via Facebook</button>
+        <button id="closeCartBtn" class="close-modal">Close</button>
+    </div>
 </div>
 
-<!-- Suggestion Modal -->
-<div id="suggestionModal" class="suggestion-modal">
-    <div class="suggestion-modal-content"><h3>💡 Send a Suggestion</h3><textarea id="suggestionText" rows="5" placeholder="What would you like to see?"></textarea><button id="sendSuggestionBtn" class="send-suggestion-btn">📨 Send to Facebook</button><button id="closeSuggestionBtn" class="send-suggestion-btn close-suggestion">Close</button></div>
+<!-- Request Modal -->
+<div id="requestModal" class="modal">
+    <div class="modal-content">
+        <h3>📦 Request an Item</h3>
+        <label>Item name / description</label>
+        <input type="text" id="requestItemName" placeholder="e.g., Dragon mount addon">
+        <label>Minecraft Marketplace link (optional)</label>
+        <input type="url" id="requestLink" placeholder="https://...">
+        <label>Additional details</label>
+        <textarea id="requestDetails" rows="3" placeholder="Why would you like this item?"></textarea>
+        <button id="sendRequestBtn" class="btn-primary">📨 Send Request to Facebook</button>
+        <button id="closeRequestBtn" class="close-modal">Cancel</button>
+    </div>
 </div>
 
-<!-- Login Modal -->
-<div id="loginModal" class="modal"><div class="modal-content"><h3>🔒 Admin Access Only</h3><input type="text" id="loginUser" placeholder="Username"><input type="password" id="loginPass" placeholder="Password"><button id="submitLogin">Login</button><div id="loginError" class="error-msg"></div></div></div>
+<!-- Admin Panel Modal -->
+<div id="adminModal" class="modal">
+    <div class="modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 id="adminModalTitle">➕ Admin Controls</h3>
+            <button id="closeAdminModalBtn" style="background:none; border:none; color:#f87171; font-size:1.5rem; cursor:pointer;">&times;</button>
+        </div>
+        <div id="adminModalBody">
+            <!-- Form will be inserted dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Login Modal (for site admin) -->
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <h3>🔒 Admin Access Only</h3>
+        <input type="text" id="loginUser" placeholder="Username">
+        <input type="password" id="loginPass" placeholder="Password">
+        <button id="submitLogin">Login</button>
+        <div id="loginError" class="error-msg"></div>
+        <button id="closeLoginModal" class="close-modal">Cancel</button>
+    </div>
+</div>
+
+<!-- Item Details Modal -->
+<div id="itemModal" class="modal">
+    <div class="modal-content" id="itemModalContent">
+        <!-- Filled dynamically -->
+    </div>
+</div>
 
 <script>
-    // Firebase config (your existing config)
+    // Firebase config (your existing)
     const firebaseConfig = {
         apiKey: "AIzaSyAco1a008Xxsc2t-7htzIF_tCDpEipQ8Sw",
         authDomain: "minecraft-marketplace-7227b.firebaseapp.com",
@@ -273,8 +448,7 @@
         projectId: "minecraft-marketplace-7227b",
         storageBucket: "minecraft-marketplace-7227b.firebasestorage.app",
         messagingSenderId: "76080707372",
-        appId: "1:76080707372:web:6e653bbfc45ddf3b4e9e89",
-        measurementId: "G-8LRMG5S33X"
+        appId: "1:76080707372:web:6e653bbfc45ddf3b4e9e89"
     };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
@@ -288,12 +462,18 @@
     let currentSearchTerm = "";
     let currentCategoryFilter = "all";
     let editingItemId = null;
-
-    let announcements = [];
-    let currentSlide = 0;
-    let autoSlideInterval = null;
     let comments = [];
     let ratings = {};
+
+    // Helper functions
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+    function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerText = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
 
     // Global Visit Counter
     async function updateGlobalVisitCounter() {
@@ -305,92 +485,212 @@
         } catch (err) { counterElem.innerHTML = "👁️ Visits: --"; }
     }
 
-    function updateFirebaseStatusUI() {
-        const user = auth.currentUser;
-        const span = document.getElementById("fbStatus");
-        if (span) {
-            span.innerHTML = user ? `✅ Firebase: ${user.email}` : "⚠️ Not logged to Firebase (can't add/edit)";
-            span.style.background = user ? "#10b981" : "#ef4444";
-        }
+    // Auth state
+    let isSiteAdmin = false; // sessionStorage
+    let firebaseUser = null;
+    function updateAdminUI() {
+        const adminMode = isSiteAdmin && firebaseUser !== null;
+        document.body.classList.toggle('admin-mode', adminMode);
     }
 
-    // Catalog CRUD (unchanged)
+    // Catalog CRUD with description field
     function listenToCatalog() {
         database.ref('catalog').on('value', (snapshot) => {
             const data = snapshot.val();
-            catalogItems = data ? Object.entries(data).map(([key, item]) => ({ id: parseInt(key), ...item, featured: item.featured === true })) : [];
+            if (data) {
+                catalogItems = Object.entries(data).map(([key, item]) => ({ id: parseInt(key), ...item, featured: item.featured === true, description: item.description || '' }));
+            } else catalogItems = [];
             renderCategoryChips();
             applyFiltersAndRender();
         });
     }
 
     async function syncCatalogToFirebase() {
-        if (!auth.currentUser) throw new Error("Not authenticated");
+        if (!firebaseUser) throw new Error("Not authenticated to Firebase");
         const obj = {};
-        catalogItems.forEach(item => { obj[item.id] = { image: item.image, title: item.title, category: item.category, price: item.price, featured: item.featured }; });
+        catalogItems.forEach(item => {
+            obj[item.id] = {
+                image: item.image,
+                title: item.title,
+                category: item.category,
+                price: item.price,
+                featured: item.featured,
+                description: item.description || ''
+            };
+        });
         await database.ref('catalog').set(obj);
     }
 
-    async function addItem(img, title, cat, price, featured) {
+    async function addItem(image, title, category, price, featured, description) {
         const newId = Date.now();
-        const newItem = { id: newId, image: img || "https://picsum.photos/id/1/300/200", title: title||"Untitled", category: cat||"General", price: parseFloat(price)||0, featured };
+        const newItem = { id: newId, image: image || "https://picsum.photos/id/1/300/200", title: title||"Untitled", category: category||"General", price: parseFloat(price)||0, featured, description: description||'' };
         catalogItems.push(newItem);
         try { await syncCatalogToFirebase(); renderCategoryChips(); applyFiltersAndRender(); return true; }
         catch(e) { catalogItems.pop(); alert("Failed: "+e.message); return false; }
     }
 
-    async function updateItem(id, img, title, cat, price, featured) {
+    async function updateItem(id, image, title, category, price, featured, description) {
         const idx = catalogItems.findIndex(i=>i.id===id);
         if(idx===-1) return;
         const original = {...catalogItems[idx]};
-        catalogItems[idx] = {...catalogItems[idx], image: img||"https://picsum.photos/id/1/300/200", title: title||"Untitled", category: cat||"General", price: parseFloat(price)||0, featured};
+        catalogItems[idx] = { ...catalogItems[idx], image: image||"https://picsum.photos/id/1/300/200", title: title||"Untitled", category: category||"General", price: parseFloat(price)||0, featured, description: description||'' };
         try { await syncCatalogToFirebase(); renderCategoryChips(); applyFiltersAndRender(); setEditMode(false); }
         catch(e) { catalogItems[idx]=original; alert("Update failed: "+e.message); }
     }
 
     async function deleteItem(id) {
+        if (!confirm("Delete this item permanently?")) return;
         catalogItems = catalogItems.filter(i=>i.id!==id);
         try { await syncCatalogToFirebase(); renderCategoryChips(); applyFiltersAndRender(); renderCartModal(); }
         catch(e) { alert("Delete failed: "+e.message); listenToCatalog(); }
     }
 
-    function setEditMode(isEditing, item=null) {
-        const addBtn = document.getElementById("addItemBtn"), cancelBtn = document.getElementById("cancelEditBtn"), formTitle = document.getElementById("formTitle");
-        if(isEditing && item) {
-            addBtn.innerHTML="✏️ Update Item"; addBtn.style.background="#f59e0b"; cancelBtn.style.display="inline-block"; formTitle.innerHTML="✏️ Edit Item";
-            editingItemId=item.id;
-            document.getElementById("itemImage").value=item.image||""; document.getElementById("itemTitle").value=item.title||"";
-            document.getElementById("itemCategory").value=item.category||""; document.getElementById("itemPrice").value=item.price||0;
-            document.getElementById("itemFeatured").checked=item.featured===true;
-        } else {
-            addBtn.innerHTML="➕ Add Item"; addBtn.style.background="#3b82f6"; cancelBtn.style.display="none"; formTitle.innerHTML="Add New Item";
-            editingItemId=null; clearForm();
+    // Admin modal form (pop-up)
+    function showAdminModal() {
+        if (!isSiteAdmin) {
+            document.getElementById("loginModal").style.display = "flex";
+            return;
         }
+        if (!firebaseUser) {
+            alert("Please login to Firebase (use the Firebase Login button inside admin panel).");
+            // We'll add a Firebase login button inside the admin modal
+        }
+        const modal = document.getElementById("adminModal");
+        const modalBody = document.getElementById("adminModalBody");
+        const title = document.getElementById("adminModalTitle");
+        if (editingItemId !== null) {
+            title.innerText = "✏️ Edit Item";
+            const item = catalogItems.find(i => i.id === editingItemId);
+            modalBody.innerHTML = `
+                <div class="form-group"><label>Image URL:</label><input type="text" id="editImage" value="${escapeHtml(item.image)}"></div>
+                <div class="form-group"><label>Title:</label><input type="text" id="editTitle" value="${escapeHtml(item.title)}"></div>
+                <div class="form-group"><label>Category:</label><input type="text" id="editCategory" value="${escapeHtml(item.category)}"></div>
+                <div class="form-group"><label>Price (₱):</label><input type="number" id="editPrice" value="${item.price}"></div>
+                <div class="form-group"><label>Description:</label><textarea id="editDescription" rows="3">${escapeHtml(item.description)}</textarea></div>
+                <div class="checkbox-group"><label><input type="checkbox" id="editFeatured" ${item.featured ? 'checked' : ''}> ⭐ Featured Item</label></div>
+                <button id="saveEditBtn" class="btn-primary">💾 Save Changes</button>
+                <button id="cancelEditAdminBtn" class="close-modal">Cancel</button>
+                <div id="adminFirebaseStatus" style="margin-top:10px; font-size:0.8rem;"></div>
+            `;
+            document.getElementById("saveEditBtn").onclick = async () => {
+                if (!firebaseUser) { alert("Firebase not logged in"); return; }
+                const img = document.getElementById("editImage").value.trim();
+                const title = document.getElementById("editTitle").value.trim();
+                const cat = document.getElementById("editCategory").value.trim();
+                const price = document.getElementById("editPrice").value.trim();
+                const featured = document.getElementById("editFeatured").checked;
+                const desc = document.getElementById("editDescription").value.trim();
+                if (!title) return alert("Title required");
+                await updateItem(editingItemId, img, title, cat, price, featured, desc);
+                editingItemId = null;
+                modal.style.display = "none";
+                showToast("Item updated!");
+            };
+            document.getElementById("cancelEditAdminBtn").onclick = () => { modal.style.display = "none"; editingItemId = null; };
+        } else {
+            title.innerText = "➕ Add New Item";
+            modalBody.innerHTML = `
+                <div class="form-group"><label>Image URL:</label><input type="text" id="newImage" placeholder="https://..."></div>
+                <div class="form-group"><label>Title:</label><input type="text" id="newTitle" placeholder="e.g., Dragon Slayer Pack"></div>
+                <div class="form-group"><label>Category:</label><input type="text" id="newCategory" placeholder="e.g., Addons / Worlds"></div>
+                <div class="form-group"><label>Price (₱):</label><input type="number" id="newPrice" value="0"></div>
+                <div class="form-group"><label>Description:</label><textarea id="newDescription" rows="3" placeholder="Detailed description of the item..."></textarea></div>
+                <div class="checkbox-group"><label><input type="checkbox" id="newFeatured"> ⭐ Featured Item</label></div>
+                <button id="addNewItemBtn" class="btn-primary">➕ Add Item</button>
+                <button id="cancelAddAdminBtn" class="close-modal">Cancel</button>
+                <div id="adminFirebaseStatus" style="margin-top:10px; font-size:0.8rem;"></div>
+            `;
+            document.getElementById("addNewItemBtn").onclick = async () => {
+                if (!firebaseUser) { alert("Firebase not logged in"); return; }
+                const img = document.getElementById("newImage").value.trim();
+                const title = document.getElementById("newTitle").value.trim();
+                const cat = document.getElementById("newCategory").value.trim();
+                const price = document.getElementById("newPrice").value.trim();
+                const featured = document.getElementById("newFeatured").checked;
+                const desc = document.getElementById("newDescription").value.trim();
+                if (!title) return alert("Title required");
+                await addItem(img, title, cat, price, featured, desc);
+                modal.style.display = "none";
+                showToast("Item added!");
+            };
+            document.getElementById("cancelAddAdminBtn").onclick = () => modal.style.display = "none";
+        }
+        // Show Firebase login button inside modal if not logged in
+        if (!firebaseUser) {
+            const statusDiv = document.getElementById("adminFirebaseStatus");
+            if (statusDiv) statusDiv.innerHTML = `<button id="fbLoginModalBtn" class="btn-primary" style="background:#3b82f6;">🔑 Login to Firebase</button>`;
+            document.getElementById("fbLoginModalBtn")?.addEventListener("click", async () => {
+                const email = prompt("Firebase Admin Email:");
+                const pw = prompt("Password:");
+                if (email && pw) {
+                    try { await auth.signInWithEmailAndPassword(email, pw); alert("Firebase logged in!"); location.reload(); } catch(e) { alert("Login failed"); }
+                }
+            });
+        } else {
+            const statusDiv = document.getElementById("adminFirebaseStatus");
+            if (statusDiv) statusDiv.innerHTML = `<span style="color:#10b981;">✅ Firebase: ${firebaseUser.email}</span>`;
+        }
+        modal.style.display = "flex";
     }
-    function clearForm() { ["itemImage","itemTitle","itemCategory","itemPrice"].forEach(id=>document.getElementById(id).value=""); document.getElementById("itemFeatured").checked=false; }
-    function cancelEdit() { setEditMode(false); }
-    function startEdit(item) { setEditMode(true, item); document.getElementById("adminPanel").scrollIntoView({ behavior:"smooth" }); }
 
-    // Cart
+    function setEditMode(isEditing, item) {
+        editingItemId = isEditing ? item.id : null;
+        showAdminModal(); // open modal in edit mode
+    }
+
+    // Cart functions
     function loadCart() { cart = JSON.parse(localStorage.getItem("cart")||"[]"); updateCartUI(); }
     function saveCart() { localStorage.setItem("cart",JSON.stringify(cart)); updateCartUI(); }
-    function addToCart(item) { if(!cart.some(c=>c.id===item.id)) { cart.push({...item}); saveCart(); } else alert("Already in cart."); }
+    function addToCart(item) {
+        if (!cart.some(c=>c.id===item.id)) {
+            cart.push({...item, description: undefined}); // description not needed in cart
+            saveCart();
+            showToast(`✅ ${item.title} added to cart!`);
+        } else { alert("Already in cart."); }
+    }
     function removeFromCart(id) { cart=cart.filter(i=>i.id!==id); saveCart(); renderCartModal(); }
-    function updateCartUI() { document.getElementById("cartCount").innerText=cart.length; }
+    function updateCartUI() { document.getElementById("cartCount").innerText = cart.length; }
     function renderCartModal() {
-        const container=document.getElementById("cartItemsList"), totalSpan=document.getElementById("cartTotal");
-        if(cart.length===0) { container.innerHTML="<p>Empty</p>"; totalSpan.innerHTML=""; return; }
-        let html="", total=0;
-        cart.forEach(i=>{ total+=i.price||0; html+=`<div class="cart-item"><div>${escapeHtml(i.title)}<div class="cart-item-price">₱${(i.price||0).toFixed(2)}</div></div><button class="remove-item" data-id="${i.id}">✖</button></div>`; });
-        container.innerHTML=html; totalSpan.innerHTML=`Total: ₱${total.toFixed(2)}`;
-        document.querySelectorAll(".remove-item").forEach(btn=>btn.addEventListener("click",()=>removeFromCart(parseInt(btn.dataset.id))));
+        const container = document.getElementById("cartItemsList"), totalSpan = document.getElementById("cartTotal");
+        if (cart.length === 0) { container.innerHTML = "<p>Your cart is empty.</p>"; totalSpan.innerHTML = ""; return; }
+        let html = "", total = 0;
+        cart.forEach(i => { total += i.price||0; html += `<div class="cart-item"><div>${escapeHtml(i.title)}<div class="cart-item-price">₱${(i.price||0).toFixed(2)}</div></div><button class="remove-item" data-id="${i.id}">✖</button></div>`; });
+        container.innerHTML = html; totalSpan.innerHTML = `Total: ₱${total.toFixed(2)}`;
+        document.querySelectorAll(".remove-item").forEach(btn => btn.addEventListener("click", () => removeFromCart(parseInt(btn.dataset.id))));
     }
     function checkoutViaFacebook() {
-        if(!cart.length) return alert("Cart empty");
-        let total=cart.reduce((s,i)=>s+(i.price||0),0);
-        let msg="🛒 *NEW ORDER*\n\n"+cart.map((i,idx)=>`${idx+1}. ${i.title} - ₱${(i.price||0).toFixed(2)}`).join("\n")+`\n\nTotal: ₱${total.toFixed(2)}`;
+        if (!cart.length) return alert("Cart empty");
+        let total = cart.reduce((s,i)=>s+(i.price||0),0);
+        let msg = "🛒 *NEW ORDER*\n\n" + cart.map((i,idx)=>`${idx+1}. ${i.title} - ₱${(i.price||0).toFixed(2)}`).join("\n") + `\n\nTotal: ₱${total.toFixed(2)}`;
         window.open(`https://m.me/${FACEBOOK_PAGE_ID}?text=${encodeURIComponent(msg)}`,"_blank");
-        document.getElementById("cartModal").style.display="none";
+        document.getElementById("cartModal").style.display = "none";
+        showToast("Order sent to Facebook!");
+    }
+
+    // Item details modal
+    function showItemModal(item) {
+        const modal = document.getElementById("itemModal");
+        const content = document.getElementById("itemModalContent");
+        const rating = ratings[item.id] || { avg: 0, count: 0 };
+        const fullStars = Math.round(rating.avg);
+        let starsHtml = "";
+        for (let i=1; i<=5; i++) starsHtml += `<span class="star ${i <= fullStars ? 'active' : ''}" style="cursor:default;">★</span>`;
+        content.innerHTML = `
+            <h3>${escapeHtml(item.title)}</h3>
+            <img src="${escapeHtml(item.image)}" style="width:100%; border-radius:16px; margin-bottom:1rem;" onerror="this.src='https://picsum.photos/id/1/300/200'">
+            <p><strong>Category:</strong> ${escapeHtml(item.category)}</p>
+            <p><strong>Price:</strong> <span style="color:#fbbf24;">₱${(item.price||0).toFixed(2)}</span></p>
+            <div class="rating"><div class="stars">${starsHtml}</div><span class="rating-count">(${rating.count} votes)</span></div>
+            <p><strong>Description:</strong><br>${escapeHtml(item.description) || "No description provided."}</p>
+            <button id="modalAddToCartBtn" class="add-to-cart" style="margin-top:1rem;">➕ Add to Cart</button>
+            <button id="closeItemModalBtn" class="close-modal" style="margin-top:1rem;">Close</button>
+        `;
+        modal.style.display = "flex";
+        document.getElementById("modalAddToCartBtn").onclick = () => {
+            addToCart({ id: item.id, title: item.title, category: item.category, price: item.price, image: item.image });
+            modal.style.display = "none";
+        };
+        document.getElementById("closeItemModalBtn").onclick = () => modal.style.display = "none";
     }
 
     // Ratings
@@ -407,9 +707,10 @@
             return { avg: newAvg, count: current.count + 1 };
         });
         localStorage.setItem(votedKey, stars);
+        showToast("Thank you for rating!");
     }
 
-    // Comments
+    // Comments (unchanged)
     async function loadComments() {
         database.ref('comments').on('value', (snapshot) => {
             const data = snapshot.val();
@@ -423,9 +724,10 @@
     async function addComment(name, message) {
         if (!message.trim()) return alert("Please enter a message.");
         await database.ref('comments').push({ name: name.trim() || "Anonymous", message: message.trim(), timestamp: Date.now() });
+        showToast("Comment posted!");
     }
     async function deleteComment(commentId) {
-        if (!auth.currentUser) return alert("Only admin can delete comments.");
+        if (!firebaseUser) return alert("Only admin can delete comments.");
         await database.ref(`comments/${commentId}`).remove();
     }
     function renderComments() {
@@ -435,15 +737,15 @@
         let html = "";
         comments.forEach(c => {
             const date = new Date(c.timestamp).toLocaleString();
-            html += `<div class="comment"><div class="comment-header"><span class="comment-name">${escapeHtml(c.name)}</span><span>${date}</span>${auth.currentUser ? `<button class="delete-comment" data-id="${c.id}">🗑️ Delete</button>` : ""}</div><div class="comment-text">${escapeHtml(c.message)}</div></div>`;
+            html += `<div class="comment"><div class="comment-header"><span class="comment-name">${escapeHtml(c.name)}</span><span>${date}</span>${firebaseUser ? `<button class="delete-comment" data-id="${c.id}">🗑️ Delete</button>` : ""}</div><div class="comment-text">${escapeHtml(c.message)}</div></div>`;
         });
         container.innerHTML = html;
-        if (auth.currentUser) {
+        if (firebaseUser) {
             document.querySelectorAll(".delete-comment").forEach(btn => btn.addEventListener("click", () => deleteComment(btn.dataset.id)));
         }
     }
 
-    // Rendering catalog with ratings (unchanged)
+    // Rendering catalog (cards with View button)
     function applyFiltersAndRender() {
         const container = document.getElementById("catalogContainer");
         if (!container) return;
@@ -451,8 +753,8 @@
         let nonFeatured = catalogItems.filter(i=>!i.featured);
         if(currentSearchTerm.trim()) {
             const term=currentSearchTerm.toLowerCase();
-            featuredItems=featuredItems.filter(i=>i.title.toLowerCase().includes(term));
-            nonFeatured=nonFeatured.filter(i=>i.title.toLowerCase().includes(term));
+            featuredItems=featuredItems.filter(i=>i.title.toLowerCase().includes(term) || (i.description && i.description.toLowerCase().includes(term)));
+            nonFeatured=nonFeatured.filter(i=>i.title.toLowerCase().includes(term) || (i.description && i.description.toLowerCase().includes(term)));
         }
         if(currentCategoryFilter!=="all") {
             featuredItems=featuredItems.filter(i=>i.category===currentCategoryFilter);
@@ -460,29 +762,20 @@
         }
         if(featuredItems.length===0 && nonFeatured.length===0) {
             container.innerHTML=`<div class="no-results">😕 No items match.</div>`;
-            updateAdminModeClass();
+            updateAdminUI();
             return;
         }
         let html="";
         if(featuredItems.length) {
-            html+=`<div class="category-section"><div class="category-title">⭐ Featured Items</div><div class="items-grid">`+featuredItems.map(renderItemCard).join('')+`</div></div>`;
+            html+=`<div class="category-section"><div class="category-title">⭐ Featured Items</div><div class="items-grid">`+featuredItems.map(item => renderItemCard(item)).join('')+`</div></div>`;
         }
         const grouped={};
         nonFeatured.forEach(i=>{ if(!grouped[i.category]) grouped[i.category]=[]; grouped[i.category].push(i); });
         for(let cat in grouped) {
-            html+=`<div class="category-section"><div class="category-title">📁 ${escapeHtml(cat)}</div><div class="items-grid">`+grouped[cat].map(renderItemCard).join('')+`</div></div>`;
+            html+=`<div class="category-section"><div class="category-title">📁 ${escapeHtml(cat)}</div><div class="items-grid">`+grouped[cat].map(item => renderItemCard(item)).join('')+`</div></div>`;
         }
         container.innerHTML=html;
-        document.querySelectorAll(".add-to-cart").forEach(btn=>btn.addEventListener("click",(e)=>{
-            const id=parseInt(btn.dataset.id), title=btn.dataset.title, cat=btn.dataset.category, price=parseFloat(btn.dataset.price), image=btn.dataset.image;
-            addToCart({id,title,category:cat,price,image});
-        }));
-        document.querySelectorAll(".delete-item").forEach(btn=>btn.addEventListener("click",async(e)=>{
-            e.stopPropagation(); if(confirm("Delete?")) await deleteItem(parseInt(btn.dataset.id));
-        }));
-        document.querySelectorAll(".edit-item").forEach(btn=>btn.addEventListener("click",(e)=>{
-            e.stopPropagation(); const item=catalogItems.find(i=>i.id==parseInt(btn.dataset.id)); if(item) startEdit(item);
-        }));
+        // Attach event listeners for ratings and view buttons
         document.querySelectorAll(".star-rating").forEach(starContainer => {
             const itemId = parseInt(starContainer.dataset.id);
             const stars = starContainer.querySelectorAll(".star");
@@ -495,8 +788,29 @@
                 star.addEventListener("mouseout", () => stars.forEach(s => s.classList.remove("hover")));
             });
         });
-        updateAdminModeClass();
+        document.querySelectorAll(".view-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const id = parseInt(btn.dataset.id);
+                const item = catalogItems.find(i => i.id === id);
+                if (item) showItemModal(item);
+            });
+        });
+        if (isSiteAdmin && firebaseUser) {
+            document.querySelectorAll(".delete-item").forEach(btn => btn.addEventListener("click", async(e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.dataset.id);
+                await deleteItem(id);
+            }));
+            document.querySelectorAll(".edit-item").forEach(btn => btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.dataset.id);
+                const item = catalogItems.find(i => i.id === id);
+                if (item) setEditMode(true, item);
+            }));
+        }
+        updateAdminUI();
     }
+
     function renderItemCard(item) {
         const price = item.price || 0;
         const rating = ratings[item.id] || { avg: 0, count: 0 };
@@ -504,7 +818,10 @@
         let starsHtml = "";
         for (let i=1; i<=5; i++) starsHtml += `<span class="star ${i <= fullStars ? 'active' : ''}" data-value="${i}">★</span>`;
         return `<div class="item-card">
-            <div class="item-actions-admin"><button class="edit-item" data-id="${item.id}">✏️</button><button class="delete-item" data-id="${item.id}">✖</button></div>
+            <div class="item-actions-admin">
+                <button class="edit-item" data-id="${item.id}">✏️</button>
+                <button class="delete-item" data-id="${item.id}">✖</button>
+            </div>
             ${item.featured ? '<div class="featured-badge">⭐ Featured</div>' : ''}
             <img src="${escapeHtml(item.image)}" class="item-img" onerror="this.src='https://picsum.photos/id/1/300/200'">
             <div class="item-info">
@@ -513,9 +830,9 @@
                 <div class="item-price">₱${price.toFixed(2)}</div>
                 <div class="rating">
                     <div class="stars star-rating" data-id="${item.id}">${starsHtml}</div>
-                    <span class="rating-count">(${rating.count} votes)</span>
+                    <span class="rating-count">(${rating.count})</span>
                 </div>
-                <button class="add-to-cart" data-id="${item.id}" data-title="${escapeHtml(item.title)}" data-category="${escapeHtml(item.category)}" data-price="${price}" data-image="${escapeHtml(item.image)}">➕ Add to Cart</button>
+                <button class="view-btn" data-id="${item.id}">🔍 View Details</button>
             </div>
         </div>`;
     }
@@ -531,114 +848,84 @@
         document.querySelectorAll(".filter-chip").forEach(btn=>btn.addEventListener("click",()=>{ currentCategoryFilter=btn.dataset.cat; renderCategoryChips(); applyFiltersAndRender(); }));
     }
 
-    // Announcements Carousel (unchanged logic)
-    function loadAnnouncements() {
-        database.ref('announcements').on('value', (snapshot) => {
-            const data = snapshot.val();
-            announcements = data && Array.isArray(data) ? data : (data ? Object.values(data) : ["✨ Welcome to Brentoyyy's Marketplace! ✨"]);
-            renderCarousel();
-            renderAnnouncementsManager();
-        });
-    }
-    async function saveAnnouncementsToFirebase() { if(!auth.currentUser) { alert("Login to Firebase"); return false; } await database.ref('announcements').set(announcements); return true; }
-    async function addAnnouncement(text) { if(!text.trim()) return; announcements.push(text.trim()); await saveAnnouncementsToFirebase(); }
-    async function deleteAnnouncement(idx) { announcements.splice(idx,1); if(!announcements.length) announcements=["✨ Welcome to Brentoyyy's Marketplace! ✨"]; await saveAnnouncementsToFirebase(); }
-    async function updateAnnouncement(idx,newText) { if(!newText.trim()) return; announcements[idx]=newText.trim(); await saveAnnouncementsToFirebase(); }
-    function renderCarousel() {
-        const carouselDiv=document.getElementById("announcementCarousel"), slidesDiv=document.getElementById("carouselSlides"), dotsDiv=document.getElementById("carouselDots");
-        if(!carouselDiv) return;
-        if(!announcements.length) { carouselDiv.style.display="none"; return; }
-        carouselDiv.style.display="block";
-        slidesDiv.innerHTML="";
-        announcements.forEach((t,i)=>{
-            const slide=document.createElement("div");
-            slide.className="carousel-slide"+(i===currentSlide?" active":"");
-            slide.innerHTML=`<div class="announcement-icon">📢</div><div class="announcement-text">${t}</div>`;
-            slidesDiv.appendChild(slide);
-        });
-        dotsDiv.innerHTML="";
-        announcements.forEach((_,i)=>{
-            const dot=document.createElement("span");
-            dot.className="dot"+(i===currentSlide?" active":"");
-            dot.addEventListener("click",()=>goToSlide(i));
-            dotsDiv.appendChild(dot);
-        });
-        if(currentSlide>=announcements.length) currentSlide=0;
-        showSlide(currentSlide);
-    }
-    function showSlide(idx) {
-        const slides = document.querySelectorAll(".carousel-slide");
-        const dots = document.querySelectorAll(".dot");
-        if(!slides.length) return;
-        slides.forEach((s,i)=>s.classList.toggle("active",i===idx));
-        dots.forEach((d,i)=>d.classList.toggle("active",i===idx));
-        currentSlide=idx;
-        resetAutoSlide();
-    }
-    function nextSlide() { goToSlide((currentSlide+1)%announcements.length); }
-    function prevSlide() { goToSlide((currentSlide-1+announcements.length)%announcements.length); }
-    function goToSlide(idx) { if(idx>=0 && idx<announcements.length) showSlide(idx); }
-    function startAutoSlide() { if(autoSlideInterval) clearInterval(autoSlideInterval); autoSlideInterval=setInterval(()=>nextSlide(),5000); }
-    function resetAutoSlide() { if(autoSlideInterval) { clearInterval(autoSlideInterval); startAutoSlide(); } }
-    function renderAnnouncementsManager() {
-        const container=document.getElementById("announcementsList");
-        if(!container) return;
-        if(!isAuthenticated() || !auth.currentUser) { container.innerHTML="<p>Login to Firebase to manage announcements.</p>"; return; }
-        if(!announcements.length) { container.innerHTML="<p>No announcements. Add one below.</p>"; return; }
-        let html="";
-        announcements.forEach((t,i)=>{ html+=`<div class="announcement-item"><div class="text">${escapeHtml(t)}</div><div><button class="edit-announcement" data-idx="${i}">✏️ Edit</button><button class="delete-announcement" data-idx="${i}">🗑️ Delete</button></div></div>`; });
-        container.innerHTML=html;
-        document.querySelectorAll(".edit-announcement").forEach(btn=>btn.addEventListener("click",async()=>{ const i=parseInt(btn.dataset.idx); const newText=prompt("Edit announcement:",announcements[i]); if(newText) await updateAnnouncement(i,newText); }));
-        document.querySelectorAll(".delete-announcement").forEach(btn=>btn.addEventListener("click",async()=>{ const i=parseInt(btn.dataset.idx); if(confirm("Delete?")) await deleteAnnouncement(i); }));
+    // Request
+    function sendRequestToFB() {
+        const name = document.getElementById("requestItemName").value.trim();
+        const link = document.getElementById("requestLink").value.trim();
+        const details = document.getElementById("requestDetails").value.trim();
+        if (!name && !details) return alert("Please describe the item you'd like.");
+        let msg = "📦 *NEW MARKETPLACE REQUEST*\n\n";
+        if (name) msg += `Item: ${name}\n`;
+        if (link) msg += `Link: ${link}\n`;
+        if (details) msg += `Details: ${details}\n`;
+        msg += `\n— Sent from marketplace visitor`;
+        window.open(`https://m.me/${FACEBOOK_PAGE_ID}?text=${encodeURIComponent(msg)}`, "_blank");
+        document.getElementById("requestModal").style.display = "none";
+        document.getElementById("requestItemName").value = "";
+        document.getElementById("requestLink").value = "";
+        document.getElementById("requestDetails").value = "";
+        showToast("Request sent to Facebook!");
     }
 
-    // Suggestion
-    function sendSuggestionToFB() { const sug=document.getElementById("suggestionText").value.trim(); if(!sug) return alert("Enter suggestion"); window.open(`https://m.me/${FACEBOOK_PAGE_ID}?text=${encodeURIComponent("💡 *SUGGESTION*\n"+sug)}`,"_blank"); document.getElementById("suggestionModal").style.display="none"; document.getElementById("suggestionText").value=""; alert("Sent!"); }
+    // Admin login (site)
+    function isAuthenticated() { return isSiteAdmin; }
+    function login(u,p) {
+        if(u===ADMIN_CRED.username && p===ADMIN_CRED.password) {
+            isSiteAdmin = true;
+            sessionStorage.setItem("admin_auth", "true");
+            document.getElementById("loginModal").style.display = "none";
+            updateAdminUI();
+            showAdminModal(); // open admin panel after login
+            return true;
+        } else { document.getElementById("loginError").innerText="Invalid credentials."; return false; }
+    }
+    function logout() {
+        isSiteAdmin = false;
+        sessionStorage.removeItem("admin_auth");
+        updateAdminUI();
+        showToast("Logged out as admin");
+    }
 
-    // Admin Auth
-    function isAuthenticated() { return sessionStorage.getItem("admin_auth")==="true"; }
-    function login(u,p) { if(u===ADMIN_CRED.username && p===ADMIN_CRED.password) { sessionStorage.setItem("admin_auth","true"); document.getElementById("loginModal").style.display="none"; document.getElementById("adminPanel").style.display="block"; applyFiltersAndRender(); renderAnnouncementsManager(); return true; } else { document.getElementById("loginError").innerText="Invalid credentials."; return false; } }
-    function logout() { sessionStorage.removeItem("admin_auth"); document.getElementById("adminPanel").style.display="none"; applyFiltersAndRender(); renderAnnouncementsManager(); }
-    function updateAdminModeClass() { if(isAuthenticated()) document.body.classList.add("admin-mode"); else document.body.classList.remove("admin-mode"); }
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+    // Firebase auth listener
+    auth.onAuthStateChanged((user) => {
+        firebaseUser = user;
+        updateAdminUI();
+        if (user) showToast("Firebase logged in as " + user.email);
+    });
 
-    // Firebase Login
-    async function firebaseLogin() { const email=prompt("Firebase Admin Email:"); if(!email) return; const pw=prompt("Password:"); if(!pw) return; try { await auth.signInWithEmailAndPassword(email,pw); alert("Logged in!"); updateFirebaseStatusUI(); renderAnnouncementsManager(); } catch(e) { alert("Login failed: "+e.message); } }
-
-    // Event Listeners (unchanged)
-    document.getElementById("adminLoginBtn").onclick=()=>{ if(isAuthenticated()) { const p=document.getElementById("adminPanel"); p.style.display=p.style.display==="none"?"block":"none"; if(p.style.display==="block") renderAnnouncementsManager(); } else document.getElementById("loginModal").style.display="flex"; };
-    document.getElementById("submitLogin").onclick=()=>login(document.getElementById("loginUser").value,document.getElementById("loginPass").value);
-    document.getElementById("logoutBtn").onclick=logout;
-    document.getElementById("firebaseLoginBtn").onclick=firebaseLogin;
-    document.getElementById("addItemBtn").onclick=async()=>{ if(!isAuthenticated() || !auth.currentUser) return alert("Login as site admin and Firebase first."); if(editingItemId!==null) { const img=document.getElementById("itemImage").value.trim(), title=document.getElementById("itemTitle").value.trim(), cat=document.getElementById("itemCategory").value.trim(), price=document.getElementById("itemPrice").value.trim(), featured=document.getElementById("itemFeatured").checked; if(!title) return alert("Title required"); await updateItem(editingItemId,img,title,cat,price,featured); } else { const img=document.getElementById("itemImage").value.trim(), title=document.getElementById("itemTitle").value.trim(), cat=document.getElementById("itemCategory").value.trim(), price=document.getElementById("itemPrice").value.trim(), featured=document.getElementById("itemFeatured").checked; if(!title) return alert("Title required"); await addItem(img,title,cat,price,featured); clearForm(); } };
-    document.getElementById("cancelEditBtn").onclick=cancelEdit;
-    document.getElementById("addAnnouncementBtn").onclick=async()=>{ if(!isAuthenticated()||!auth.currentUser) return alert("Login to Firebase first."); const txt=document.getElementById("newAnnouncementText").value.trim(); if(!txt) return; await addAnnouncement(txt); document.getElementById("newAnnouncementText").value=""; };
-    document.getElementById("searchInput").addEventListener("input",(e)=>{ currentSearchTerm=e.target.value; applyFiltersAndRender(); });
-    document.getElementById("clearFiltersBtn").onclick=()=>{ currentSearchTerm=""; currentCategoryFilter="all"; document.getElementById("searchInput").value=""; renderCategoryChips(); applyFiltersAndRender(); };
-    document.getElementById("cartButton").onclick=()=>{ renderCartModal(); document.getElementById("cartModal").style.display="flex"; };
-    document.getElementById("closeCartBtn").onclick=()=>document.getElementById("cartModal").style.display="none";
-    document.getElementById("checkoutBtn").onclick=checkoutViaFacebook;
-    document.getElementById("suggestionBtn").onclick=()=>document.getElementById("suggestionModal").style.display="flex";
-    document.getElementById("closeSuggestionBtn").onclick=()=>{ document.getElementById("suggestionModal").style.display="none"; document.getElementById("suggestionText").value=""; };
-    document.getElementById("sendSuggestionBtn").onclick=sendSuggestionToFB;
-    document.getElementById("carouselPrev")?.addEventListener("click",prevSlide);
-    document.getElementById("carouselNext")?.addEventListener("click",nextSlide);
-    document.getElementById("submitCommentBtn").onclick=()=>{ const name=document.getElementById("commentName").value, msg=document.getElementById("commentMessage").value; addComment(name,msg).then(()=>{ document.getElementById("commentMessage").value=""; }); };
-    window.onclick=(e)=>{ if(e.target===document.getElementById("cartModal")) document.getElementById("cartModal").style.display="none"; if(e.target===document.getElementById("suggestionModal")) document.getElementById("suggestionModal").style.display="none"; if(e.target===document.getElementById("loginModal")) document.getElementById("loginModal").style.display="none"; };
-
-    // Initialize
-    window.onload=()=>{
-        loadCart();
-        loadAnnouncements();
-        listenToCatalog();
-        loadRatings();
-        loadComments();
-        updateGlobalVisitCounter();
-        if(isAuthenticated()) document.getElementById("adminPanel").style.display="block";
-        updateFirebaseStatusUI();
-        auth.onAuthStateChanged(()=>{ updateFirebaseStatusUI(); if(auth.currentUser) renderAnnouncementsManager(); });
-        startAutoSlide();
+    // Event listeners
+    document.getElementById("adminIconBtn").onclick = () => {
+        if (isSiteAdmin && firebaseUser) showAdminModal();
+        else if (isSiteAdmin && !firebaseUser) {
+            alert("Please login to Firebase first.\nUse the Firebase login button inside admin panel.");
+            showAdminModal();
+        }
+        else document.getElementById("loginModal").style.display = "flex";
     };
+    document.getElementById("submitLogin").onclick = () => login(document.getElementById("loginUser").value, document.getElementById("loginPass").value);
+    document.getElementById("closeLoginModal").onclick = () => document.getElementById("loginModal").style.display = "none";
+    document.getElementById("cartButton").onclick = () => { renderCartModal(); document.getElementById("cartModal").style.display = "flex"; };
+    document.getElementById("closeCartBtn").onclick = () => document.getElementById("cartModal").style.display = "none";
+    document.getElementById("checkoutBtn").onclick = checkoutViaFacebook;
+    document.getElementById("requestBtn").onclick = () => document.getElementById("requestModal").style.display = "flex";
+    document.getElementById("sendRequestBtn").onclick = sendRequestToFB;
+    document.getElementById("closeRequestBtn").onclick = () => document.getElementById("requestModal").style.display = "none";
+    document.getElementById("searchInput").addEventListener("input", (e) => { currentSearchTerm=e.target.value; applyFiltersAndRender(); });
+    document.getElementById("clearFiltersBtn").onclick = () => { currentSearchTerm=""; currentCategoryFilter="all"; document.getElementById("searchInput").value=""; renderCategoryChips(); applyFiltersAndRender(); };
+    document.getElementById("submitCommentBtn").onclick = () => { const name=document.getElementById("commentName").value, msg=document.getElementById("commentMessage").value; addComment(name,msg).then(()=>{ document.getElementById("commentMessage").value=""; }); };
+    document.getElementById("closeAdminModalBtn").onclick = () => document.getElementById("adminModal").style.display = "none";
+    window.onclick = (e) => {
+        if (e.target.classList.contains("modal")) e.target.style.display = "none";
+    };
+
+    // Load initial data
+    loadCart();
+    listenToCatalog();
+    loadRatings();
+    loadComments();
+    updateGlobalVisitCounter();
+    isSiteAdmin = sessionStorage.getItem("admin_auth") === "true";
+    updateAdminUI();
 </script>
 </body>
 </html>
